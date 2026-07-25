@@ -1,0 +1,17 @@
+{
+  "status": "pending-measurement",
+  "requiredBeforeContractPromotion": true,
+  "method": {
+    "bundle": "production build output, compressed sizes",
+    "field": "28-day p75 where sufficient traffic exists",
+    "lab": "fixed mobile profile, three runs, median"
+  },
+  "routes": {
+    "portfolio-home": null,
+    "portfolio-project": null,
+    "network-idle": null,
+    "network-result": null,
+    "rolepacket-dashboard": null,
+    "rolepacket-application": null
+  }
+}
