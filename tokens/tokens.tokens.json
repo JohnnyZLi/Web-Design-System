@@ -1,0 +1,91 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "$extensions": {
+    "com.johnnyli.meta": {
+      "name": "Johnny Li Web Design System",
+      "version": "1.3.1",
+      "status": "implementation-candidate",
+      "source": "tokens/tokens.tokens.json"
+    }
+  },
+  "color": {
+    "$type": "color",
+    "canvas": {"$value":{"colorSpace":"srgb","components":[0.94902,0.937255,0.909804],"alpha":1.0,"hex":"#f2efe8"}},
+    "canvasDot": {"$value":{"colorSpace":"srgb","components":[0.090196,0.090196,0.078431],"alpha":0.035}},
+    "surface": {"$value":{"colorSpace":"srgb","components":[0.984314,0.972549,0.94902],"alpha":1.0,"hex":"#fbf8f2"}},
+    "surfaceMuted": {"$value":{"colorSpace":"srgb","components":[0.964706,0.94902,0.921569],"alpha":1.0,"hex":"#f6f2eb"}},
+    "surfaceStrong": {"$value":{"colorSpace":"srgb","components":[0.92549,0.898039,0.854902],"alpha":1.0,"hex":"#ece5da"}},
+    "surfaceInverse": {"$value":{"colorSpace":"srgb","components":[0.090196,0.090196,0.078431],"alpha":1.0,"hex":"#171714"}},
+    "ink": {"$value":{"colorSpace":"srgb","components":[0.090196,0.090196,0.078431],"alpha":1.0,"hex":"#171714"}},
+    "text": {"$value":{"colorSpace":"srgb","components":[0.247059,0.239216,0.219608],"alpha":1.0,"hex":"#3f3d38"}},
+    "muted": {"$value":{"colorSpace":"srgb","components":[0.439216,0.419608,0.392157],"alpha":1.0,"hex":"#706b64"}},
+    "textInverse": {"$value":{"colorSpace":"srgb","components":[0.94902,0.937255,0.909804],"alpha":1.0,"hex":"#f2efe8"}},
+    "mutedInverse": {"$value":{"colorSpace":"srgb","components":[0.780392,0.756863,0.717647],"alpha":1.0,"hex":"#c7c1b7"}},
+    "rule": {"$value":{"colorSpace":"srgb","components":[0.090196,0.090196,0.078431],"alpha":0.16}},
+    "ruleStrong": {"$value":{"colorSpace":"srgb","components":[0.090196,0.090196,0.078431],"alpha":0.28}},
+    "ruleInverse": {"$value":{"colorSpace":"srgb","components":[0.94902,0.937255,0.909804],"alpha":0.28}},
+    "overlay": {"$value":{"colorSpace":"srgb","components":[0.090196,0.090196,0.078431],"alpha":0.42}},
+    "accent": {"$value":{"colorSpace":"srgb","components":[0.623529,0.333333,0.243137],"alpha":1.0,"hex":"#9f553e"}},
+    "accentHover": {"$value":{"colorSpace":"srgb","components":[0.560784,0.301961,0.223529],"alpha":1.0,"hex":"#8f4d39"}},
+    "accentActive": {"$value":{"colorSpace":"srgb","components":[0.498039,0.258824,0.192157],"alpha":1.0,"hex":"#7f4231"}},
+    "accentDecorative": {"$value":{"colorSpace":"srgb","components":[0.647059,0.364706,0.270588],"alpha":1.0,"hex":"#a55d45"}},
+    "accentSoft": {"$value":{"colorSpace":"srgb","components":[0.85098,0.721569,0.647059],"alpha":1.0,"hex":"#d9b8a5"}},
+    "onAccent": {"$value":{"colorSpace":"srgb","components":[1.0,0.980392,0.956863],"alpha":1.0,"hex":"#fffaf4"}},
+    "dangerHover": {"$value":{"colorSpace":"srgb","components":[0.529412,0.207843,0.184314],"alpha":1.0,"hex":"#87352f"}},
+    "dangerActive": {"$value":{"colorSpace":"srgb","components":[0.454902,0.168627,0.152941],"alpha":1.0,"hex":"#742b27"}},
+    "placeholder": {"$value":{"colorSpace":"srgb","components":[0.466667,0.443137,0.411765],"alpha":1.0,"hex":"#777169"}},
+    "selectionBackground": {"$value":{"colorSpace":"srgb","components":[0.85098,0.721569,0.647059],"alpha":1.0,"hex":"#d9b8a5"}},
+    "selectionText": {"$value":{"colorSpace":"srgb","components":[0.090196,0.090196,0.078431],"alpha":1.0,"hex":"#171714"}},
+    "skeleton": {"$value":{"colorSpace":"srgb","components":[0.898039,0.87451,0.835294],"alpha":1.0,"hex":"#e5dfd5"}},
+    "focusRing": {"$value":{"colorSpace":"srgb","components":[0.486275,0.254902,0.184314],"alpha":1.0,"hex":"#7c412f"}},
+    "focusGapLight": {"$value":{"colorSpace":"srgb","components":[0.984314,0.972549,0.94902],"alpha":1.0,"hex":"#fbf8f2"}},
+    "focusGapDark": {"$value":{"colorSpace":"srgb","components":[0.090196,0.090196,0.078431],"alpha":1.0,"hex":"#171714"}}
+  },
+  "semantic": {
+    "success": {"$type":"color","text":{"$value":{"colorSpace":"srgb","components":[0.184314,0.435294,0.329412],"alpha":1.0,"hex":"#2f6f54"}},"surface":{"$value":{"colorSpace":"srgb","components":[0.905882,0.941176,0.917647],"alpha":1.0,"hex":"#e7f0ea"}},"border":{"$value":{"colorSpace":"srgb","components":[0.388235,0.576471,0.494118],"alpha":1.0,"hex":"#63937e"}}},
+    "warning": {"$type":"color","text":{"$value":{"colorSpace":"srgb","components":[0.490196,0.329412,0.121569],"alpha":1.0,"hex":"#7d541f"}},"surface":{"$value":{"colorSpace":"srgb","components":[0.952941,0.917647,0.862745],"alpha":1.0,"hex":"#f3eadc"}},"border":{"$value":{"colorSpace":"srgb","components":[0.627451,0.505882,0.345098],"alpha":1.0,"hex":"#a08158"}}},
+    "danger": {"$type":"color","text":{"$value":{"colorSpace":"srgb","components":[0.603922,0.25098,0.219608],"alpha":1.0,"hex":"#9a4038"}},"surface":{"$value":{"colorSpace":"srgb","components":[0.960784,0.898039,0.886275],"alpha":1.0,"hex":"#f5e5e2"}},"border":{"$value":{"colorSpace":"srgb","components":[0.713725,0.45098,0.427451],"alpha":1.0,"hex":"#b6736d"}}},
+    "info": {"$type":"color","text":{"$value":{"colorSpace":"srgb","components":[0.321569,0.435294,0.52549],"alpha":1.0,"hex":"#526f86"}},"surface":{"$value":{"colorSpace":"srgb","components":[0.929412,0.94902,0.960784],"alpha":1.0,"hex":"#edf2f5"}},"border":{"$value":{"colorSpace":"srgb","components":[0.466667,0.556863,0.631373],"alpha":1.0,"hex":"#778ea1"}}},
+    "violet": {"$type":"color","text":{"$value":{"colorSpace":"srgb","components":[0.403922,0.341176,0.45098],"alpha":1.0,"hex":"#675773"}},"surface":{"$value":{"colorSpace":"srgb","components":[0.933333,0.913725,0.941176],"alpha":1.0,"hex":"#eee9f0"}},"border":{"$value":{"colorSpace":"srgb","components":[0.556863,0.505882,0.592157],"alpha":1.0,"hex":"#8e8197"}}}
+  },
+  "font": {
+    "$type": "fontFamily",
+    "ui": {"$value":["ui-sans-serif","-apple-system","BlinkMacSystemFont","Segoe UI","Roboto","Helvetica","Arial","sans-serif"]},
+    "editorial": {"$value":["Iowan Old Style","Palatino Linotype","Book Antiqua","Georgia","serif"]},
+    "mono": {"$value":["ui-monospace","SFMono-Regular","Menlo","Consolas","monospace"]}
+  },
+  "type": {
+    "displaySize": {"$value":{"value":7.6,"unit":"rem"},"$type":"dimension","$extensions":{"com.johnnyli.css":{"value":"clamp(3.5rem, 7vw, 7.6rem)"}}},
+    "displayLeading": {"$value":0.9,"$type":"number"},
+    "pageTitleSize": {"$value":{"value":4,"unit":"rem"},"$type":"dimension","$extensions":{"com.johnnyli.css":{"value":"clamp(2.5rem, 5vw, 4rem)"}}},
+    "sectionSize": {"$value":{"value":3.4,"unit":"rem"},"$type":"dimension","$extensions":{"com.johnnyli.css":{"value":"clamp(2rem, 4vw, 3.4rem)"}}},
+    "cardTitleSize": {"$value":{"value":1.5,"unit":"rem"},"$type":"dimension","$extensions":{"com.johnnyli.css":{"value":"clamp(1.15rem, 1.5vw, 1.5rem)"}}},
+    "bodyLargeSize": {"$value":{"value":1.25,"unit":"rem"},"$type":"dimension","$extensions":{"com.johnnyli.css":{"value":"clamp(1.05rem, 1.4vw, 1.25rem)"}}},
+    "bodySize": {"$value":{"value":1,"unit":"rem"},"$type":"dimension"},
+    "bodyLeading": {"$value":1.6,"$type":"number"},
+    "metadataSize": {"$value":{"value":0.82,"unit":"rem"},"$type":"dimension"},
+    "eyebrowSize": {"$value":{"value":0.72,"unit":"rem"},"$type":"dimension"},
+    "eyebrowTracking": {"$value":{"value":0.14,"unit":"rem"},"$type":"dimension"}
+  },
+  "space": {"$type":"dimension","1":{"$value":{"value":4,"unit":"px"}},"2":{"$value":{"value":8,"unit":"px"}},"3":{"$value":{"value":12,"unit":"px"}},"4":{"$value":{"value":16,"unit":"px"}},"6":{"$value":{"value":24,"unit":"px"}},"8":{"$value":{"value":32,"unit":"px"}},"12":{"$value":{"value":48,"unit":"px"}},"16":{"$value":{"value":64,"unit":"px"}},"24":{"$value":{"value":96,"unit":"px"}},"32":{"$value":{"value":128,"unit":"px"}}},
+  "radius": {"$type":"dimension","sm":{"$value":{"value":8,"unit":"px"}},"md":{"$value":{"value":12,"unit":"px"}},"lg":{"$value":{"value":18,"unit":"px"}},"xl":{"$value":{"value":24,"unit":"px"}},"pill":{"$value":{"value":999,"unit":"px"}}},
+  "control": {"heightSm":{"$value":{"value":36,"unit":"px"},"$type":"dimension"},"heightMd":{"$value":{"value":44,"unit":"px"},"$type":"dimension"},"heightLg":{"$value":{"value":52,"unit":"px"},"$type":"dimension"},"paddingInline":{"$value":{"value":16,"unit":"px"},"$type":"dimension"},"disabledOpacity":{"$value":0.48,"$type":"number"}},
+  "layout": {
+    "contentMax":{"$value":{"value":1360,"unit":"px"},"$type":"dimension"},
+    "portfolioMax":{"$value":{"value":1328,"unit":"px"},"$type":"dimension"},
+    "readingWidth":{"$value":72,"$type":"number","$extensions":{"com.johnnyli.css":{"value":"72ch"}}},
+    "gutter":{"$value":{"value":52,"unit":"px"},"$type":"dimension","$extensions":{"com.johnnyli.css":{"value":"clamp(20px, 4vw, 52px)"}}},
+    "sectionGap":{"$value":{"value":128,"unit":"px"},"$type":"dimension","$extensions":{"com.johnnyli.css":{"value":"clamp(64px, 8vw, 128px)"}}},
+    "panelPadding":{"$value":{"value":32,"unit":"px"},"$type":"dimension","$extensions":{"com.johnnyli.css":{"value":"clamp(20px, 3vw, 32px)"}}},
+    "headerHeight":{"$value":{"value":82,"unit":"px"},"$type":"dimension"},
+    "sidebarWidth":{"$value":{"value":238,"unit":"px"},"$type":"dimension"}
+  },
+  "motion": {"easeOut":{"$value":[0.22,1,0.36,1],"$type":"cubicBezier"},"fast":{"$value":{"value":160,"unit":"ms"},"$type":"duration"},"base":{"$value":{"value":240,"unit":"ms"},"$type":"duration"},"slow":{"$value":{"value":420,"unit":"ms"},"$type":"duration"}},
+  "shadow": {
+    "$type":"shadow",
+    "low":{"$value":{"color":{"colorSpace":"srgb","components":[0.305882,0.215686,0.152941],"alpha":0.06},"offsetX":{"value":0,"unit":"px"},"offsetY":{"value":12,"unit":"px"},"blur":{"value":32,"unit":"px"},"spread":{"value":0,"unit":"px"}}},
+    "high":{"$value":{"color":{"colorSpace":"srgb","components":[0.305882,0.215686,0.152941],"alpha":0.11},"offsetX":{"value":0,"unit":"px"},"offsetY":{"value":28,"unit":"px"},"blur":{"value":80,"unit":"px"},"spread":{"value":0,"unit":"px"}}}
+  },
+  "z": {"$type":"number","base":{"$value":0},"sticky":{"$value":20},"header":{"$value":30},"menu":{"$value":60},"dialog":{"$value":80},"toast":{"$value":100}},
+  "icon": {"$type":"dimension","sm":{"$value":{"value":16,"unit":"px"}},"md":{"$value":{"value":20,"unit":"px"}},"lg":{"$value":{"value":24,"unit":"px"}}}
+}
