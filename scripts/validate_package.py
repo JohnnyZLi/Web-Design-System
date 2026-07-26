@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Validate the consumable Web Design System package contract."""
+"""Validate and release the consumable Web Design System package contract."""
 from __future__ import annotations
 
 from pathlib import Path
+import argparse
 import json
 import re
 import sys
+import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = ROOT / "package.json"
@@ -24,6 +26,14 @@ EXPECTED_FILES = {
     "styles/foundations.css",
     "styles/site-identity.css",
 }
+RELEASE_ADDITIONS = {
+    "package.json",
+    "version.json",
+    "scripts/validate_package.py",
+    "styles/index.css",
+    "styles/foundations.css",
+    "styles/site-identity.css",
+}
 RAW_COLOR = re.compile(r"#[0-9a-fA-F]{3,8}\b|\b(?:rgb|rgba|hsl|hsla)\(")
 TOKEN_DEFINITION = re.compile(r"(--jl-[a-z0-9-]+)\s*:")
 TOKEN_USE = re.compile(r"var\((--jl-[a-z0-9-]+)")
@@ -38,11 +48,15 @@ def read_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def package_version() -> str:
+    tokens = read_json(TOKENS_JSON)
+    return tokens["$extensions"]["com.johnnyli.meta"]["version"]
+
+
 def validate() -> None:
     package = read_json(PACKAGE)
     version_metadata = read_json(VERSION)
-    tokens = read_json(TOKENS_JSON)
-    token_version = tokens["$extensions"]["com.johnnyli.meta"]["version"]
+    token_version = package_version()
 
     if package.get("name") != EXPECTED_NAME:
         fail("unexpected package name")
@@ -63,7 +77,8 @@ def validate() -> None:
         extra = sorted(package_files - EXPECTED_FILES)
         fail(f"package files changed; missing={missing}, extra={extra}")
 
-    missing_paths = sorted(path for path in EXPECTED_FILES if not (ROOT / path).is_file())
+    required_paths = EXPECTED_FILES | RELEASE_ADDITIONS
+    missing_paths = sorted(path for path in required_paths if not (ROOT / path).is_file())
     if missing_paths:
         fail("package references missing files: " + ", ".join(missing_paths))
 
@@ -100,9 +115,35 @@ def validate() -> None:
     print(f"Package validation passed for {EXPECTED_NAME} v{token_version}.")
 
 
+def append_release() -> None:
+    validate()
+    version = package_version()
+    archive = ROOT / "dist" / f"Johnny_Li_Web_Design_System_v{version}.zip"
+    if not archive.is_file():
+        fail("base release archive is missing; run the design-system release first")
+
+    prefix = Path(f"Web-Design-System-v{version}")
+    with zipfile.ZipFile(archive, "a", zipfile.ZIP_DEFLATED) as output:
+        existing = set(output.namelist())
+        for relative_text in sorted(RELEASE_ADDITIONS):
+            destination = (prefix / relative_text).as_posix()
+            if destination in existing:
+                continue
+            output.write(ROOT / relative_text, destination)
+
+    print(f"Added package contract to {archive.relative_to(ROOT)}")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("command", nargs="?", default="validate", choices=["validate", "release"])
+    args = parser.parse_args()
+    {"validate": validate, "release": append_release}[args.command]()
+
+
 if __name__ == "__main__":
     try:
-        validate()
-    except (AssertionError, KeyError, TypeError, ValueError) as error:
+        main()
+    except (AssertionError, KeyError, TypeError, ValueError, zipfile.BadZipFile) as error:
         print(f"Error: {error}", file=sys.stderr)
         sys.exit(1)
