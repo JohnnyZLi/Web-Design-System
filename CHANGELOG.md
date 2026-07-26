@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.0 — 2026-07-26
+
+- Added the shared page-content layer for every owned page and application state.
+- Added canonical rails, heroes, titles, ledes, metadata, sections, prose, grids, stacks, panels, ruled lists, process steps, metrics, semantic callouts, actions, code blocks, media, tables, and empty states.
+- Added 900px and 560px responsive transformations, container-aware grids, forced-colors borders, and mobile action stacking.
+- Added the `./content.css` package export and included it in the root stylesheet.
+- Expanded package validation to enforce the complete page-content contract and prevent undefined-token, raw-color, import, and responsive drift.
+- Coordinated the migration of the portfolio homepage and every project case study, every Network Diagnostics state, and every RolePacket workflow screen.
+
 ## 1.3.4 — 2026-07-25
 
 - Moved the global-header component out of the optional cascade layer so generic product button resets cannot override it.
