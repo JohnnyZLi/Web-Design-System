@@ -2,7 +2,7 @@
 
 ## 1. Status and normative language
 
-**Version:** 1.3.2  
+**Version:** 1.3.4  
 **Status:** Implementation candidate  
 **Owner:** Johnny Li
 
@@ -144,7 +144,7 @@ Required transformations:
 - Two-column heroes become one column.
 - Four-column metric grids become two, then one.
 - Multi-column forms become one before labels or errors become cramped.
-- Sidebars become a top bar and drawer.
+- Sidebars become an accessible compact drawer or an equivalent explicitly documented navigation transformation.
 - Before/proposed comparisons stack vertically.
 - Genuine tables MAY scroll, but essential summaries remain available without scrolling.
 - No page may have document-level overflow at 320px.
@@ -190,7 +190,7 @@ Every canonical component defines:
 
 Shared inventory:
 
-- Site identity and site switcher
+- Global header, site identity, and site switcher
 - Navigation and menus
 - Links and buttons
 - Fields and selectors
@@ -213,13 +213,26 @@ Shared inventory:
 | Error | Written reason and recovery |
 | Success | Persistent when important; not toast- or color-only |
 
-### Navigation
+### Global header and navigation
 
-Identity labels:
+Every owned website page MUST use the shared `jl-global-header` component contract. Product adapters MUST NOT redefine the header rail, owner/product typography, Sites control geometry, or menu styling.
 
-- `Johnny Li`
+Canonical identity labels:
+
+- `Johnny Li / Portfolio`
 - `Johnny Li / Network Diagnostics`
 - `Johnny Li / RolePacket`
+
+The shared desktop header uses:
+
+- 82px minimum height
+- The shared 1328px inner rail and responsive gutters
+- Owner/product identity in the first column
+- Optional product navigation in the middle column
+- The Sites control in the final column
+- An exact 88×44px Sites control with 13px/700 UI typography and a CSS-drawn chevron
+
+At compact widths the header becomes 68px high, hides the owner and separator while retaining the product identity, and keeps the Sites control at 88×40px. Product navigation that no longer fits MUST remain reachable through a product-owned compact navigation pattern rather than disappearing.
 
 Every owned site MUST reach the other two within two interactions. Owned-site links open in the same tab. External destinations MAY open in a new tab.
 
@@ -244,6 +257,7 @@ TARGET:
 - Hero becomes one reading column.
 - Work rows stack as metadata, title, description, and action.
 - Product navigation remains accessible without turning the portfolio into application chrome.
+- Portfolio case studies use the same global header and shared foundations as the homepage.
 
 ### Network Diagnostics
 
@@ -282,7 +296,7 @@ Stable chart mapping:
 Preserve:
 
 - Dense review-first workflow
-- Sidebar at wide widths and drawer at compact widths
+- Sidebar at wide widths and accessible drawer at compact widths
 - Ruled application rows
 - Explicit status and provenance
 - Before/proposed comparisons
@@ -358,79 +372,3 @@ AI-proposed content MUST remain distinct from approved content until approval. G
 The machine-readable policy is `.browserslistrc`:
 
 - Last two Chrome, Edge, Firefox, Safari, and iOS versions
-- Browsers not marked dead by Browserslist
-- Review every six months
-
-Product extensions SHOULD record an exact minimum browser version in their own repository.
-
-### CSS architecture
-
-```css
-@layer reset, tokens, base, layout, components, features, utilities, overrides;
-```
-
-`overrides` is temporary and requires a documented exception. Permanent `hotfixes.css`, `polish.css`, or equivalent files are prohibited after migration.
-
-### Performance
-
-Core Web Vitals good thresholds are TARGETS for public pages:
-
-- LCP ≤ 2.5 seconds
-- INP ≤ 200 milliseconds
-- CLS ≤ 0.1
-
-Evaluate p75 separately for mobile and desktop when sufficient field data exists.
-
-Bundle and transfer budgets are not mandatory until production builds are measured. `ci/performance-baselines.json` records pending baselines. Test payloads are excluded from ordinary Network Diagnostics page-load transfer.
-
-### Validation
-
-`make validate` checks:
-
-- DTCG structure
-- Generated-token drift
-- Contrast
-- CSS override syntax
-- Markdown structure and links
-- Specimen assets and CSS variables
-- Raw colors outside token files
-- Explicit release-package contents
-- Sensitive filenames and common credential patterns
-- Private network addresses, local home paths, and Cloudflare identifiers
-- Public exposure of internal commit snapshots and private source paths
-
-GitHub Actions runs the same command on pushes and pull requests.
-
-## 11. Governance and conformance
-
-### Versioning
-
-- Patch: clarification or fix with no intentional design change
-- Minor: backward-compatible token, pattern, or component
-- Major: changed token meaning, removed component, or coordinated migration
-
-### Shared changes
-
-A shared change includes:
-
-1. Problem statement
-2. Sites and components affected
-3. Accessibility and responsive impact
-4. Before/after evidence
-5. Migration and rollback
-
-### Exceptions
-
-No exceptions are approved for version 1.3.2. Future exceptions MUST record the rule, repository/component, rationale, owner, review date, removal issue, and accessibility impact.
-
-### Conformance checklist
-
-- Generated tokens match the DTCG source.
-- No unapproved raw shared colors exist.
-- No undocumented permanent override exists.
-- 320px overflow and 200% zoom checks pass.
-- Keyboard order and focus restoration pass.
-- Sticky UI does not fully obscure focus.
-- Status and chart meaning survive grayscale.
-- Sensitive actions state the data, destination or consequence, reversibility, and next step.
-- PDF accessibility limitations are disclosed where applicable.
