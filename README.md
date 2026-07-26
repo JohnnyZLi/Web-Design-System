@@ -4,7 +4,7 @@
 
 A shared UI and UX system for `johnnyli.dev`, `network.johnnyli.dev`, and `rolepacket.johnnyli.dev`.
 
-**Version:** 1.3.1  
+**Version:** 1.3.2  
 **Status:** Implementation candidate  
 **License:** All rights reserved
 
@@ -48,3 +48,7 @@ Start with:
 ```
 
 The repository is public, but public visibility does not grant permission to reuse the work. See `LICENSE`.
+
+## Security
+
+The repository validates release contents, CSS override syntax, common secret patterns, private network addresses, local home-directory paths, and sensitive filenames. Report vulnerabilities privately as described in [`SECURITY.md`](SECURITY.md).

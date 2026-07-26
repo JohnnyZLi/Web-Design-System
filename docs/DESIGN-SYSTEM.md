@@ -2,7 +2,7 @@
 
 ## 1. Status and normative language
 
-**Version:** 1.3.1  
+**Version:** 1.3.2  
 **Status:** Implementation candidate  
 **Owner:** Johnny Li
 
@@ -390,10 +390,14 @@ Bundle and transfer budgets are not mandatory until production builds are measur
 - DTCG structure
 - Generated-token drift
 - Contrast
+- CSS override syntax
 - Markdown structure and links
 - Specimen assets and CSS variables
 - Raw colors outside token files
-- Public safety for internal commit snapshots and private source paths
+- Explicit release-package contents
+- Sensitive filenames and common credential patterns
+- Private network addresses, local home paths, and Cloudflare identifiers
+- Public exposure of internal commit snapshots and private source paths
 
 GitHub Actions runs the same command on pushes and pull requests.
 
@@ -417,7 +421,7 @@ A shared change includes:
 
 ### Exceptions
 
-No exceptions are approved for version 1.3.1. Future exceptions MUST record the rule, repository/component, rationale, owner, review date, removal issue, and accessibility impact.
+No exceptions are approved for version 1.3.2. Future exceptions MUST record the rule, repository/component, rationale, owner, review date, removal issue, and accessibility impact.
 
 ### Conformance checklist
 

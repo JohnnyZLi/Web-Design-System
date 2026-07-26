@@ -21,6 +21,57 @@ GENERIC_FONTS = {
     "system-ui", "ui-serif", "ui-sans-serif", "ui-monospace",
 }
 
+SAFE_CSS_OVERRIDE = re.compile(
+    r"^(?:-?(?:\d+(?:\.\d+)?|\.\d+)(?:px|rem|em|vw|vh|svh|dvh|lvh|%|ch)"
+    r"|(?:clamp|min|max|calc)\([0-9A-Za-z%+*/.,()\s-]+\))$"
+)
+BLOCKED_CSS_OVERRIDE_FRAGMENTS = (";", "{", "}", "/*", "*/", "url(", "@import", "\n", "\r")
+
+RELEASE_PATHS = (
+    ".browserslistrc",
+    ".gitignore",
+    ".github/CODEOWNERS",
+    ".github/dependabot.yml",
+    ".github/workflows/validate.yml",
+    "CHANGELOG.md",
+    "LICENSE",
+    "Makefile",
+    "README.md",
+    "SECURITY.md",
+    "ci/performance-baselines.json",
+    "docs/DESIGN-SYSTEM.md",
+    "docs/MIGRATION.md",
+    "scripts/design_system.py",
+    "specimen/index.html",
+    "specimen/specimen.css",
+    "specimen/specimen.js",
+    "tokens/tokens.css",
+    "tokens/tokens.tokens.json",
+)
+
+SENSITIVE_FILE_PATTERNS = (
+    re.compile(r"(^|/)\.env(?:\..+)?$", re.IGNORECASE),
+    re.compile(r"(^|/)(?:id_rsa|id_ed25519|credentials\.json|service-account\.json)$", re.IGNORECASE),
+    re.compile(r"\.(?:pem|p12|pfx|key)$", re.IGNORECASE),
+)
+
+SENSITIVE_CONTENT_PATTERNS = {
+    "private key": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
+    "GitHub token": re.compile(r"\bgh[pousr]_[A-Za-z0-9_]{30,}\b"),
+    "AWS access key": re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
+    "generic secret assignment": re.compile(
+        r"(?i)\b(?:api[_-]?key|client[_-]?secret|access[_-]?token|password)\s*[:=]\s*['\"][^'\"]{12,}['\"]"
+    ),
+    "private IPv4 address": re.compile(
+        r"\b(?:10(?:\.\d{1,3}){3}|192\.168(?:\.\d{1,3}){2}|172\.(?:1[6-9]|2\d|3[01])(?:\.\d{1,3}){2})\b"
+    ),
+    "absolute home path": re.compile(r"(?:/Users/[^/\s]+/|/home/[^/\s]+/|[A-Za-z]:\\Users\\[^\\\s]+\\)"),
+    "Cloudflare identifier assignment": re.compile(
+        r"(?i)\b(?:account|zone|tunnel)[_-]?id\s*[:=]\s*['\"]?[0-9a-f]{32,36}['\"]?"
+    ),
+}
+
+
 def walk(node, path=(), inherited_type=None):
     if not isinstance(node, dict):
         return
@@ -33,11 +84,14 @@ def walk(node, path=(), inherited_type=None):
             continue
         yield from walk(value, path + (key,), token_type)
 
+
 def kebab(value):
     return re.sub(r"(?<!^)(?=[A-Z])", "-", value).replace("_", "-").lower()
 
+
 def css_name(path):
     return "--jl-" + "-".join(kebab(part) for part in path)
+
 
 def color_css(value):
     if value.get("alpha", 1) == 1 and value.get("hex"):
@@ -45,8 +99,10 @@ def color_css(value):
     r, g, b = [round(component * 255) for component in value["components"]]
     return f"rgba({r}, {g}, {b}, {value.get('alpha', 1):g})"
 
+
 def measurement_css(value):
     return f"{value['value']:g}{value['unit']}"
+
 
 def font_css(value):
     families = [value] if isinstance(value, str) else value
@@ -58,6 +114,7 @@ def font_css(value):
             result.append('"' + family.replace('"', '\\"') + '"')
     return ", ".join(result)
 
+
 def shadow_css(value):
     return " ".join([
         measurement_css(value["offsetX"]),
@@ -67,10 +124,22 @@ def shadow_css(value):
         color_css(value["color"]),
     ])
 
+
+def validate_css_override(value):
+    if not isinstance(value, str) or not value:
+        raise ValueError("CSS override must be a non-empty string")
+    lowered = value.lower()
+    if any(fragment in lowered for fragment in BLOCKED_CSS_OVERRIDE_FRAGMENTS):
+        raise ValueError(f"unsafe CSS override: {value!r}")
+    if not SAFE_CSS_OVERRIDE.fullmatch(value):
+        raise ValueError(f"unsupported CSS override syntax: {value!r}")
+    return value
+
+
 def to_css(token, token_type):
     override = token.get("$extensions", {}).get(CSS_EXTENSION, {}).get("value")
     if override is not None:
-        return override
+        return validate_css_override(override)
     value = token["$value"]
     if token_type == "color":
         return color_css(value)
@@ -86,6 +155,7 @@ def to_css(token, token_type):
         values = value if isinstance(value, list) else [value]
         return ", ".join(shadow_css(item) for item in values)
     raise ValueError(f"Unsupported token type: {token_type}")
+
 
 def render_tokens():
     data = json.loads(SOURCE.read_text(encoding="utf-8"))
@@ -103,15 +173,24 @@ def render_tokens():
     lines.extend(["}", ""])
     return "\n".join(lines)
 
+
 def generate():
     OUTPUT.write_text(render_tokens(), encoding="utf-8")
     print(f"Generated {OUTPUT.relative_to(ROOT)}")
 
+
 def fail(message):
     raise AssertionError(message)
 
+
 def validate_token(path, token, token_type):
     name = ".".join(path)
+    override = token.get("$extensions", {}).get(CSS_EXTENSION, {}).get("value")
+    if override is not None:
+        try:
+            validate_css_override(override)
+        except ValueError as error:
+            fail(f"{name}: {error}")
     if not token_type:
         fail(f"{name}: missing $type")
     if "value" in token:
@@ -152,8 +231,10 @@ def validate_token(path, token, token_type):
     elif token_type not in {"color", "dimension", "duration", "number", "fontFamily", "cubicBezier", "shadow"}:
         fail(f"{name}: unsupported type {token_type}")
 
+
 def rgba(value):
     return (*value["components"], value.get("alpha", 1))
+
 
 def composite(foreground, background):
     fr, fg, fb, fa = rgba(foreground)
@@ -164,6 +245,7 @@ def composite(foreground, background):
         fb * fa + bb * (1 - fa),
     )
 
+
 def luminance(rgb):
     values = [
         value / 12.92 if value <= 0.04045 else ((value + 0.055) / 1.055) ** 2.4
@@ -171,15 +253,18 @@ def luminance(rgb):
     ]
     return 0.2126 * values[0] + 0.7152 * values[1] + 0.0722 * values[2]
 
+
 def contrast(first, second):
     a, b = luminance(first), luminance(second)
     return (max(a, b) + 0.05) / (min(a, b) + 0.05)
+
 
 def token_at(data, dotted):
     node = data
     for part in dotted.split("."):
         node = node[part]
     return node["$value"]
+
 
 class SpecimenParser(HTMLParser):
     def __init__(self):
@@ -203,6 +288,7 @@ class SpecimenParser(HTMLParser):
             if attrs.get(key):
                 self.references.extend(attrs[key].split())
 
+
 def validate_markdown():
     paths = [ROOT / "README.md", ROOT / "CHANGELOG.md", *sorted((ROOT / "docs").glob("*.md"))]
     links = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
@@ -217,6 +303,7 @@ def validate_markdown():
             if file_target and not (path.parent / file_target).resolve().exists():
                 fail(f"{path.relative_to(ROOT)}: missing link {target}")
 
+
 def validate_raw_colors():
     pattern = re.compile(r"#[0-9a-fA-F]{3,8}\b|\b(?:rgb|rgba|hsl|hsla)\(")
     failures = []
@@ -228,6 +315,55 @@ def validate_raw_colors():
                 failures.append(f"{path.relative_to(ROOT)}:{line_number}: {line.strip()}")
     if failures:
         fail("raw colors outside token files:\n" + "\n".join(failures))
+
+
+def iter_repository_files():
+    for path in sorted(ROOT.rglob("*")):
+        if not path.is_file():
+            continue
+        relative = path.relative_to(ROOT)
+        if relative.parts[0] in {".git", "dist", "__pycache__"}:
+            continue
+        yield path, relative
+
+
+def validate_repository_safety():
+    failures = []
+    for path, relative in iter_repository_files():
+        normalized = relative.as_posix()
+        if any(pattern.search(normalized) for pattern in SENSITIVE_FILE_PATTERNS):
+            failures.append(f"sensitive filename: {normalized}")
+            continue
+        if path.suffix.lower() not in {".md", ".py", ".json", ".yml", ".yaml", ".html", ".css", ".js", ""}:
+            continue
+        try:
+            content = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            failures.append(f"unexpected binary file: {normalized}")
+            continue
+        if normalized == "scripts/design_system.py":
+            content = re.sub(
+                r"SENSITIVE_CONTENT_PATTERNS = \{.*?\n\}\n",
+                "SENSITIVE_CONTENT_PATTERNS = {}\n",
+                content,
+                count=1,
+                flags=re.DOTALL,
+            )
+        for label, pattern in SENSITIVE_CONTENT_PATTERNS.items():
+            if pattern.search(content):
+                failures.append(f"{label}: {normalized}")
+    if failures:
+        fail("repository safety check failed:\n" + "\n".join(failures))
+
+
+def validate_release_allowlist():
+    missing = [relative for relative in RELEASE_PATHS if not (ROOT / relative).is_file()]
+    if missing:
+        fail("release allowlist references missing files: " + ", ".join(missing))
+    unsafe = [relative for relative in RELEASE_PATHS if any(pattern.search(relative) for pattern in SENSITIVE_FILE_PATTERNS)]
+    if unsafe:
+        fail("release allowlist contains sensitive paths: " + ", ".join(unsafe))
+
 
 def validate():
     data = json.loads(SOURCE.read_text(encoding="utf-8"))
@@ -264,6 +400,16 @@ def validate():
 
     validate_markdown()
     validate_raw_colors()
+    validate_repository_safety()
+    validate_release_allowlist()
+
+    for unsafe_override in ("1rem; color:red", "url(https://example.com)", "clamp(1rem, 2vw, 3rem)\n@import x"):
+        try:
+            validate_css_override(unsafe_override)
+        except ValueError:
+            pass
+        else:
+            fail(f"CSS override guard accepted unsafe input: {unsafe_override!r}")
 
     public_text = "\n".join(
         path.read_text(encoding="utf-8")
@@ -298,12 +444,16 @@ def validate():
 
     print(f"Validation passed. Validated {sum(1 for _ in walk(data))} DTCG tokens.")
 
+
 def serve():
     os.chdir(ROOT)
     print("Serving http://127.0.0.1:8000/specimen/")
     ThreadingHTTPServer(("127.0.0.1", 8000), SimpleHTTPRequestHandler).serve_forever()
 
+
 def release():
+    validate_release_allowlist()
+    validate_repository_safety()
     data = json.loads(SOURCE.read_text(encoding="utf-8"))
     version = data["$extensions"]["com.johnnyli.meta"]["version"]
     dist = ROOT / "dist"
@@ -327,21 +477,19 @@ def release():
 
     archive = dist / f"Johnny_Li_Web_Design_System_v{version}.zip"
     with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as output:
-        for path in sorted(ROOT.rglob("*")):
-            if not path.is_file():
-                continue
-            relative = path.relative_to(ROOT)
-            if relative.parts[0] in {".git", "dist", "__pycache__"}:
-                continue
-            output.write(path, Path(f"Web-Design-System-v{version}") / relative)
+        for relative_text in RELEASE_PATHS:
+            relative = Path(relative_text)
+            output.write(ROOT / relative, Path(f"Web-Design-System-v{version}") / relative)
     print(f"Built {markdown.relative_to(ROOT)}")
     print(f"Built {archive.relative_to(ROOT)}")
+
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("command", choices=["generate", "validate", "serve", "release"])
     args = parser.parse_args()
     {"generate": generate, "validate": validate, "serve": serve, "release": release}[args.command]()
+
 
 if __name__ == "__main__":
     try:
