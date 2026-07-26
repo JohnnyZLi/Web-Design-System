@@ -3,3 +3,4 @@
 @import "../tokens/tokens.css" layer(tokens);
 @import "./foundations.css";
 @import "./site-identity.css";
+@import "./content.css";
