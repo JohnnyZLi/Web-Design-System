@@ -372,3 +372,79 @@ AI-proposed content MUST remain distinct from approved content until approval. G
 The machine-readable policy is `.browserslistrc`:
 
 - Last two Chrome, Edge, Firefox, Safari, and iOS versions
+- Browsers not marked dead by Browserslist
+- Review every six months
+
+Product extensions SHOULD record an exact minimum browser version in their own repository.
+
+### CSS architecture
+
+```css
+@layer reset, tokens, base, layout, components, features, utilities, overrides;
+```
+
+`overrides` is temporary and requires a documented exception. Permanent `hotfixes.css`, `polish.css`, or equivalent files are prohibited after migration.
+
+### Performance
+
+Core Web Vitals good thresholds are TARGETS for public pages:
+
+- LCP ≤ 2.5 seconds
+- INP ≤ 200 milliseconds
+- CLS ≤ 0.1
+
+Evaluate p75 separately for mobile and desktop when sufficient field data exists.
+
+Bundle and transfer budgets are not mandatory until production builds are measured. `ci/performance-baselines.json` records pending baselines. Test payloads are excluded from ordinary Network Diagnostics page-load transfer.
+
+### Validation
+
+`make validate` checks:
+
+- DTCG structure
+- Generated-token drift
+- Contrast
+- CSS override syntax
+- Markdown structure and links
+- Specimen assets and CSS variables
+- Raw colors outside token files
+- Explicit release-package contents
+- Sensitive filenames and common credential patterns
+- Private network addresses, local home paths, and Cloudflare identifiers
+- Public exposure of internal commit snapshots and private source paths
+
+GitHub Actions runs the same command on pushes and pull requests.
+
+## 11. Governance and conformance
+
+### Versioning
+
+- Patch: clarification or fix with no intentional design change
+- Minor: backward-compatible token, pattern, or component
+- Major: changed token meaning, removed component, or coordinated migration
+
+### Shared changes
+
+A shared change includes:
+
+1. Problem statement
+2. Sites and components affected
+3. Accessibility and responsive impact
+4. Before/after evidence
+5. Migration and rollback
+
+### Exceptions
+
+No exceptions are approved for version 1.3.4. Future exceptions MUST record the rule, repository/component, rationale, owner, review date, removal issue, and accessibility impact.
+
+### Conformance checklist
+
+- Generated tokens match the DTCG source.
+- No unapproved raw shared colors exist.
+- No undocumented permanent override exists.
+- 320px overflow and 200% zoom checks pass.
+- Keyboard order and focus restoration pass.
+- Sticky UI does not fully obscure focus.
+- Status and chart meaning survive grayscale.
+- Sensitive actions state the data, destination or consequence, reversibility, and next step.
+- PDF accessibility limitations are disclosed where applicable.
