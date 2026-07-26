@@ -16,6 +16,7 @@ TOKENS_JSON = ROOT / "tokens" / "tokens.tokens.json"
 TOKENS_CSS = ROOT / "tokens" / "tokens.css"
 STYLE_ROOT = ROOT / "styles"
 SITE_IDENTITY = STYLE_ROOT / "site-identity.css"
+CONTENT = STYLE_ROOT / "content.css"
 EXPECTED_NAME = "@johnnyzli/web-design-system"
 EXPECTED_FILES = {
     "LICENSE",
@@ -26,6 +27,7 @@ EXPECTED_FILES = {
     "styles/index.css",
     "styles/foundations.css",
     "styles/site-identity.css",
+    "styles/content.css",
 }
 RELEASE_ADDITIONS = {
     "package.json",
@@ -34,6 +36,7 @@ RELEASE_ADDITIONS = {
     "styles/index.css",
     "styles/foundations.css",
     "styles/site-identity.css",
+    "styles/content.css",
 }
 RAW_COLOR = re.compile(r"#[0-9a-fA-F]{3,8}\b|\b(?:rgb|rgba|hsl|hsla)\(")
 TOKEN_DEFINITION = re.compile(r"(--jl-[a-z0-9-]+)\s*:")
@@ -84,6 +87,18 @@ def validate() -> None:
         fail("package references missing files: " + ", ".join(missing_paths))
 
     exports = package.get("exports", {})
+    expected_exports = {
+        ".": "./styles/index.css",
+        "./tokens.css": "./tokens/tokens.css",
+        "./tokens.json": "./tokens/tokens.tokens.json",
+        "./foundations.css": "./styles/foundations.css",
+        "./site-identity.css": "./styles/site-identity.css",
+        "./content.css": "./styles/content.css",
+        "./version.json": "./version.json",
+        "./package.json": "./package.json",
+    }
+    if exports != expected_exports:
+        fail("package exports drifted from the approved contract")
     for key, relative in exports.items():
         if not isinstance(relative, str) or not relative.startswith("./"):
             fail(f"invalid export {key}")
@@ -125,6 +140,34 @@ def validate() -> None:
     ):
         if fragment not in site_identity:
             fail(f"shared Sites control contract is incomplete: {fragment}")
+
+    content_styles = CONTENT.read_text(encoding="utf-8")
+    for fragment in (
+        ".jl-page__inner",
+        ".jl-page-hero__grid",
+        ".jl-page-meta",
+        ".jl-page-section__header",
+        ".jl-content-grid",
+        ".jl-prose",
+        ".jl-editorial-lead",
+        ".jl-panel",
+        ".jl-process-list",
+        ".jl-metric-grid",
+        ".jl-callout--success",
+        ".jl-button--primary",
+        ".jl-code-block",
+        ".jl-media__frame",
+        ".jl-table-region",
+        "@media (max-width: 560px)",
+        "width: calc(100% - 32px);",
+        "@media (forced-colors: active)",
+    ):
+        if fragment not in content_styles:
+            fail(f"shared content contract is incomplete: {fragment}")
+    if "grid-template-columns: repeat(4, minmax(0, 1fr));" not in content_styles:
+        fail("shared four-column content patterns are missing")
+    if "grid-template-columns: 1fr;" not in content_styles:
+        fail("shared content patterns lack compact single-column behavior")
 
     generated_header = f"Design-system version: {token_version} */"
     if generated_header not in TOKENS_CSS.read_text(encoding="utf-8"):

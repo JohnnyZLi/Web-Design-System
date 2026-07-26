@@ -2,7 +2,7 @@
 
 ## 1. Status and normative language
 
-**Version:** 1.3.4  
+**Version:** 1.4.0  
 **Status:** Implementation candidate  
 **Owner:** Johnny Li
 
@@ -12,7 +12,7 @@
 - **CURRENT** describes existing behavior.
 - **TARGET** describes intended post-migration behavior.
 
-The system becomes an implementation contract only after the specimen is approved, current production baselines are recorded, tokens are integrated into all three sites, and the core migrations pass product-level testing.
+The system becomes an implementation contract only after the specimen is approved, current production baselines are recorded, tokens and shared content foundations are integrated into all three sites, and the core migrations pass product-level and manual production testing.
 
 ## 2. Identity and sources
 
@@ -28,116 +28,138 @@ The sites MUST feel related without becoming identical:
 
 **Portfolio contribution**
 
-- Warm paper canvas
+- Warm off-white canvas
 - Near-black ink
-- Terracotta family
-- Exact 5px dot texture
-- Editorial serif stack
-- Open sections and fine rules
-- Large display typography
+- Terracotta accent
+- Editorial serif for large display roles
+- Exact faint dot texture
+- Open section rhythm
 - Restrained motion
-- Approximately 1328px editorial rail
 
 **Network Diagnostics contribution**
 
-- 1360px analytical rail
-- Sticky product header
-- Test-control panel and segmented selector
-- Terracotta run action
-- Progress stage and metric cards
-- Monospace measurements
-- Semantic data colors and chart patterns
+- Explicit measurement scope
+- Segmented test controls
+- Metric and chart systems
+- Tables and imported reports
+- Semantic service states
+- Data-dense responsive patterns
 
 **RolePacket contribution**
 
-- Wide-screen sidebar concept
-- Dense application rows
-- 24px working panels
-- Review statuses and provenance
+- Dense review-first workflows
+- Ruled application rows
+- Sidebars and compact drawers
 - Before/proposed comparisons
-- Version and workflow metadata
-- Forms and action bars
-
-**Newly derived shared rules**
-
-- Accessible text accent and muted colors
-- 3:1 semantic borders
-- Inverse surface tokens
-- Dual focus rings
-- Typed DTCG tokens and generated CSS
-- Pointer-target policy
-- Non-color chart cues
-- Responsive transformation and validation rules
+- Persistent status and provenance
+- Forms, review actions, versions, and confirmation patterns
 
 ## 3. Principles
 
-1. **Warm, not rustic.** Warm neutrals and terracotta pair with precise spacing and geometry.
-2. **Technical, not sterile.** Monospace is reserved for measurements and compact metadata.
-3. **Quiet by default.** Color appears only for brand emphasis, data, state, or action.
-4. **Structure before decoration.** Spacing and rules precede cards, shadows, and glows.
-5. **Recompose instead of shrink.** Layout changes before content becomes cramped.
-6. **One authoritative value.** Components consume tokens instead of inventing nearby values.
-7. **Meaning survives without color.** Labels, shapes, icons, and line styles preserve meaning.
+1. Share foundations and content structure, not product identity.
+2. Preserve information architecture before decorative detail.
+3. Use one accessible terracotta accent; reserve other hues for semantic or analytical meaning.
+4. Make state, evidence, scope, and recovery explicit.
+5. Prefer responsive reflow over clipping, shrinking, or hidden essential navigation.
+6. Keep runtime dependencies and third-party data sharing minimal.
+7. Product adapters MUST NOT redefine shared global-header or shared page-content contracts.
+8. Content MUST remain understandable without color, animation, hover, or a wide viewport.
 
-## 4. Tokens
+## 4. Atomic tokens
 
-`tokens/tokens.tokens.json` is the sole editable source. It follows the Design Tokens Community Group 2025.10 structure with `$value`, `$type`, typed colors, dimensions, durations, shadows, font families, and cubic Bézier values.
+The editable token source is `tokens/tokens.tokens.json`. Generated CSS is not edited manually.
 
-CSS-specific fluid expressions are stored in the namespaced `com.johnnyli.css` extension. `tokens/tokens.css` is generated and MUST NOT be edited manually.
+### Color roles
 
-### Color rules
+- `canvas`: default page background
+- `canvasDot`: exact shared dot texture
+- `surface`: raised content surface
+- `surfaceMuted`: low-emphasis surface
+- `surfaceStrong`: stronger grouped surface
+- `surfaceInverse`: dark inverse surface
+- `ink`: primary text and strong rules
+- `text`: body copy
+- `muted`: metadata and secondary copy
+- `accent`: accessible terracotta interaction and emphasis
+- semantic success, warning, danger, info, and violet triplets: text, surface, and border
 
-- Canvas is warm paper.
-- Primary text is near-black ink.
-- Terracotta is the only decorative text color.
-- Semantic colors are reserved for status and data.
-- Normal text and controls use the accessible accent, not the lighter decorative terracotta.
-- Status and chart meaning MUST survive grayscale.
-- Semantic components use the complete text/surface/border triplet.
-- Shared raw colors MUST NOT appear outside the token source or generated output.
+Raw colors MUST NOT appear in shared CSS. Product chart colors MAY remain product-owned when they have stable labels and grayscale meaning.
 
-### Typography
+### Typography roles
 
-The system intentionally uses platform fonts rather than requiring Inter:
+- UI: system sans-serif stack
+- Editorial: Iowan/Palatino/Georgia-style serif stack
+- Mono: system monospace stack
+- Display, page title, section title, card title, body-large, body, metadata, and eyebrow roles
 
-- UI: system sans
-- Editorial emphasis: Iowan/Palatino/Georgia stack
-- Measurements: system monospace
+Editorial type is for prominent narrative hierarchy, not dense control labels or tables.
 
-The serif MUST remain selective and MUST NOT become the default interface body typeface.
+### Layout roles
 
-### Background
+- Content maximum: 1360px
+- Portfolio maximum: 1328px
+- Reading width: 72ch
+- Responsive gutter: 20–52px
+- Section gap: 64–128px
+- Panel padding: 20–32px
+- Global header: 82px desktop, 68px compact
+- RolePacket sidebar: 238px wide at desktop
 
-```css
-background:
-  radial-gradient(var(--jl-color-canvas-dot) 0.55px, transparent 0.7px),
-  var(--jl-color-canvas);
-background-size: 5px 5px;
-```
+### Controls, radii, motion, and elevation
 
-Do not combine the dot texture with a visible grid. Use at most one restrained warm glow in a major viewport region.
+- Small, medium, and large control heights: 36px, 44px, and 52px
+- Radius scale: 8px, 12px, 18px, 24px, pill
+- Motion scale: 160ms, 240ms, 420ms
+- Shared ease-out curve
+- Low and high warm-neutral shadows
+- Reduced motion removes nonessential transitions and smooth scrolling
 
-### Radius and elevation
+## 5. Canvas and surfaces
 
-- 8px: compact controls and badges
-- 12px: buttons and fields
-- 18px: analytical cards
-- 24px: major panels and dialogs
-- Pill: statuses and filters only
+The default body canvas MUST use the exact shared dot texture over the canvas token. Products MUST NOT layer a visible grid over that dot texture.
 
-Portfolio sections SHOULD remain mostly flat. Network Diagnostics and RolePacket MAY use low elevation for major working surfaces.
+Surfaces are used by information need:
 
-## 5. Responsive behavior
+- Canvas: page and broad workflow background
+- Surface: panels, controls, tables, cards
+- Surface muted: supporting content, code alternatives, grouped detail
+- Surface strong: selected or strong grouping where contrast remains sufficient
+- Inverse surface: restrained dark sections and selected terminal/code contexts
 
-| Available width | Target composition |
-| --- | --- |
-| Below 480px | Single-column phone |
-| 480–767px | Large phone or compact tablet |
-| 768–1023px | Tablet |
-| 1024–1439px | Laptop or desktop |
-| 1440px and above | Capped content rail |
+The portfolio MAY use more borderless and open composition. Network and RolePacket MAY use more panels and ruled structures. All use the same token roles.
 
-Components SHOULD use container queries when their own width matters more than the viewport.
+## 6. Accessibility contract
+
+### Focus
+
+Every interactive element MUST expose the shared dual focus treatment:
+
+- 2px focus ring
+- 3px offset
+- 5px contrasting gap
+- appropriate light, dark, or accent gap color
+
+Focus MUST remain visible in forced-colors mode.
+
+### Keyboard and interaction
+
+- All navigation, menus, drawers, dialogs, details, forms, and application actions MUST be keyboard operable.
+- Escape closes menus, drawers, and dialogs where expected and restores focus to the trigger.
+- Modal and off-canvas interactions MUST contain focus while open.
+- Closed off-canvas navigation MUST be inert or otherwise removed from the tab order.
+- Hover-only disclosure is prohibited for essential content.
+
+### Semantics
+
+- Every page has one primary heading.
+- Sections use ordered heading levels.
+- Tables use header cells and remain inside explicit responsive regions.
+- Status MUST include text; color or icons alone are insufficient.
+- Errors include a written reason and recovery action.
+- Important success remains persistent rather than toast-only.
+- Media requires useful alternative text or a caption when the visual adds meaning.
+
+### Responsive and zoom
 
 Required transformations:
 
@@ -146,74 +168,12 @@ Required transformations:
 - Multi-column forms become one before labels or errors become cramped.
 - Sidebars become an accessible compact drawer or an equivalent explicitly documented navigation transformation.
 - Before/proposed comparisons stack vertically.
-- Genuine tables MAY scroll, but essential summaries remain available without scrolling.
+- Genuine tables MAY scroll inside a labeled region; essential summaries remain available without scrolling.
+- Action groups stack to full-width controls when needed.
 - No page may have document-level overflow at 320px.
-- Core workflows MUST remain usable at 200% zoom.
+- Pages MUST remain usable at 200% browser zoom.
 
-### Wrapping and truncation
-
-- Primary titles MAY clamp to two lines in dense list rows.
-- Full titles MUST appear in details and accessible names.
-- Statuses and primary navigation MUST NOT truncate.
-- URLs MUST break safely.
-- File names MAY middle-truncate only when the extension remains visible.
-
-## 6. Focus, targets, and accessibility
-
-Target WCAG 2.2 AA.
-
-- Controls MUST meet the 24×24 CSS-pixel target requirement or an applicable exception.
-- Primary, icon, and touch-oriented controls SHOULD expose a 44×44 target.
-- Focus uses a dual ring on light, dark, and terracotta surfaces.
-- Sticky UI MUST NOT fully obscure focused components.
-- Global shells MUST set suitable scroll padding.
-- Every essential action MUST support keyboard use.
-- Normal text requires 4.5:1 contrast.
-- Meaningful UI and graphic boundaries require 3:1 where non-text contrast applies.
-- State and errors MUST remain understandable without color.
-- Reduced-motion and forced-colors modes MUST preserve functionality.
-- Dialogs MUST contain and restore focus.
-- Responsive stacking MUST preserve logical DOM order.
-
-PDF exports are not assumed to be fully tagged until validated. Accessible HTML remains the authoritative accessible alternative.
-
-## 7. Component system
-
-Every canonical component defines:
-
-- Purpose and anatomy
-- Variants and states
-- Sizing and responsive behavior
-- Keyboard and screen-reader behavior
-- Content limits
-- Canonical and prohibited examples
-
-Shared inventory:
-
-- Global header, site identity, and site switcher
-- Navigation and menus
-- Links and buttons
-- Fields and selectors
-- Panels and ruled rows
-- Status badges
-- Disclosures and dialogs
-- Toasts, loading, errors, and empty states
-
-### State requirements
-
-| State | Requirement |
-| --- | --- |
-| Default | Clear affordance |
-| Hover | Reinforcement only |
-| Focus | Dual ring and logical order |
-| Active | Immediate feedback and single invocation |
-| Current | Persistent text plus visual cue |
-| Disabled | Legible and noninteractive |
-| Loading | Stable size and duplicate prevention |
-| Error | Written reason and recovery |
-| Success | Persistent when important; not toast- or color-only |
-
-### Global header and navigation
+## 7. Shared global header
 
 Every owned website page MUST use the shared `jl-global-header` component contract. Product adapters MUST NOT redefine the header rail, owner/product typography, Sites control geometry, or menu styling.
 
@@ -223,73 +183,187 @@ Canonical identity labels:
 - `Johnny Li / Network Diagnostics`
 - `Johnny Li / RolePacket`
 
-The shared desktop header uses:
+The desktop header uses:
 
 - 82px minimum height
-- The shared 1328px inner rail and responsive gutters
+- Shared 1328px inner rail and responsive gutters
 - Owner/product identity in the first column
 - Optional product navigation in the middle column
-- The Sites control in the final column
-- An exact 88×44px Sites control with 13px/700 UI typography and a CSS-drawn chevron
+- Sites control in the final column
+- Exact 88×44px Sites control with 13px/700 UI typography and a CSS-drawn chevron
 
-At compact widths the header becomes 68px high, hides the owner and separator while retaining the product identity, and keeps the Sites control at 88×40px. Product navigation that no longer fits MUST remain reachable through a product-owned compact navigation pattern rather than disappearing.
+At compact widths the header becomes 68px high, hides the owner and separator while retaining the product identity, and keeps the Sites control at 88×40px.
+
+Product navigation that no longer fits MUST remain reachable through a product-owned compact navigation pattern rather than disappearing.
 
 Every owned site MUST reach the other two within two interactions. Owned-site links open in the same tab. External destinations MAY open in a new tab.
 
-## 8. Product patterns
+## 8. Shared page-content system
 
-Detailed business logic, state machines, authentication internals, and extension behavior belong in product repositories. This public system defines the visual and interaction patterns only.
+`styles/content.css` owns structural roles used across every page and application state. Products MAY add product classes beside these roles, but MUST NOT replace the core geometry, typography, or responsive transformations with unrelated values.
+
+### Page rails
+
+- `jl-page`: page root and ink role
+- `jl-page__inner`: standard 1360px content rail
+- `jl-page__inner--portfolio`: 1328px editorial rail
+- `jl-reading-width`: 72ch reading measure
+- `jl-responsive-region`: container-aware local responsive boundary
+
+### Heroes
+
+- `jl-page-hero`
+- `jl-page-hero__grid`
+- `jl-page-title`
+- `jl-page-lede`
+- `jl-page-meta`
+- `jl-meta-item`
+
+Hero title, lede, actions, and metadata MUST remain distinct. Metadata MUST reflow rather than shrink into unreadable columns.
+
+### Sections
+
+- `jl-page-section`
+- `jl-page-section__header`
+- `jl-page-section__index`
+- `jl-page-section__title`
+- `jl-page-section__body`
+
+Sections use a top rule, concise label, and deliberate body spacing. A product MAY omit the numeric index but MUST retain a visible section heading.
+
+### Content grids
+
+- `jl-content-grid`: 12-column editorial/content grid
+- `jl-content-grid__lead`: primary narrative area
+- `jl-content-grid__support`: supporting explanation or controls
+- `jl-grid-2`, `jl-grid-3`, `jl-grid-4`
+- `jl-stack`, `jl-stack--tight`, `jl-stack--loose`
+- `jl-cluster`
+
+Wide grids MUST reflow at the shared 900px and 560px breakpoints. Product CSS MAY introduce earlier breakpoints when content requires it.
+
+### Prose and editorial hierarchy
+
+- `jl-eyebrow`
+- `jl-prose`
+- `jl-editorial-lead`
+
+Body prose uses the shared reading width and 1.6 line height. Long-form pages MUST NOT use arbitrary paragraph widths or unrelated font stacks.
+
+### Panels and ruled structures
+
+- `jl-panel`
+- `jl-panel--flat`
+- `jl-panel--muted`
+- `jl-panel--strong`
+- `jl-ruled-grid`
+
+Panels use shared surface, border, radius, padding, and shadow roles. Portfolio MAY use flat panels; workflow and analytical products MAY retain raised or ruled surfaces.
+
+### Process and metric patterns
+
+- `jl-process-list`
+- `jl-process-list__step`
+- `jl-metric-grid`
+- `jl-metric`
+- `jl-metric__value`
+- `jl-metric__label`
+
+Process stages and metrics use explicit labels and readable values. Metric meaning MUST remain visible without color.
+
+### Semantic callouts
+
+- `jl-callout`
+- `jl-callout--success`
+- `jl-callout--warning`
+- `jl-callout--danger`
+- `jl-callout--info`
+
+Semantic callouts MUST use the complete text, surface, and border token triplet.
+
+### Actions
+
+- `jl-actions`
+- `jl-button`
+- `jl-button--primary`
+
+Primary action count SHOULD remain one per local decision group. Destructive actions retain product-owned confirmation behavior and semantic danger treatment.
+
+### Code, media, tables, and empty states
+
+- `jl-code-block`
+- `jl-media`
+- `jl-media__frame`
+- `jl-table-region`
+- `jl-empty-state`
+
+Code blocks and tables may scroll locally, never at the document level. Media frames preserve intrinsic dimensions. Empty states explain what is absent and, when relevant, how to proceed.
+
+## 9. Component state requirements
+
+Every canonical component defines:
+
+- Default
+- Hover where pointer interaction exists
+- Focus-visible
+- Disabled where applicable
+- Loading or pending where applicable
+- Empty where applicable
+- Error with recovery
+- Success when important
+- Compact transformation
+- Forced-colors behavior
+- Reduced-motion behavior when animated
+
+| State | Required communication |
+|---|---|
+| Loading | Written activity and stable layout |
+| Empty | What is absent and how to proceed |
+| Error | Written reason and recovery |
+| Success | Persistent when important; not color- or toast-only |
+| Disabled | Reduced emphasis without removing readable labels |
+
+## 10. Product patterns
 
 ### Portfolio
 
 Preserve:
 
-- Open editorial sections
-- Large display type
-- Fine structural rules
-- Selective terracotta and serif emphasis
-- Exact dot texture
-- Minimal card use
-- Dark inverse contact section
+- Editorial display hierarchy
+- Open composition and restrained panels
+- Numbered selected-work rows
+- Narrative case studies
+- Dark contact/next-project sections
 
-TARGET:
+Required:
 
-- Hero becomes one reading column.
-- Work rows stack as metadata, title, description, and action.
-- Product navigation remains accessible without turning the portfolio into application chrome.
-- Portfolio case studies use the same global header and shared foundations as the homepage.
+- Homepage and every case study use shared header and content roles.
+- Project heroes use shared title, lede, actions, and metadata.
+- Case-study sections use shared section, prose, process, panel, metric, code, and action patterns.
+- Work rows stack as metadata, title, description, and action at compact widths.
+- Project navigation and contact remain accessible at all widths.
 
 ### Network Diagnostics
 
 Preserve:
 
-- Sticky product header
-- Terracotta primary test action
-- Monospace measurements
-- Full-width analytical sections
-- Clear methodology and privacy language
-- Data colors with line, marker, and label cues
+- Explicit data-use disclosure
+- Quick, Full, and Stress test profiles
+- Separate idle, download-loaded, and upload-loaded conditions
+- Analytical charts and tables
+- Optional native deep probe
+- Local-only recent history
 
-Canonical patterns:
+Required:
 
-- Test selector: name, duration, and data cap
-- Progress stage: phase, progress, measurements, and cancel
-- Metric card: label, exact value, unit, and context
-- Grade: written grade and threshold explanation
-- Chart: bounded aspect ratio, exact values outside tooltip, text summary
-- Privacy: precise text such as “Stored in this browser,” never an unlabeled green dot
+- Idle, running, error, completed, saved-history, methodology, privacy, import, and imported-report states use shared content roles.
+- Each profile shows name, duration, and maximum transfer.
+- Findings, recommendations, service status, and errors use complete semantic roles.
+- Tables remain in local responsive regions.
+- Charts retain stable labels, summaries, and grayscale distinction.
+- Browser request loss is not labeled raw packet loss.
 
-Stable chart mapping:
-
-| Role | Color | Additional cue |
-| --- | --- | --- |
-| Download | Accent | Solid line or filled bar |
-| Upload | Information | Dashed line or marker |
-| Idle latency | Ink | Solid thin line or circle |
-| Download-loaded latency | Violet | Dashed line or square |
-| Upload-loaded latency | Warning | Dotted line or triangle |
-| Loss/failure | Danger | Cross marker or hatch |
-| Healthy threshold | Success | Labeled reference line |
+Stable analytical mapping remains product-owned and MUST be documented in product code.
 
 ### RolePacket
 
@@ -300,151 +374,88 @@ Preserve:
 - Ruled application rows
 - Explicit status and provenance
 - Before/proposed comparisons
-- Version and review metadata
-- Terracotta dominant workflow action
-- Neutral action where brand emphasis is unnecessary
+- Version history and reusable memory
 
-Canonical patterns:
+Required:
 
-- Application row: role, company, location, written status, updated time, and action
-- Fit verdict: written eligibility, alignment, confidence, and rationale
-- Requirement coverage: `Strong`, `Partial`, or `Missing`
-- Resume change: before, proposed, state, accept, and keep-original
-- Action bar: current-step actions only; returns to document flow when sticky positioning obstructs content
-- Authentication: product identity, reason access is required, and route back to portfolio
+- Login, loading, dashboard, intake, tracker, profile, memory, detail, analysis, resume, notes, version, empty, warning, and confirmation states use shared content roles.
+- Shared page rails and panel geometry remain consistent while workflow density is preserved.
+- Before/proposed comparisons stack before either side becomes cramped.
+- Major workflow states use complete semantic triplets.
+- Forms and actions reflow without horizontal page scrolling.
+- Authentication and private state remain product-owned.
 
-Detailed application status transitions remain in RolePacket.
+## 11. Motion
 
-## 9. Content and interaction
+Motion is restrained and functional:
 
-### Voice
+- Reveal motion MAY clarify entry into a page.
+- Loading motion MUST include written status.
+- Menus, drawers, and dialogs MAY animate within the shared motion scale.
+- Reduced-motion users receive no nonessential movement.
+- Animation MUST NOT delay access to controls or content.
 
-The interface is direct, calm, specific, and technically honest.
+## 12. Privacy and external services
 
-- Name the object, action, and consequence.
-- Prefer plain language to implementation terms.
-- State uncertainty and limitations.
-- Avoid hype and vague reassurance.
-- Do not claim privacy, security, completion, or success without defining the boundary.
+- Shared assets are packaged locally; owned sites MUST NOT fetch the design system from a runtime CDN.
+- Runtime third parties are disclosed at the point of use.
+- Results and private workflow data are not added to unrelated analytics or advertising systems.
+- Private RolePacket implementation details do not belong in this public design-system repository.
 
-Use sentence case.
+## 13. Performance
 
-### Action labels
+Performance limits remain pending measured production baselines. Until then:
 
-| Avoid | Use |
-| --- | --- |
-| Submit | Save application or Submit application |
-| Continue | Review changes |
-| OK | Close |
-| Yes | Delete application |
-| Process | Import resume |
-| Start | Run test |
-| Retry | Try test again |
+- Shared CSS MUST remain dependency-free.
+- Product bundles MUST avoid duplicate copies of shared assets.
+- Static pages SHOULD avoid JavaScript for content that can be present in source HTML.
+- Page-load budgets remain separate from user-initiated diagnostic transfer budgets.
+- New visual dependencies require a measured reason and ownership record.
 
-### Errors and async states
-
-Every error answers:
-
-1. What failed?
-2. What was preserved?
-3. What can the user do next?
-
-Loading names the current operation. Controls retain stable dimensions and prevent duplicate activation. User-authored text remains after failure. Background refresh MUST NOT overwrite active edits. Partial success states both outcomes and retries only the failed portion.
-
-### Trust and provenance
-
-Use exact labels:
-
-- Stored in this browser
-- Uploaded to RolePacket
-- User-provided
-- AI-proposed
-- User-approved
-- Exported locally
-- Requires Cloudflare Access
-
-AI-proposed content MUST remain distinct from approved content until approval. Generic secure/private dots are prohibited.
-
-## 10. Engineering
-
-### Browser support
-
-The machine-readable policy is `.browserslistrc`:
-
-- Last two Chrome, Edge, Firefox, Safari, and iOS versions
-- Browsers not marked dead by Browserslist
-- Review every six months
-
-Product extensions SHOULD record an exact minimum browser version in their own repository.
-
-### CSS architecture
-
-```css
-@layer reset, tokens, base, layout, components, features, utilities, overrides;
-```
-
-`overrides` is temporary and requires a documented exception. Permanent `hotfixes.css`, `polish.css`, or equivalent files are prohibited after migration.
-
-### Performance
-
-Core Web Vitals good thresholds are TARGETS for public pages:
-
-- LCP ≤ 2.5 seconds
-- INP ≤ 200 milliseconds
-- CLS ≤ 0.1
-
-Evaluate p75 separately for mobile and desktop when sufficient field data exists.
-
-Bundle and transfer budgets are not mandatory until production builds are measured. `ci/performance-baselines.json` records pending baselines. Test payloads are excluded from ordinary Network Diagnostics page-load transfer.
-
-### Validation
-
-`make validate` checks:
-
-- DTCG structure
-- Generated-token drift
-- Contrast
-- CSS override syntax
-- Markdown structure and links
-- Specimen assets and CSS variables
-- Raw colors outside token files
-- Explicit release-package contents
-- Sensitive filenames and common credential patterns
-- Private network addresses, local home paths, and Cloudflare identifiers
-- Public exposure of internal commit snapshots and private source paths
-
-GitHub Actions runs the same command on pushes and pull requests.
-
-## 11. Governance and conformance
-
-### Versioning
-
-- Patch: clarification or fix with no intentional design change
-- Minor: backward-compatible token, pattern, or component
-- Major: changed token meaning, removed component, or coordinated migration
-
-### Shared changes
+## 14. Governance
 
 A shared change includes:
 
-1. Problem statement
-2. Sites and components affected
-3. Accessibility and responsive impact
-4. Before/after evidence
-5. Migration and rollback
+- Atomic tokens
+- Global accessibility behavior
+- Global header and Sites control
+- Page rails and shared content primitives
+- Shared semantic status roles
+- Shared responsive transformations
+
+A product-local change includes:
+
+- Portfolio composition unique to a project narrative
+- Network measurement logic, charts, and probe behavior
+- RolePacket authentication, application state, and workflow logic
+
+Shared changes require:
+
+1. Design-system update
+2. Version bump under semantic versioning
+3. Specimen or contract update
+4. Package validation
+5. Consumer pin update
+6. Product-level tests
+7. Manual production review when visual behavior changes
 
 ### Exceptions
 
-No exceptions are approved for version 1.3.4. Future exceptions MUST record the rule, repository/component, rationale, owner, review date, removal issue, and accessibility impact.
+No exceptions are approved for version 1.4.0. Future exceptions MUST record the rule, repository/component, rationale, owner, review date, removal issue, and accessibility impact.
 
 ### Conformance checklist
 
-- Generated tokens match the DTCG source.
-- No unapproved raw shared colors exist.
-- No undocumented permanent override exists.
-- 320px overflow and 200% zoom checks pass.
-- Keyboard order and focus restoration pass.
-- Sticky UI does not fully obscure focus.
-- Status and chart meaning survive grayscale.
-- Sensitive actions state the data, destination or consequence, reversibility, and next step.
-- PDF accessibility limitations are disclosed where applicable.
+- Uses current shared package version and immutable source
+- Uses exact dot canvas without a second grid
+- Uses shared header on every route
+- Uses shared content roles on every page and application state
+- Preserves product-specific information architecture
+- No raw shared colors or duplicate token values in product adapters
+- No hidden essential navigation at compact widths
+- No document-level overflow at 320px
+- Usable at 200% zoom
+- Keyboard, focus, reduced motion, and forced colors verified
+- Semantic status includes text, surface, and border where applicable
+- Tables, code, and media remain locally bounded
+- Every empty and error state explains recovery
+- Every external or third-party interaction is disclosed
