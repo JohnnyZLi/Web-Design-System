@@ -2,7 +2,7 @@
 
 ## 1. Status and normative language
 
-**Version:** 1.3.2  
+**Version:** 1.3.4  
 **Status:** Implementation candidate  
 **Owner:** Johnny Li
 
@@ -144,7 +144,7 @@ Required transformations:
 - Two-column heroes become one column.
 - Four-column metric grids become two, then one.
 - Multi-column forms become one before labels or errors become cramped.
-- Sidebars become a top bar and drawer.
+- Sidebars become an accessible compact drawer or an equivalent explicitly documented navigation transformation.
 - Before/proposed comparisons stack vertically.
 - Genuine tables MAY scroll, but essential summaries remain available without scrolling.
 - No page may have document-level overflow at 320px.
@@ -190,7 +190,7 @@ Every canonical component defines:
 
 Shared inventory:
 
-- Site identity and site switcher
+- Global header, site identity, and site switcher
 - Navigation and menus
 - Links and buttons
 - Fields and selectors
@@ -213,13 +213,26 @@ Shared inventory:
 | Error | Written reason and recovery |
 | Success | Persistent when important; not toast- or color-only |
 
-### Navigation
+### Global header and navigation
 
-Identity labels:
+Every owned website page MUST use the shared `jl-global-header` component contract. Product adapters MUST NOT redefine the header rail, owner/product typography, Sites control geometry, or menu styling.
 
-- `Johnny Li`
+Canonical identity labels:
+
+- `Johnny Li / Portfolio`
 - `Johnny Li / Network Diagnostics`
 - `Johnny Li / RolePacket`
+
+The shared desktop header uses:
+
+- 82px minimum height
+- The shared 1328px inner rail and responsive gutters
+- Owner/product identity in the first column
+- Optional product navigation in the middle column
+- The Sites control in the final column
+- An exact 88×44px Sites control with 13px/700 UI typography and a CSS-drawn chevron
+
+At compact widths the header becomes 68px high, hides the owner and separator while retaining the product identity, and keeps the Sites control at 88×40px. Product navigation that no longer fits MUST remain reachable through a product-owned compact navigation pattern rather than disappearing.
 
 Every owned site MUST reach the other two within two interactions. Owned-site links open in the same tab. External destinations MAY open in a new tab.
 
@@ -244,6 +257,7 @@ TARGET:
 - Hero becomes one reading column.
 - Work rows stack as metadata, title, description, and action.
 - Product navigation remains accessible without turning the portfolio into application chrome.
+- Portfolio case studies use the same global header and shared foundations as the homepage.
 
 ### Network Diagnostics
 
@@ -282,7 +296,7 @@ Stable chart mapping:
 Preserve:
 
 - Dense review-first workflow
-- Sidebar at wide widths and drawer at compact widths
+- Sidebar at wide widths and accessible drawer at compact widths
 - Ruled application rows
 - Explicit status and provenance
 - Before/proposed comparisons
@@ -421,7 +435,7 @@ A shared change includes:
 
 ### Exceptions
 
-No exceptions are approved for version 1.3.2. Future exceptions MUST record the rule, repository/component, rationale, owner, review date, removal issue, and accessibility impact.
+No exceptions are approved for version 1.3.4. Future exceptions MUST record the rule, repository/component, rationale, owner, review date, removal issue, and accessibility impact.
 
 ### Conformance checklist
 
