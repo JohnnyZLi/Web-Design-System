@@ -15,6 +15,7 @@ VERSION = ROOT / "version.json"
 TOKENS_JSON = ROOT / "tokens" / "tokens.tokens.json"
 TOKENS_CSS = ROOT / "tokens" / "tokens.css"
 STYLE_ROOT = ROOT / "styles"
+SITE_IDENTITY = STYLE_ROOT / "site-identity.css"
 EXPECTED_NAME = "@johnnyzli/web-design-system"
 EXPECTED_FILES = {
     "LICENSE",
@@ -107,6 +108,23 @@ def validate() -> None:
     missing_tokens = sorted(used - defined)
     if missing_tokens:
         fail("shared styles use undefined tokens: " + ", ".join(missing_tokens))
+
+    site_identity = SITE_IDENTITY.read_text(encoding="utf-8")
+    if re.search(r"^\s*@layer\b", site_identity):
+        fail("global header must remain unlayered so product resets cannot override it")
+    for fragment in (
+        "width: 88px;",
+        "height: var(--jl-control-height-md);",
+        "font-family: var(--jl-font-ui);",
+        "font-size: 13px;",
+        "font-weight: 700;",
+        "line-height: 1;",
+        ".jl-site-switcher__chevron",
+        "border-right: 2px solid currentColor;",
+        "border-bottom: 2px solid currentColor;",
+    ):
+        if fragment not in site_identity:
+            fail(f"shared Sites control contract is incomplete: {fragment}")
 
     generated_header = f"Design-system version: {token_version} */"
     if generated_header not in TOKENS_CSS.read_text(encoding="utf-8"):
