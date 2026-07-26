@@ -34,11 +34,7 @@ Start with:
 
 ## Consume from another repository
 
-Consumers currently pin the exact reviewed v1.3.4 source commit rather than relying on a floating branch or runtime CDN:
-
-```bash
-npm install --save-exact "github:JohnnyZLi/Web-Design-System#27f83fa7333903a38c2c5ca36ed0455fa71598fc"
-```
+Consumers pin the exact reviewed v1.3.4 source recorded in their own package metadata rather than relying on a floating branch or runtime CDN.
 
 Import the complete shared foundation from an application entry point:
 
