@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.4 — 2026-07-25
+
+- Moved the global-header component out of the optional cascade layer so generic product button resets cannot override it.
+- Locked the Sites control to an exact 88 × 44px desktop geometry, 13px UI typography, and shared spacing.
+- Replaced the font glyph chevron with a CSS-drawn chevron for identical rendering across products.
+- Added a 40px compact-height transformation while preserving the same width and typography.
+
 ## 1.3.3 — 2026-07-25
 
 - Replaced loosely shared site-identity styles with one concrete global-header component.
