@@ -2,13 +2,17 @@
 
 ## 1.3.2 — 2026-07-25
 
-- Changed release packaging from repository traversal to an explicit file allowlist.
+- Changed release packaging from repository traversal to explicit file allowlists.
 - Added validation for CSS-specific token overrides and malicious-syntax regression checks.
 - Expanded public-safety checks for sensitive filenames, credentials, private IP addresses, local home paths, and Cloudflare identifiers.
 - Pinned GitHub Actions to immutable commit SHAs and disabled persisted checkout credentials.
 - Added workflow concurrency and a five-minute timeout.
 - Added Dependabot updates for pinned GitHub Actions.
 - Added a security policy and private vulnerability-reporting guidance.
+- Added a versioned package contract for consuming tokens and shared CSS across repositories.
+- Added shared accessibility foundations and site-identity styling without product-specific components.
+- Added package export, token-reference, raw-color, import, and version-drift validation.
+- Corrected the specimen version and aligned its Network Diagnostics profiles with the public application.
 
 ## 1.3.1 — 2026-07-25
 
