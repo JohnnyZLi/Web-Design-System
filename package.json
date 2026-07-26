@@ -1,6 +1,6 @@
 {
   "name": "@johnnyzli/web-design-system",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Shared design tokens, page content patterns, and UI foundations for Johnny Li websites.",
   "license": "SEE LICENSE IN LICENSE",
   "private": false,
@@ -16,7 +16,8 @@
     "styles/index.css",
     "styles/foundations.css",
     "styles/site-identity.css",
-    "styles/content.css"
+    "styles/content.css",
+    "styles/content-guard.css"
   ],
   "exports": {
     ".": "./styles/index.css",
@@ -25,6 +26,7 @@
     "./foundations.css": "./styles/foundations.css",
     "./site-identity.css": "./styles/site-identity.css",
     "./content.css": "./styles/content.css",
+    "./content-guard.css": "./styles/content-guard.css",
     "./version.json": "./version.json",
     "./package.json": "./package.json"
   },
