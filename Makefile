@@ -17,6 +17,7 @@ serve:
 
 release:
 	$(PYTHON) scripts/design_system.py release
+	$(PYTHON) scripts/validate_package.py release
 
 clean:
 	rm -rf dist __pycache__ scripts/__pycache__
