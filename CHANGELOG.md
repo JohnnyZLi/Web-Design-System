@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.2 — 2026-07-25
+
+- Changed release packaging from repository traversal to an explicit file allowlist.
+- Added validation for CSS-specific token overrides and malicious-syntax regression checks.
+- Expanded public-safety checks for sensitive filenames, credentials, private IP addresses, local home paths, and Cloudflare identifiers.
+- Pinned GitHub Actions to immutable commit SHAs and disabled persisted checkout credentials.
+- Added workflow concurrency and a five-minute timeout.
+- Added Dependabot updates for pinned GitHub Actions.
+- Added a security policy and private vulnerability-reporting guidance.
+
 ## 1.3.1 — 2026-07-25
 
 - Converted atomic tokens to DTCG 2025.10 structure.
