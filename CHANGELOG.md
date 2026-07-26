@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.3 — 2026-07-25
+
+- Replaced loosely shared site-identity styles with one concrete global-header component.
+- Standardized header height, inner width, gutters, owner/product lockup, navigation slot, Sites control, border, and responsive behavior.
+- Removed product-level casing, sizing, and identity variations from the shared contract.
+- Added compatibility support for the earlier `jl-site-header` class while consumers migrate to `jl-global-header`.
+
 ## 1.3.2 — 2026-07-25
 
 - Changed release packaging from repository traversal to explicit file allowlists.
