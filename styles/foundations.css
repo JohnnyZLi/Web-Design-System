@@ -39,7 +39,7 @@
 @layer base {
   :root {
     color-scheme: light;
-    --jl-focus-gap-color: var(--jl-color-focus-gap-light);
+    --_jl-focus-gap-color: var(--jl-color-focus-gap-light);
   }
 
   body {
@@ -62,7 +62,7 @@
   :focus-visible {
     outline: 2px solid var(--jl-color-focus-ring);
     outline-offset: 3px;
-    box-shadow: 0 0 0 5px var(--jl-focus-gap-color);
+    box-shadow: 0 0 0 5px var(--_jl-focus-gap-color);
   }
 
   button {
@@ -76,12 +76,12 @@
 
   .jl-surface-inverse,
   [data-jl-surface="inverse"] {
-    --jl-focus-gap-color: var(--jl-color-focus-gap-dark);
+    --_jl-focus-gap-color: var(--jl-color-focus-gap-dark);
   }
 
   .jl-surface-accent,
   [data-jl-surface="accent"] {
-    --jl-focus-gap-color: var(--jl-color-on-accent);
+    --_jl-focus-gap-color: var(--jl-color-on-accent);
   }
 }
 
