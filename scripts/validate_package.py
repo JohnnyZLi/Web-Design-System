@@ -17,6 +17,7 @@ TOKENS_CSS = ROOT / "tokens" / "tokens.css"
 STYLE_ROOT = ROOT / "styles"
 SITE_IDENTITY = STYLE_ROOT / "site-identity.css"
 CONTENT = STYLE_ROOT / "content.css"
+CONTENT_GUARD = STYLE_ROOT / "content-guard.css"
 EXPECTED_NAME = "@johnnyzli/web-design-system"
 EXPECTED_FILES = {
     "LICENSE",
@@ -28,6 +29,7 @@ EXPECTED_FILES = {
     "styles/foundations.css",
     "styles/site-identity.css",
     "styles/content.css",
+    "styles/content-guard.css",
 }
 RELEASE_ADDITIONS = {
     "package.json",
@@ -37,6 +39,18 @@ RELEASE_ADDITIONS = {
     "styles/foundations.css",
     "styles/site-identity.css",
     "styles/content.css",
+    "styles/content-guard.css",
+}
+EXPECTED_EXPORTS = {
+    ".": "./styles/index.css",
+    "./tokens.css": "./tokens/tokens.css",
+    "./tokens.json": "./tokens/tokens.tokens.json",
+    "./foundations.css": "./styles/foundations.css",
+    "./site-identity.css": "./styles/site-identity.css",
+    "./content.css": "./styles/content.css",
+    "./content-guard.css": "./styles/content-guard.css",
+    "./version.json": "./version.json",
+    "./package.json": "./package.json",
 }
 RAW_COLOR = re.compile(r"#[0-9a-fA-F]{3,8}\b|\b(?:rgb|rgba|hsl|hsla)\(")
 TOKEN_DEFINITION = re.compile(r"(--jl-[a-z0-9-]+)\s*:")
@@ -55,6 +69,12 @@ def read_json(path: Path) -> dict:
 def package_version() -> str:
     tokens = read_json(TOKENS_JSON)
     return tokens["$extensions"]["com.johnnyli.meta"]["version"]
+
+
+def require_fragments(content: str, fragments: tuple[str, ...], label: str) -> None:
+    for fragment in fragments:
+        if fragment not in content:
+            fail(f"{label} is incomplete: {fragment}")
 
 
 def validate() -> None:
@@ -77,9 +97,11 @@ def validate() -> None:
 
     package_files = set(package.get("files", []))
     if package_files != EXPECTED_FILES:
-        missing = sorted(EXPECTED_FILES - package_files)
-        extra = sorted(package_files - EXPECTED_FILES)
-        fail(f"package files changed; missing={missing}, extra={extra}")
+        fail(
+            "package files changed; "
+            f"missing={sorted(EXPECTED_FILES - package_files)}, "
+            f"extra={sorted(package_files - EXPECTED_FILES)}"
+        )
 
     required_paths = EXPECTED_FILES | RELEASE_ADDITIONS
     missing_paths = sorted(path for path in required_paths if not (ROOT / path).is_file())
@@ -87,17 +109,7 @@ def validate() -> None:
         fail("package references missing files: " + ", ".join(missing_paths))
 
     exports = package.get("exports", {})
-    expected_exports = {
-        ".": "./styles/index.css",
-        "./tokens.css": "./tokens/tokens.css",
-        "./tokens.json": "./tokens/tokens.tokens.json",
-        "./foundations.css": "./styles/foundations.css",
-        "./site-identity.css": "./styles/site-identity.css",
-        "./content.css": "./styles/content.css",
-        "./version.json": "./version.json",
-        "./package.json": "./package.json",
-    }
-    if exports != expected_exports:
+    if exports != EXPECTED_EXPORTS:
         fail("package exports drifted from the approved contract")
     for key, relative in exports.items():
         if not isinstance(relative, str) or not relative.startswith("./"):
@@ -108,13 +120,13 @@ def validate() -> None:
     defined = set(TOKEN_DEFINITION.findall(TOKENS_CSS.read_text(encoding="utf-8")))
     used: set[str] = set()
     for path in sorted(STYLE_ROOT.glob("*.css")):
-        content = path.read_text(encoding="utf-8")
-        if content.count("{") != content.count("}"):
+        css = path.read_text(encoding="utf-8")
+        if css.count("{") != css.count("}"):
             fail(f"unbalanced CSS braces: {path.relative_to(ROOT)}")
-        if RAW_COLOR.search(content):
+        if RAW_COLOR.search(css):
             fail(f"raw shared color in {path.relative_to(ROOT)}")
-        used.update(TOKEN_USE.findall(content))
-        for target in IMPORT.findall(content):
+        used.update(TOKEN_USE.findall(css))
+        for target in IMPORT.findall(css):
             if target.startswith(("http://", "https://")):
                 fail(f"remote CSS import in {path.relative_to(ROOT)}")
             if not (path.parent / target).resolve().is_file():
@@ -127,7 +139,7 @@ def validate() -> None:
     site_identity = SITE_IDENTITY.read_text(encoding="utf-8")
     if re.search(r"^\s*@layer\b", site_identity):
         fail("global header must remain unlayered so product resets cannot override it")
-    for fragment in (
+    require_fragments(site_identity, (
         "width: 88px;",
         "height: var(--jl-control-height-md);",
         "font-family: var(--jl-font-ui);",
@@ -137,12 +149,10 @@ def validate() -> None:
         ".jl-site-switcher__chevron",
         "border-right: 2px solid currentColor;",
         "border-bottom: 2px solid currentColor;",
-    ):
-        if fragment not in site_identity:
-            fail(f"shared Sites control contract is incomplete: {fragment}")
+    ), "shared Sites control contract")
 
     content_styles = CONTENT.read_text(encoding="utf-8")
-    for fragment in (
+    require_fragments(content_styles, (
         ".jl-page__inner",
         ".jl-page-hero__grid",
         ".jl-page-meta",
@@ -161,13 +171,36 @@ def validate() -> None:
         "@media (max-width: 560px)",
         "width: calc(100% - 32px);",
         "@media (forced-colors: active)",
-    ):
-        if fragment not in content_styles:
-            fail(f"shared content contract is incomplete: {fragment}")
+    ), "shared content contract")
     if "grid-template-columns: repeat(4, minmax(0, 1fr));" not in content_styles:
         fail("shared four-column content patterns are missing")
     if "grid-template-columns: 1fr;" not in content_styles:
         fail("shared content patterns lack compact single-column behavior")
+
+    guard = CONTENT_GUARD.read_text(encoding="utf-8")
+    if re.search(r"^\s*@layer\b", guard):
+        fail("content guard must remain unlayered so legacy product resets cannot override it")
+    require_fragments(guard, (
+        ".jl-page-title",
+        ".jl-page-lede",
+        ".jl-eyebrow",
+        ".jl-prose",
+        ".jl-editorial-lead",
+        ".jl-meta-item dt",
+        ".jl-meta-item dd",
+        ".jl-metric__value",
+        ".jl-metric__label",
+        ".jl-button--primary",
+        ".jl-code-block",
+        ".jl-surface-inverse .jl-prose",
+        ".jl-surface-inverse .jl-prose a",
+        "@media (max-width: 560px)",
+        "@media (forced-colors: active)",
+    ), "shared content guard")
+
+    root_styles = (STYLE_ROOT / "index.css").read_text(encoding="utf-8")
+    if root_styles.index('@import "./content.css";') > root_styles.index('@import "./content-guard.css";'):
+        fail("content guard must load after structural content styles")
 
     generated_header = f"Design-system version: {token_version} */"
     if generated_header not in TOKENS_CSS.read_text(encoding="utf-8"):
