@@ -63,10 +63,11 @@ jobs:
           PRODUCT_NAME: ${{ inputs.product-name }}
         shell: bash
         run: |
+          mapfile -t configured_paths <<< "$TRACKED_PATHS"
           tracked_paths=()
-          while IFS= read -r path; do
+          for path in "${configured_paths[@]}"; do
             [[ -n "$path" ]] && tracked_paths+=("$path")
-          done <<< "$TRACKED_PATHS"
+          done
           if [[ ${#tracked_paths[@]} -eq 0 ]]; then
             echo "No tracked paths were configured."
             exit 1
