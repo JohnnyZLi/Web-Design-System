@@ -4,7 +4,7 @@
 
 A shared UI and UX system for `johnnyli.dev`, `network.johnnyli.dev`, and `rolepacket.johnnyli.dev`.
 
-**Version:** 1.4.0  
+**Version:** 1.5.0  
 **Package status:** Implementation candidate  
 **Production visual baseline:** Approved  
 **License:** All rights reserved
@@ -17,7 +17,7 @@ The current production interfaces are the reference point for this system:
 - Network Diagnostics remains analytical, measurement-heavy, and chart-oriented.
 - RolePacket remains dense, workflow-oriented, and optimized for review.
 
-Unification does **not** mean making the three products look identical or replacing their existing layouts with the specimen. The shared contract covers the palette, exact dot canvas, typography roles, focus behavior, global header, Sites control, semantic states, responsive principles, and accessibility expectations. Product-specific composition, density, controls, charts, and workflow layout remain owned by each repository.
+Unification does **not** mean making the three products look identical or replacing their existing layouts with the specimen. The shared contract covers the palette, exact dot canvas, typography roles, focus behavior, global header, Sites control, compact header-menu shell, semantic states, responsive principles, and accessibility expectations. Product-specific composition, density, controls, charts, and workflow layout remain owned by each repository.
 
 The package also includes reusable page-content utilities for future work and selective consolidation. Current consumers are not required to replace stable product markup solely to use those class names.
 
@@ -42,7 +42,7 @@ Start with:
 
 Consumers pin an exact reviewed source commit rather than relying on a floating branch or runtime content-delivery network.
 
-The current production sites synchronize the shared foundations they need:
+The current production sites synchronize the shared foundations and site controls they need:
 
 ```css
 @import "@johnnyzli/web-design-system/tokens.css";
@@ -50,23 +50,35 @@ The current production sites synchronize the shared foundations they need:
 @import "@johnnyzli/web-design-system/site-identity.css";
 ```
 
-The complete package remains available for new components or deliberate consolidation:
+```js
+import {
+  OWNED_SITES,
+  installHeaderMenu,
+  installSiteSwitcher,
+} from "@johnnyzli/web-design-system/site-controls.js";
+```
+
+`OWNED_SITES` is the canonical cross-site directory. The framework-neutral controllers provide consistent outside-click, Escape, ArrowUp, ArrowDown, Home, End, focus-entry, focus-restoration, and compact-menu behavior without adding a runtime framework dependency.
+
+The complete CSS package remains available for new components or deliberate consolidation:
 
 ```css
 @import "@johnnyzli/web-design-system";
 ```
 
-The root stylesheet includes generated tokens, foundations, the exact dot canvas, the global header and Sites control, and reusable content utilities. Products retain their own application logic, charts, navigation behavior, authentication, workflow state, and data presentation.
+The root stylesheet includes generated tokens, foundations, the exact dot canvas, the global header and Sites control, and reusable content utilities. Products retain their own application logic, charts, authentication, workflow state, navigation content, and data presentation.
 
-Static sites copy the reviewed CSS into their generated artifact. Owned sites must not fetch the design system from a runtime CDN.
+Static sites copy the reviewed assets into their generated artifact. Owned sites must not fetch the design system from a runtime CDN.
 
 ## Package contract
 
-- [`package.json`](package.json) defines stable CSS and token exports.
+- [`package.json`](package.json) defines stable CSS, token, and site-control exports.
 - [`version.json`](version.json) records the package version and authoritative token source.
-- [`styles/index.css`](styles/index.css) is the complete shared entry point.
+- [`styles/index.css`](styles/index.css) is the complete shared CSS entry point.
 - [`styles/foundations.css`](styles/foundations.css) provides canvas, focus, selection, reduced-motion, forced-colors, and utility foundations.
-- [`styles/site-identity.css`](styles/site-identity.css) owns the shared global-header geometry, owner/product lockup, navigation slot, Sites control, and menu styling.
+- [`styles/site-identity.css`](styles/site-identity.css) owns the shared global-header geometry, owner/product lockup, navigation slot, Sites control, compact header-menu shell, and menu styling.
+- [`scripts/site-controls.js`](scripts/site-controls.js) owns the site directory and framework-neutral Sites and header-menu controllers.
+- [`scripts/site-controls.d.ts`](scripts/site-controls.d.ts) provides the TypeScript contract for the shared controllers.
 - [`styles/content.css`](styles/content.css) and [`styles/content-guard.css`](styles/content-guard.css) provide optional shared content primitives and resilience against generic resets.
 
 ## Structure

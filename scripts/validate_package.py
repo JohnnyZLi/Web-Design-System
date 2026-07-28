@@ -18,6 +18,8 @@ STYLE_ROOT = ROOT / "styles"
 SITE_IDENTITY = STYLE_ROOT / "site-identity.css"
 CONTENT = STYLE_ROOT / "content.css"
 CONTENT_GUARD = STYLE_ROOT / "content-guard.css"
+SITE_CONTROLS = ROOT / "scripts" / "site-controls.js"
+SITE_CONTROL_TYPES = ROOT / "scripts" / "site-controls.d.ts"
 EXPECTED_NAME = "@johnnyzli/web-design-system"
 EXPECTED_FILES = {
     "LICENSE",
@@ -30,11 +32,15 @@ EXPECTED_FILES = {
     "styles/site-identity.css",
     "styles/content.css",
     "styles/content-guard.css",
+    "scripts/site-controls.js",
+    "scripts/site-controls.d.ts",
 }
 RELEASE_ADDITIONS = {
     "package.json",
     "version.json",
     "scripts/validate_package.py",
+    "scripts/site-controls.js",
+    "scripts/site-controls.d.ts",
     "styles/index.css",
     "styles/foundations.css",
     "styles/site-identity.css",
@@ -49,6 +55,10 @@ EXPECTED_EXPORTS = {
     "./site-identity.css": "./styles/site-identity.css",
     "./content.css": "./styles/content.css",
     "./content-guard.css": "./styles/content-guard.css",
+    "./site-controls.js": {
+        "types": "./scripts/site-controls.d.ts",
+        "default": "./scripts/site-controls.js",
+    },
     "./version.json": "./version.json",
     "./package.json": "./package.json",
 }
@@ -75,6 +85,20 @@ def require_fragments(content: str, fragments: tuple[str, ...], label: str) -> N
     for fragment in fragments:
         if fragment not in content:
             fail(f"{label} is incomplete: {fragment}")
+
+
+def validate_export_path(relative: object, key: str) -> None:
+    if isinstance(relative, str):
+        if not relative.startswith("./"):
+            fail(f"invalid export {key}")
+        if not (ROOT / relative[2:]).is_file():
+            fail(f"export {key} references missing file {relative}")
+        return
+    if isinstance(relative, dict):
+        for condition, target in relative.items():
+            validate_export_path(target, f"{key}.{condition}")
+        return
+    fail(f"invalid export {key}")
 
 
 def validate() -> None:
@@ -112,10 +136,7 @@ def validate() -> None:
     if exports != EXPECTED_EXPORTS:
         fail("package exports drifted from the approved contract")
     for key, relative in exports.items():
-        if not isinstance(relative, str) or not relative.startswith("./"):
-            fail(f"invalid export {key}")
-        if not (ROOT / relative[2:]).is_file():
-            fail(f"export {key} references missing file {relative}")
+        validate_export_path(relative, key)
 
     defined = set(TOKEN_DEFINITION.findall(TOKENS_CSS.read_text(encoding="utf-8")))
     used: set[str] = set()
@@ -149,7 +170,41 @@ def validate() -> None:
         ".jl-site-switcher__chevron",
         "border-right: 2px solid currentColor;",
         "border-bottom: 2px solid currentColor;",
-    ), "shared Sites control contract")
+        ".jl-header-menu-toggle",
+        ".jl-global-header__nav.jl-header-menu--open",
+        "right: var(--jl-layout-gutter);",
+        "left: var(--jl-layout-gutter);",
+    ), "shared Sites and compact-header contract")
+
+    site_controls = SITE_CONTROLS.read_text(encoding="utf-8")
+    require_fragments(site_controls, (
+        "export const OWNED_SITES",
+        'id: "portfolio"',
+        'id: "network"',
+        'id: "rolepacket"',
+        "export function populateOwnedSites",
+        "export function installDisclosureMenu",
+        "export function installSiteSwitcher",
+        "export function installHeaderMenu",
+        'event.key === "ArrowDown"',
+        'event.key === "ArrowUp"',
+        'event.key === "Escape"',
+        'event.key === "Home"',
+        'event.key === "End"',
+        'document.addEventListener("pointerdown"',
+        'closeMediaQuery: "(min-width: 901px)"',
+    ), "shared site-control behavior")
+    if "http://" in site_controls:
+        fail("shared site controls contain an insecure owned-site URL")
+
+    site_control_types = SITE_CONTROL_TYPES.read_text(encoding="utf-8")
+    require_fragments(site_control_types, (
+        "export type OwnedSiteId",
+        "export interface DisclosureController",
+        "export const OWNED_SITES",
+        "export function installSiteSwitcher",
+        "export function installHeaderMenu",
+    ), "shared site-control types")
 
     content_styles = CONTENT.read_text(encoding="utf-8")
     require_fragments(content_styles, (
