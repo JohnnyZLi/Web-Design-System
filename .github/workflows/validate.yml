@@ -30,6 +30,10 @@ jobs:
         with:
           node-version: "24"
           package-manager-cache: false
+      - name: Validate conformance runner syntax
+        run: node --check scripts/conformance-runner.mjs
+      - name: Exercise conformance runner
+        run: node scripts/test-conformance-runner.mjs
       - name: Validate design system
         run: make validate
       - name: Verify npm package contents

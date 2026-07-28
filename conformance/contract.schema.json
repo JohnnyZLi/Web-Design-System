@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://johnnyli.dev/schemas/design-system-conformance-contract.json",
+  "title": "Johnny Li design-system conformance contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "designSystemVersion", "rules"],
+  "properties": {
+    "$schema": {"type": "string"},
+    "schemaVersion": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "designSystemVersion": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "description", "severity", "appliesTo", "evidence", "source"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^DS-[A-Z0-9]+-[0-9]{3}$"},
+          "title": {"type": "string", "minLength": 1},
+          "description": {"type": "string", "minLength": 1},
+          "severity": {"enum": ["required", "advisory", "manual"]},
+          "appliesTo": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"enum": ["portfolio", "network", "rolepacket"]}
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"enum": ["static", "runtime", "pipeline", "manual"]}
+          },
+          "source": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}
