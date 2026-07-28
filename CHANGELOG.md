@@ -1,12 +1,15 @@
 # Changelog
 
-## Unreleased
+## 1.5.0 — 2026-07-27
 
 - Declared the current production interfaces as the approved visual baseline.
 - Clarified that unification applies to tokens, accessibility, canvas, global identity, semantic roles, and responsive principles rather than identical product layouts.
 - Reclassified the page-content classes as reusable references for new work and deliberate consolidation instead of a mandatory rewrite target.
-- Corrected the migration record to distinguish rendered conformance from optional source-level cleanup.
-- Recorded the immutable v1.4.0 shared-asset source used by the three consumer repositories.
+- Added the canonical owned-site registry and framework-neutral Sites-menu controller.
+- Standardized outside-click, Escape, ArrowUp, ArrowDown, Home, End, focus-entry, and focus-restoration behavior.
+- Added the shared compact header-menu toggle and popover shell used by the portfolio and Network Diagnostics.
+- Added JavaScript and TypeScript package exports for shared site controls.
+- Expanded package validation to protect the site directory, interaction contract, compact menu geometry, and typed export.
 
 ## 1.4.0 — 2026-07-26
 
