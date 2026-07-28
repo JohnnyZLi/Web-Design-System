@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.7.0 — 2026-07-28
+
+- Added a variable-backed native-dialog shell covering centering, backdrop, surface, title, message, actions, compact placement, and forced-colors behavior.
+- Added a constrained consumer release helper that resolves the reviewed design-system commit and updates repository-local lock metadata without executing arbitrary commands.
+- Added a reusable GitHub Actions workflow for validated design-system update pull requests across consumer repositories.
+- Expanded package validation to protect the dialog contract, repository-local path guard, reusable workflow, and new package export.
+- Preserved product-controlled modal dimensions, density, colors, content, state, and confirmation behavior.
+
 ## 1.6.1 — 2026-07-28
 
 - Made `content-primitives.css` fully standalone after `tokens.css`.

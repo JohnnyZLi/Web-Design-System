@@ -4,7 +4,7 @@
 
 A shared UI and UX system for `johnnyli.dev`, `network.johnnyli.dev`, and `rolepacket.johnnyli.dev`.
 
-**Version:** 1.6.1  
+**Version:** 1.7.0  
 **Package status:** Implementation candidate  
 **Production visual baseline:** Approved  
 **License:** All rights reserved
@@ -67,15 +67,21 @@ The complete CSS package remains available for new components or deliberate cons
 @import "@johnnyzli/web-design-system";
 ```
 
-Products that need only adaptable buttons, callouts, empty states, action groups, or table regions can import the standalone shell immediately after shared tokens:
+Products that need only adaptable buttons, callouts, empty states, action groups, table regions, or native-dialog structure can import the standalone shell immediately after shared tokens:
 
 ```css
 @import "@johnnyzli/web-design-system/content-primitives.css";
 ```
 
-The standalone export includes its own structural display, alignment, interaction, responsive, and forced-colors behavior; it does not require `content.css`. It exposes `--jl-button-*`, `--jl-callout-*`, `--jl-empty-state-*`, `--jl-actions-*`, and `--jl-table-region-*` customization hooks. Consumers should tune those variables rather than copying complete structural declarations. Semantic variants remain shared while product-specific density and expression remain local.
+The standalone export includes its own structural display, alignment, interaction, responsive, and forced-colors behavior; it does not require `content.css`. It exposes `--jl-button-*`, `--jl-callout-*`, `--jl-empty-state-*`, `--jl-actions-*`, `--jl-table-region-*`, and `--jl-dialog-*` customization hooks. Consumers should tune those variables rather than copying complete structural declarations. Semantic variants remain shared while product-specific density and expression remain local.
 
 Static sites copy the reviewed assets into their generated artifact. Owned sites must not fetch the design system from a runtime CDN.
+
+## Consumer release automation
+
+[`scripts/consumer-release.mjs`](scripts/consumer-release.mjs) exposes a constrained helper for resolving the reviewed `main` commit and updating a repository-local `design-system.lock.json`. It may also update the package dependency when a consumer explicitly supplies its local `package.json`; it cannot write outside the current repository or execute commands.
+
+[`.github/workflows/consumer-design-system-sync.yml`](.github/workflows/consumer-design-system-sync.yml) is a reusable workflow. Consumer repositories keep their own install and validation commands, while the shared workflow owns update resolution, synchronization invocation, change detection, branch publication, and draft pull-request creation.
 
 ## Deployed smoke checks
 
@@ -83,7 +89,7 @@ Static sites copy the reviewed assets into their generated artifact. Owned sites
 
 ## Package contract
 
-- [`package.json`](package.json) defines stable CSS, token, and site-control exports.
+- [`package.json`](package.json) defines stable CSS, token, site-control, and consumer-release exports.
 - [`version.json`](version.json) records the package version and authoritative token source.
 - [`styles/index.css`](styles/index.css) is the complete shared CSS entry point.
 - [`styles/foundations.css`](styles/foundations.css) provides canvas, focus, selection, reduced-motion, forced-colors, and utility foundations.
@@ -91,7 +97,8 @@ Static sites copy the reviewed assets into their generated artifact. Owned sites
 - [`scripts/site-controls.js`](scripts/site-controls.js) owns the site directory and framework-neutral Sites and header-menu controllers.
 - [`scripts/site-controls.d.ts`](scripts/site-controls.d.ts) provides the TypeScript contract for the shared controllers.
 - [`styles/content.css`](styles/content.css) and [`styles/content-guard.css`](styles/content-guard.css) provide optional content patterns and resilience against generic resets.
-- [`styles/content-primitives.css`](styles/content-primitives.css) provides standalone, adaptable cross-product shells for selective consolidation.
+- [`styles/content-primitives.css`](styles/content-primitives.css) provides standalone, adaptable cross-product shells for selective consolidation, including native dialogs.
+- [`scripts/consumer-release.mjs`](scripts/consumer-release.mjs) provides constrained consumer lock resolution.
 - [`scripts/smoke-deployments.mjs`](scripts/smoke-deployments.mjs) validates the live domain and Access-gate contract.
 
 ## Structure
