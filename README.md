@@ -4,7 +4,7 @@
 
 A shared UI and UX system for `johnnyli.dev`, `network.johnnyli.dev`, and `rolepacket.johnnyli.dev`.
 
-**Version:** 1.7.0  
+**Version:** 1.8.0  
 **Package status:** Implementation candidate  
 **Production visual baseline:** Approved  
 **License:** All rights reserved
@@ -17,7 +17,7 @@ The current production interfaces are the reference point for this system:
 - Network Diagnostics remains analytical, measurement-heavy, and chart-oriented.
 - RolePacket remains dense, workflow-oriented, and optimized for review.
 
-Unification does **not** mean making the three products look identical or replacing their existing layouts with the specimen. The shared contract covers the palette, exact dot canvas, typography roles, focus behavior, global header, Sites control, compact header-menu shell, semantic states, responsive principles, and accessibility expectations. Product-specific composition, density, controls, charts, and workflow layout remain owned by each repository.
+Unification does **not** mean making the three products look identical or replacing their existing layouts with the specimen. The shared contract covers the palette, exact dot canvas, typography roles, focus behavior, global header, Sites control, compact header-menu shell, semantic states, responsive principles, accessibility expectations, and machine-readable conformance rules. Product-specific composition, density, controls, charts, application state, and workflow layout remain owned by each repository.
 
 The package also includes reusable page-content utilities for future work and selective consolidation. Current consumers are not required to replace stable product markup solely to use those class names.
 
@@ -30,11 +30,13 @@ make package-check  # validate only the consumable package contract
 make serve          # preview http://localhost:8000/specimen/
 make release        # generate a consolidated Markdown release and ZIP in dist/
 node scripts/smoke-deployments.mjs
+node scripts/test-conformance-runner.mjs
 ```
 
 Start with:
 
 - [`docs/DESIGN-SYSTEM.md`](docs/DESIGN-SYSTEM.md) — permanent rules and ownership boundaries
+- [`docs/CONFORMANCE.md`](docs/CONFORMANCE.md) — machine-readable rule and evidence model
 - [`docs/MIGRATION.md`](docs/MIGRATION.md) — current rollout and conformance status
 - [`specimen/index.html`](specimen/index.html) — component reference, not a replacement application theme
 - [`tokens/tokens.tokens.json`](tokens/tokens.tokens.json) — sole editable token source
@@ -83,13 +85,25 @@ Static sites copy the reviewed assets into their generated artifact. Owned sites
 
 [`.github/workflows/consumer-design-system-sync.yml`](.github/workflows/consumer-design-system-sync.yml) is a reusable workflow. Consumer repositories keep their own install and validation commands, while the shared workflow owns update resolution, synchronization invocation, change detection, branch publication, and draft pull-request creation.
 
+## Conformance testbench
+
+[`conformance/contract.json`](conformance/contract.json) gives enforceable design-system requirements stable `DS-*` rule IDs. Each rule names the products it applies to, its severity, accepted evidence classes, and the canonical design-document section that owns it.
+
+[`scripts/conformance-runner.mjs`](scripts/conformance-runner.mjs) evaluates a consumer-owned `design-system.conformance.json` manifest. It supports repository-confined file, fragment, regular-expression, and JSON evidence; emits both JSON and Markdown reports; blocks required failures; and tracks actual browser zoom, assistive-technology review, and performance approval as explicit manual items. It deliberately does not execute consumer commands.
+
+```bash
+node node_modules/@johnnyzli/web-design-system/scripts/conformance-runner.mjs
+```
+
+[`.github/workflows/consumer-conformance.yml`](.github/workflows/consumer-conformance.yml) is the reusable pipeline shell. Consumers retain the command that builds states and runs product tests; the shared workflow standardizes checkout, Node setup, execution, and report artifacts.
+
 ## Deployed smoke checks
 
 `.github/workflows/deployed-smoke.yml` checks all three owned domains every day and on manual dispatch. The public sites must return their expected product marker, shared header, and complete Sites directory. RolePacket is expected to remain behind Cloudflare Access; optional `ROLEPACKET_ACCESS_CLIENT_ID` and `ROLEPACKET_ACCESS_CLIENT_SECRET` repository secrets enable an authenticated application-shell check.
 
 ## Package contract
 
-- [`package.json`](package.json) defines stable CSS, token, site-control, and consumer-release exports.
+- [`package.json`](package.json) defines stable CSS, token, site-control, consumer-release, and conformance exports.
 - [`version.json`](version.json) records the package version and authoritative token source.
 - [`styles/index.css`](styles/index.css) is the complete shared CSS entry point.
 - [`styles/foundations.css`](styles/foundations.css) provides canvas, focus, selection, reduced-motion, forced-colors, and utility foundations.
@@ -99,6 +113,8 @@ Static sites copy the reviewed assets into their generated artifact. Owned sites
 - [`styles/content.css`](styles/content.css) and [`styles/content-guard.css`](styles/content-guard.css) provide optional content patterns and resilience against generic resets.
 - [`styles/content-primitives.css`](styles/content-primitives.css) provides standalone, adaptable cross-product shells for selective consolidation, including native dialogs.
 - [`scripts/consumer-release.mjs`](scripts/consumer-release.mjs) provides constrained consumer lock resolution.
+- [`scripts/conformance-runner.mjs`](scripts/conformance-runner.mjs) evaluates consumer evidence and writes standard reports.
+- [`conformance/contract.json`](conformance/contract.json) is the versioned machine-readable rule source.
 - [`scripts/smoke-deployments.mjs`](scripts/smoke-deployments.mjs) validates the live domain and Access-gate contract.
 
 ## Structure
@@ -113,6 +129,7 @@ Static sites copy the reviewed assets into their generated artifact. Owned sites
 ├── version.json
 ├── tokens/
 ├── styles/
+├── conformance/
 ├── specimen/
 ├── scripts/
 ├── docs/
