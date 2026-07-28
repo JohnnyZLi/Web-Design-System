@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.1 — 2026-07-28
+
+- Made `content-primitives.css` fully standalone after `tokens.css`.
+- Added the structural flex, inline-flex, alignment, text-decoration, white-space, and cursor behavior previously inherited from the larger content layer.
+- Expanded validation to prevent the small export from silently depending on `content.css` again.
+
 ## 1.6.0 — 2026-07-28
 
 - Added variable-backed button, action, callout, empty-state, and table-region shells for selective cross-product adoption.

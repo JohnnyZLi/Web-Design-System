@@ -142,12 +142,15 @@ def validate() -> None:
     if re.search(r"^\s*@layer\b", primitives):
         fail("content primitives must remain unlayered")
     require(primitives, (
+        ".jl-actions {", "display: flex;", "flex-wrap: wrap;",
+        ".jl-button {", "display: inline-flex;", "align-items: center;",
+        "justify-content: center;", "text-decoration: none;", "cursor: pointer;",
         "--jl-button-min-height", "--jl-button-hover-background",
         ".jl-button--compact", ".jl-button--danger",
         "--jl-callout-padding", ".jl-callout--info",
         "--jl-empty-state-padding", "--jl-table-region-border-width",
         "@media (forced-colors: active)",
-    ), "adaptable content primitives")
+    ), "standalone adaptable content primitives")
 
     index = (STYLE_ROOT / "index.css").read_text(encoding="utf-8")
     imports = [
