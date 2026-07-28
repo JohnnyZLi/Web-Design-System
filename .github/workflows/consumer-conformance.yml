@@ -1,0 +1,53 @@
+name: Consumer design-system conformance
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: Node.js version used by the consumer.
+        required: true
+        type: string
+      timeout-minutes:
+        description: Maximum conformance time.
+        required: false
+        default: 20
+        type: number
+      install-command:
+        description: Consumer dependency installation command.
+        required: true
+        type: string
+      conformance-command:
+        description: Consumer-owned command that runs integration, rendered-state, and conformance checks.
+        required: true
+        type: string
+      artifact-name:
+        description: Name of the uploaded conformance artifact.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  conformance:
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: ${{ inputs.node-version }}
+      - name: Install consumer dependencies
+        run: ${{ inputs.install-command }}
+      - name: Run design-system conformance
+        run: ${{ inputs.conformance-command }}
+      - name: Upload conformance report
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: design-system-conformance
+          if-no-files-found: error
+          retention-days: 14
