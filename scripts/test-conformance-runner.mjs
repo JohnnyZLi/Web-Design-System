@@ -69,7 +69,9 @@ if (strict.status === 0) throw new Error("Strict manual mode did not block pendi
 manifest.rules["DS-DIST-002"] = { evidence: [{ type: "file-exists", file: "../outside-repository" }] };
 await writeFile(resolve(fixture, "design-system.conformance.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 const escape = execute([]);
-if (escape.status === 0 || !`${escape.stderr}${escape.stdout}`.includes("must stay inside the consumer repository")) {
+const escapeReport = JSON.parse(await readFile(resolve(fixture, "design-system-conformance/report.json"), "utf8"));
+const escapeResult = escapeReport.results.find((result) => result.id === "DS-DIST-002");
+if (escape.status === 0 || !escapeResult?.detail.includes("must stay inside the consumer repository")) {
   throw new Error("Conformance runner did not reject an escaping evidence path.");
 }
 
