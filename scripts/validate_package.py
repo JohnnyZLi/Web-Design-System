@@ -19,7 +19,9 @@ EXPECTED_FILES = {
     "tokens/tokens.css", "tokens/tokens.tokens.json",
     "styles/index.css", "styles/foundations.css", "styles/site-identity.css",
     "styles/content.css", "styles/content-guard.css", "styles/content-primitives.css",
+    "conformance/contract.json", "conformance/contract.schema.json",
     "scripts/site-controls.js", "scripts/site-controls.d.ts", "scripts/consumer-release.mjs",
+    "scripts/conformance-runner.mjs",
 }
 EXPECTED_EXPORTS = {
     ".": "./styles/index.css",
@@ -35,13 +37,18 @@ EXPECTED_EXPORTS = {
         "default": "./scripts/site-controls.js",
     },
     "./consumer-release.js": "./scripts/consumer-release.mjs",
+    "./conformance-runner.js": "./scripts/conformance-runner.mjs",
+    "./conformance/contract.json": "./conformance/contract.json",
+    "./conformance/contract.schema.json": "./conformance/contract.schema.json",
     "./version.json": "./version.json",
     "./package.json": "./package.json",
 }
 RELEASE_ADDITIONS = {
     "package.json", "version.json", "scripts/validate_package.py",
     "scripts/site-controls.js", "scripts/site-controls.d.ts", "scripts/smoke-deployments.mjs",
-    "scripts/consumer-release.mjs", ".github/workflows/consumer-design-system-sync.yml",
+    "scripts/consumer-release.mjs", "scripts/conformance-runner.mjs",
+    "conformance/contract.json", "conformance/contract.schema.json",
+    ".github/workflows/consumer-design-system-sync.yml", ".github/workflows/consumer-conformance.yml",
     "styles/index.css", "styles/foundations.css", "styles/site-identity.css",
     "styles/content.css", "styles/content-guard.css", "styles/content-primitives.css",
 }
@@ -49,6 +56,7 @@ RAW_COLOR = re.compile(r"#[0-9a-fA-F]{3,8}\b|\b(?:rgb|rgba|hsl|hsla)\(")
 TOKEN_DEFINITION = re.compile(r"(--jl-[a-z0-9-]+)\s*:")
 TOKEN_USE = re.compile(r"var\((--jl-[a-z0-9-]+)")
 IMPORT = re.compile(r"@import\s+[\"']([^\"']+)[\"']")
+RULE_ID = re.compile(r"^DS-[A-Z0-9]+-[0-9]{3}$")
 COMPONENT_HOOK_PREFIXES = (
     "--jl-actions-", "--jl-button-", "--jl-callout-",
     "--jl-empty-state-", "--jl-table-region-", "--jl-dialog-",
@@ -79,6 +87,52 @@ def validate_export(value: object, label: str) -> None:
             validate_export(target, f"{label}.{condition}")
         return
     fail(f"invalid export {label}")
+
+
+def validate_conformance(token_version: str) -> None:
+    contract = read_json(ROOT / "conformance" / "contract.json")
+    schema = read_json(ROOT / "conformance" / "contract.schema.json")
+    if contract.get("schemaVersion") != "1.0.0":
+        fail("conformance contract schema version drifted")
+    if contract.get("designSystemVersion") != token_version:
+        fail("conformance contract design-system version drifted")
+    if schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema":
+        fail("conformance contract schema is not draft 2020-12")
+    rules = contract.get("rules")
+    if not isinstance(rules, list) or not rules:
+        fail("conformance contract has no rules")
+    ids: set[str] = set()
+    products = {"portfolio", "network", "rolepacket"}
+    for rule in rules:
+        rule_id = str(rule.get("id", ""))
+        if not RULE_ID.fullmatch(rule_id) or rule_id in ids:
+            fail(f"invalid or duplicate conformance rule: {rule_id}")
+        ids.add(rule_id)
+        if rule.get("severity") not in {"required", "advisory", "manual"}:
+            fail(f"invalid conformance severity: {rule_id}")
+        applies_to = rule.get("appliesTo")
+        if not isinstance(applies_to, list) or not applies_to or not set(applies_to) <= products:
+            fail(f"invalid conformance products: {rule_id}")
+        source = str(rule.get("source", ""))
+        if not source.startswith("docs/DESIGN-SYSTEM.md#"):
+            fail(f"conformance rule lacks a canonical source: {rule_id}")
+
+    runner = (ROOT / "scripts" / "conformance-runner.mjs").read_text(encoding="utf-8")
+    require(runner, (
+        "function confined(root, value, label)", "relative(root, destination)",
+        "--strict-manual", "design-system.conformance.json", "conformance/contract.json",
+        "json-equals", "json-matches", "not-contains", "manual-pending",
+        "report.json", "report.md", "blockingFailures", "process.exitCode = 1",
+    ), "conformance runner")
+    if any(fragment in runner for fragment in ("child_process", "exec(", "spawn(")):
+        fail("conformance runner must not execute consumer commands")
+
+    workflow = (ROOT / ".github" / "workflows" / "consumer-conformance.yml").read_text(encoding="utf-8")
+    require(workflow, (
+        "workflow_call:", "contents: read", "conformance-command:",
+        "Run design-system conformance", "if: always()", "actions/upload-artifact@",
+        "path: design-system-conformance", "if-no-files-found: error",
+    ), "reusable consumer conformance workflow")
 
 
 def validate() -> None:
@@ -115,10 +169,7 @@ def validate() -> None:
         for target in IMPORT.findall(css):
             if target.startswith(("http://", "https://")) or not (path.parent / target).resolve().is_file():
                 fail(f"invalid CSS import {target} in {path.relative_to(ROOT)}")
-    missing_tokens = sorted(
-        name for name in used - defined
-        if not name.startswith(COMPONENT_HOOK_PREFIXES)
-    )
+    missing_tokens = sorted(name for name in used - defined if not name.startswith(COMPONENT_HOOK_PREFIXES))
     if missing_tokens:
         fail("shared styles use undefined tokens: " + ", ".join(missing_tokens))
 
@@ -165,7 +216,7 @@ def validate() -> None:
         "api.github.com/repos/${REPOSITORY}/commits/main", "raw.githubusercontent.com",
         "manifest.dependencies[PACKAGE]", "github:${REPOSITORY}#${sourceCommit}",
     ), "constrained consumer release helper")
-    if "child_process" in consumer or "exec(" in consumer or "spawn(" in consumer:
+    if any(fragment in consumer for fragment in ("child_process", "exec(", "spawn(")):
         fail("consumer release helper must not execute arbitrary commands")
 
     workflow = (ROOT / ".github" / "workflows" / "consumer-design-system-sync.yml").read_text(encoding="utf-8")
@@ -193,6 +244,7 @@ def validate() -> None:
         "CF-Access-Client-Id", "Deployed-site smoke checks passed.",
     ), "deployment smoke checks")
 
+    validate_conformance(token_version)
     if f"Design-system version: {token_version} */" not in TOKENS_CSS.read_text(encoding="utf-8"):
         fail("generated token CSS version header drifted")
     print(f"Package validation passed for {EXPECTED_NAME} v{token_version}.")
