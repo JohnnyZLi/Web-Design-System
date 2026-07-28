@@ -2,7 +2,7 @@
 
 ## 1. Status and normative language
 
-**Version:** 1.8.0  
+**Version:** 1.8.1  
 **Package status:** Implementation candidate  
 **Production visual baseline:** Approved  
 **Owner:** Johnny Li
@@ -174,6 +174,7 @@ Compact contract:
 - Owner and separator MAY hide while product identity remains
 - Sites control remains 88×40px
 - Product navigation remains reachable through the shared compact-menu shell or an equivalent accessible product pattern
+- At 360px and below, the full product identity, Menu trigger, and Sites control MUST remain visible; the shared shell reduces gutters, gaps, identity size, and Menu-trigger width to prevent overflow
 
 Every owned site reaches the other two within two interactions. Owned-site links open in the same tab. External destinations MAY open in a new tab.
 
@@ -375,6 +376,7 @@ Documentation-only changes do not require repinning when packaged assets are unc
 - Renders the shared header on every route or state
 - Uses the canonical site directory and shared interaction contract
 - Uses shared compact-menu geometry where applicable
+- Preserves the full product identity, Menu trigger, and Sites control at 320px
 - Uses shared tokens or documented product aliases
 - Uses standalone primitives where adopted and does not retain equivalent structural fallbacks
 - Uses the shared dialog shell for matching native confirmation dialogs

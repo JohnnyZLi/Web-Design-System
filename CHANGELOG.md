@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.8.1 — 2026-07-28
+
+- Added an extreme-compact header transformation at 360px and below.
+- Preserved the full product identity, Menu trigger, and exact 88px Sites control at the supported 320px viewport.
+- Reduced only compact gutters, gaps, identity size, and Menu-trigger width rather than hiding required navigation.
+- Added a dedicated regression guard for the 320px shared-header contract.
+
 ## 1.8.0 — 2026-07-28
 
 - Added a versioned machine-readable conformance contract with stable `DS-*` rule identifiers tied to canonical design-system sections.
@@ -47,7 +54,7 @@
 ## 1.4.0 — 2026-07-26
 
 - Added the shared page-content layer for every owned page and application state.
-- Added canonical rails, heroes, titles, ledes, metadata, sections, prose, grids, stacks, panels, ruled lists, process steps, metrics, semantic callouts, actions, code blocks, media, tables, and empty states.
+- Added canonical rails, heroes, titles, ledes, metadata, sections, grids, stacks, panels, ruled lists, process steps, metrics, semantic callouts, actions, code blocks, media, tables, and empty states.
 - Added 900px and 560px responsive transformations, container-aware grids, forced-colors borders, and mobile action stacking.
 - Added the `./content.css` package export and included it in the root stylesheet.
 - Expanded package validation to enforce the complete page-content contract and prevent undefined-token, raw-color, import, and responsive drift.
