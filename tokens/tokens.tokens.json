@@ -3,7 +3,7 @@
   "$extensions": {
     "com.johnnyli.meta": {
       "name": "Johnny Li Web Design System",
-      "version": "1.5.0",
+      "version": "1.6.0",
       "status": "implementation-candidate",
       "source": "tokens/tokens.tokens.json"
     }
@@ -82,7 +82,7 @@
   },
   "motion": {"easeOut":{"$value":[0.22,1,0.36,1],"$type":"cubicBezier"},"fast":{"$value":{"value":160,"unit":"ms"},"$type":"duration"},"base":{"$value":{"value":240,"unit":"ms"},"$type":"duration"},"slow":{"$value":{"value":420,"unit":"ms"},"$type":"duration"}},
   "shadow": {
-    "$type":"shadow",
+    "$type": "shadow",
     "low":{"$value":{"color":{"colorSpace":"srgb","components":[0.305882,0.215686,0.152941],"alpha":0.06},"offsetX":{"value":0,"unit":"px"},"offsetY":{"value":12,"unit":"px"},"blur":{"value":32,"unit":"px"},"spread":{"value":0,"unit":"px"}}},
     "high":{"$value":{"color":{"colorSpace":"srgb","components":[0.305882,0.215686,0.152941],"alpha":0.11},"offsetX":{"value":0,"unit":"px"},"offsetY":{"value":28,"unit":"px"},"blur":{"value":80,"unit":"px"},"spread":{"value":0,"unit":"px"}}}
   },
