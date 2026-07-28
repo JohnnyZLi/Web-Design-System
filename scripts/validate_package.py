@@ -19,7 +19,7 @@ EXPECTED_FILES = {
     "tokens/tokens.css", "tokens/tokens.tokens.json",
     "styles/index.css", "styles/foundations.css", "styles/site-identity.css",
     "styles/content.css", "styles/content-guard.css", "styles/content-primitives.css",
-    "conformance/contract.json", "conformance/contract.schema.json",
+    "conformance/contract.json", "conformance/contract.schema.json", "conformance/manifest.schema.json",
     "scripts/site-controls.js", "scripts/site-controls.d.ts", "scripts/consumer-release.mjs",
     "scripts/conformance-runner.mjs",
 }
@@ -40,6 +40,7 @@ EXPECTED_EXPORTS = {
     "./conformance-runner.js": "./scripts/conformance-runner.mjs",
     "./conformance/contract.json": "./conformance/contract.json",
     "./conformance/contract.schema.json": "./conformance/contract.schema.json",
+    "./conformance/manifest.schema.json": "./conformance/manifest.schema.json",
     "./version.json": "./version.json",
     "./package.json": "./package.json",
 }
@@ -47,8 +48,9 @@ RELEASE_ADDITIONS = {
     "package.json", "version.json", "scripts/validate_package.py",
     "scripts/site-controls.js", "scripts/site-controls.d.ts", "scripts/smoke-deployments.mjs",
     "scripts/consumer-release.mjs", "scripts/conformance-runner.mjs",
-    "conformance/contract.json", "conformance/contract.schema.json",
+    "conformance/contract.json", "conformance/contract.schema.json", "conformance/manifest.schema.json",
     ".github/workflows/consumer-design-system-sync.yml", ".github/workflows/consumer-conformance.yml",
+    ".github/workflows/consumer-candidate-gate.yml",
     "styles/index.css", "styles/foundations.css", "styles/site-identity.css",
     "styles/content.css", "styles/content-guard.css", "styles/content-primitives.css",
 }
@@ -89,6 +91,24 @@ def validate_export(value: object, label: str) -> None:
     fail(f"invalid export {label}")
 
 
+def validate_manifest_schema() -> None:
+    schema = read_json(ROOT / "conformance" / "manifest.schema.json")
+    if schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema":
+        fail("consumer manifest schema is not draft 2020-12")
+    if schema.get("additionalProperties") is not False:
+        fail("consumer manifest schema must reject unknown top-level properties")
+    required = set(schema.get("required", []))
+    if required != {"schemaVersion", "product", "rules"}:
+        fail("consumer manifest schema required fields drifted")
+    products = set(schema.get("properties", {}).get("product", {}).get("enum", []))
+    if products != {"portfolio", "network", "rolepacket"}:
+        fail("consumer manifest schema products drifted")
+    evidence = schema.get("$defs", {}).get("evidence", {})
+    types = set(evidence.get("properties", {}).get("type", {}).get("enum", []))
+    if types != {"file-exists", "contains", "not-contains", "matches", "json-equals", "json-matches"}:
+        fail("consumer manifest evidence types drifted")
+
+
 def validate_conformance(token_version: str) -> None:
     contract = read_json(ROOT / "conformance" / "contract.json")
     schema = read_json(ROOT / "conformance" / "contract.schema.json")
@@ -98,6 +118,7 @@ def validate_conformance(token_version: str) -> None:
         fail("conformance contract design-system version drifted")
     if schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema":
         fail("conformance contract schema is not draft 2020-12")
+    validate_manifest_schema()
     rules = contract.get("rules")
     if not isinstance(rules, list) or not rules:
         fail("conformance contract has no rules")
@@ -121,8 +142,10 @@ def validate_conformance(token_version: str) -> None:
     require(runner, (
         "function confined(root, value, label)", "relative(root, destination)",
         "--strict-manual", "design-system.conformance.json", "conformance/contract.json",
+        "validateEvidenceShape", "validateManifest", "readProvenance",
         "json-equals", "json-matches", "not-contains", "manual-pending",
-        "report.json", "report.md", "blockingFailures", "process.exitCode = 1",
+        "sourceCommit", "consumerCommit", "report.json", "report.md",
+        "blockingFailures", "process.exitCode = 1",
     ), "conformance runner")
     if any(fragment in runner for fragment in ("child_process", "exec(", "spawn(")):
         fail("conformance runner must not execute consumer commands")
@@ -133,6 +156,16 @@ def validate_conformance(token_version: str) -> None:
         "Run design-system conformance", "if: always()", "actions/upload-artifact@",
         "path: design-system-conformance", "if-no-files-found: error",
     ), "reusable consumer conformance workflow")
+
+    candidate = (ROOT / ".github" / "workflows" / "consumer-candidate-gate.yml").read_text(encoding="utf-8")
+    require(candidate, (
+        "name: Consumer candidate gate", "pull_request:", "workflow_dispatch:",
+        "CANDIDATE_SHA", "repository: JohnnyZLi/Website", "repository: JohnnyZLi/Network-Diagnostics-Suite",
+        "repository: JohnnyZLi/RolePacket", "npm run design-system:sync", "npm run design-system:integration",
+        "npm run design-system:conformance", "npm run cloud:deploy:dry",
+    ), "cross-consumer candidate gate")
+    if "persist-credentials: true" in candidate:
+        fail("cross-consumer candidate gate persists checkout credentials")
 
 
 def validate() -> None:
