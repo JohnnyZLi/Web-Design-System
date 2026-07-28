@@ -48,7 +48,6 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
         with:
           node-version: ${{ inputs.node-version }}
-          cache: npm
       - name: Install dependencies
         run: ${{ inputs.install-command }}
       - name: Resolve latest reviewed design system
@@ -64,7 +63,14 @@ jobs:
           PRODUCT_NAME: ${{ inputs.product-name }}
         shell: bash
         run: |
-          mapfile -t tracked_paths <<< "$TRACKED_PATHS"
+          tracked_paths=()
+          while IFS= read -r path; do
+            [[ -n "$path" ]] && tracked_paths+=("$path")
+          done <<< "$TRACKED_PATHS"
+          if [[ ${#tracked_paths[@]} -eq 0 ]]; then
+            echo "No tracked paths were configured."
+            exit 1
+          fi
           if git diff --quiet -- "${tracked_paths[@]}"; then
             echo "$PRODUCT_NAME already uses the latest design system."
             exit 0
