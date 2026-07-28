@@ -1,6 +1,6 @@
 {
   "name": "@johnnyzli/web-design-system",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Shared design tokens, site controls, page content patterns, and UI foundations for Johnny Li websites.",
   "license": "SEE LICENSE IN LICENSE",
   "private": false,
