@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Declared the current production interfaces as the approved visual baseline.
+- Clarified that unification applies to tokens, accessibility, canvas, global identity, semantic roles, and responsive principles rather than identical product layouts.
+- Reclassified the page-content classes as reusable references for new work and deliberate consolidation instead of a mandatory rewrite target.
+- Corrected the migration record to distinguish rendered conformance from optional source-level cleanup.
+- Recorded the immutable v1.4.0 shared-asset source used by the three consumer repositories.
+
 ## 1.4.0 — 2026-07-26
 
 - Added the shared page-content layer for every owned page and application state.
@@ -7,7 +15,7 @@
 - Added 900px and 560px responsive transformations, container-aware grids, forced-colors borders, and mobile action stacking.
 - Added the `./content.css` package export and included it in the root stylesheet.
 - Expanded package validation to enforce the complete page-content contract and prevent undefined-token, raw-color, import, and responsive drift.
-- Coordinated the migration of the portfolio homepage and every project case study, every Network Diagnostics state, and every RolePacket workflow screen.
+- Added reference implementations adapted from the portfolio, Network Diagnostics, and RolePacket.
 
 ## 1.3.4 — 2026-07-25
 
