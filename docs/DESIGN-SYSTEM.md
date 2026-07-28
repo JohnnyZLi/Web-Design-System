@@ -2,7 +2,7 @@
 
 ## 1. Status and normative language
 
-**Version:** 1.7.0  
+**Version:** 1.8.0  
 **Package status:** Implementation candidate  
 **Production visual baseline:** Approved  
 **Owner:** Johnny Li
@@ -43,8 +43,9 @@ The design system owns:
 - Semantic success, warning, danger, information, and violet token triplets
 - Standalone adaptable shells for actions, buttons, callouts, empty states, table regions, and native dialogs
 - Shared dialog structure for backdrop, placement, surface, title, message, actions, compact transformation, and forced-colors behavior
-- A constrained consumer-release resolver for immutable source and version metadata
-- A reusable GitHub Actions workflow for validated consumer synchronization and draft update pull requests
+- Constrained consumer-release resolution for immutable source and version metadata
+- Reusable GitHub Actions workflows for consumer synchronization and conformance reporting
+- Stable machine-readable conformance rule IDs, applicability, severity, and canonical source links
 - Cross-site navigation, accessibility, distribution, and responsive contracts
 
 ### Product-owned
@@ -58,6 +59,7 @@ Each product owns:
 - RolePacket sidebar, forms, workflow density, authentication, review logic, application state, APIs, storage, and extension behavior
 - Dialog copy, application state, confirmation logic, focus timing, dimensions, density, color expression, and animation configured through shared hooks
 - Consumer schedules, Node versions, installation commands, validation commands, and tracked generated paths
+- Product state fixtures, visual-audit adapters, browser tests, builds, deployment checks, and conformance evidence manifests
 - Product-specific component names and implementation structure
 
 Products MAY use shared content classes from `styles/content.css` and `styles/content-guard.css`. Products SHOULD use `styles/content-primitives.css` when an approved local component matches one of its structural shells.
@@ -69,9 +71,9 @@ After a shared primitive has passed product-level visual and behavioral validati
 ## 4. Principles
 
 1. Preserve the approved production UI before pursuing code-level consolidation.
-2. Share foundations, structural shells, and interaction contracts, not product identity.
+2. Share foundations, structural shells, interaction contracts, and test contracts—not product identity.
 3. Use one accessible terracotta accent; reserve other hues for semantic or analytical meaning.
-4. Make state, evidence, scope, and recovery explicit.
+4. Make state, evidence, scope, ownership, and recovery explicit.
 5. Prefer responsive reflow over clipping, shrinking, or hiding essential navigation.
 6. Keep runtime dependencies and third-party data sharing minimal.
 7. Product adapters MUST NOT redefine shared header, Sites-control, compact-menu, or adopted primitive structure.
@@ -79,6 +81,8 @@ After a shared primitive has passed product-level visual and behavioral validati
 9. Shared appearance changes require comparison across all three products.
 10. Shared distribution changes require immutable source pins and consumer validation before merge.
 11. Product-local logic MUST remain local even when its visible shell becomes shared.
+12. Automated conformance MUST use stable rule IDs and explicit evidence; CI MUST NOT derive tests by parsing prose from this document.
+13. Automation MUST NOT claim coverage for checks that still require manual review.
 
 ## 5. Atomic tokens
 
@@ -143,6 +147,7 @@ Additional requirements:
 - Media includes useful alternative text or a caption when it adds meaning.
 - Native dialogs use explicit accessible names and descriptions.
 - Dialog cancellation, backdrop behavior, and initial focus remain product-owned and MUST be tested.
+- Actual assistive-technology and forced-colors review remains a recorded manual release requirement until an equivalent automated check exists.
 
 ## 7. Shared global header
 
@@ -178,13 +183,7 @@ Every owned site reaches the other two within two interactions. Owned-site links
 
 ### Canonical site directory
 
-`OWNED_SITES` is the source of truth for:
-
-- Stable site IDs
-- Display labels
-- Canonical production URLs
-
-Consumers SHOULD render the registry directly where their build system permits. Static fallback markup MUST remain consistent with it.
+`OWNED_SITES` is the source of truth for stable site IDs, display labels, and canonical production URLs. Consumers SHOULD render it directly where their build system permits. Static fallback markup MUST remain consistent with it.
 
 ### Sites-menu controller
 
@@ -193,19 +192,16 @@ Consumers SHOULD render the registry directly where their build system permits. 
 - Button click toggle
 - Outside-pointer close
 - Escape close with focus restoration
-- ArrowDown and ArrowUp entry
-- ArrowUp and ArrowDown cycling
+- ArrowDown and ArrowUp entry and cycling
 - Home and End navigation
 - Link-selection close
 - `aria-expanded` and `hidden` synchronization
 
 Products MAY close their own compact navigation or workspace drawer before the Sites menu opens.
 
-### Compact header-menu controller
+### Compact header-menu controller and shell
 
 `installHeaderMenu()` owns the same disclosure and keyboard contract for compact product navigation. Product labels, destinations, and active-state logic remain local.
-
-### Shared compact menu shell
 
 - `jl-header-menu-toggle`: compact navigation trigger
 - `jl-header-menu`: product navigation popover shell
@@ -217,17 +213,7 @@ At 900px and below, the shell uses shared gutters, surface, border, radius, shad
 
 ### Reference content layer
 
-`styles/content.css` and `styles/content-guard.css` provide REFERENCE utilities for new work and deliberate consolidation:
-
-- Page rails and responsive regions
-- Heroes, titles, ledes, actions, and metadata
-- Sections and content grids
-- Prose and editorial leads
-- Panels and ruled structures
-- Process steps and metrics
-- Semantic callouts
-- Buttons and action groups
-- Code, media, tables, and empty states
+`styles/content.css` and `styles/content-guard.css` provide REFERENCE utilities for page rails, heroes, titles, ledes, metadata, sections, grids, prose, panels, ruled structures, process steps, metrics, semantic callouts, actions, code, media, tables, and empty states.
 
 Existing product-local classes remain conforming when they preserve approved composition, shared token roles, accessibility outcomes, responsive behavior, and product ownership.
 
@@ -250,47 +236,23 @@ It provides:
 
 The primitive layer owns reusable structure, interaction-safe defaults, compact transformations, and forced-colors borders. Products customize approved geometry and expression through documented `--jl-*` custom properties.
 
-Products MUST NOT copy the shared structural declarations into mapping files. Mapping files contain variables and genuinely product-specific content styling only.
+Products MUST NOT copy shared structural declarations into mapping files. Mapping files contain variables and genuinely product-specific content styling only.
 
 ### Native-dialog contract
 
-The shared dialog shell owns:
+The shared dialog shell owns transparent native-dialog reset, viewport placement, maximum dimensions, backdrop hooks, surface geometry, title and message styling hooks, action layout, compact stacking, and forced-colors fallback.
 
-- Transparent native-dialog reset
-- Viewport placement and maximum dimensions
-- Backdrop background and blur hooks
-- Surface border, radius, padding, background, color, and shadow hooks
-- Title and message spacing and typography hooks
-- Action layout and compact stacking hooks
-- Forced-colors fallback
-
-Products own:
-
-- Whether and when a dialog opens
-- Queueing, cancellation, confirmation, and focus-restoration behavior
-- Accessible labels and descriptions
-- Product wording and semantic tone
-- Checkbox, note, or workflow-specific content
-- Product dimensions, density, colors, and animation through variables or product selectors
+Products own whether and when a dialog opens; queueing, cancellation, confirmation, and focus restoration; accessible labels and descriptions; product wording and tone; workflow-specific content; dimensions, density, colors, and animation through shared hooks.
 
 ## 10. Consumer distribution and synchronization
 
 Consumers pin an exact reviewed commit. Floating branches and runtime content-delivery network imports are prohibited.
 
-Each consumer records:
-
-- Package name
-- Semantic version
-- Immutable source commit
-- Generated source metadata
-
-Shared assets are copied into the consumer build artifact and validated against the lock.
+Each consumer records the package name, semantic version, immutable source commit, and generated source metadata. Shared assets are copied into the consumer build artifact and validated against the lock.
 
 ### Consumer release resolver
 
-`scripts/consumer-release.mjs` resolves the current reviewed design-system commit and version.
-
-It MUST:
+`scripts/consumer-release.mjs` MUST:
 
 - Accept only repository-local output paths
 - Reject paths that escape the current repository
@@ -298,61 +260,47 @@ It MUST:
 - Avoid subprocess execution and arbitrary validation commands
 - Validate commit and semantic-version formats
 
-Consumers MAY commit a synchronized local copy of this helper when adding the package as an installed dependency would cause unnecessary lockfile churn. That copy MUST be included in design-system drift validation.
+Consumers MAY commit synchronized local copies of small shared helpers when installing the package would cause unnecessary lockfile churn. Every copy MUST be included in design-system drift validation.
 
 ### Reusable update workflow
 
-`.github/workflows/consumer-design-system-sync.yml` owns:
+`.github/workflows/consumer-design-system-sync.yml` owns checkout, Node setup, consumer installation invocation, release resolution, synchronization invocation, validation invocation, tracked-path change detection, update-branch publication, and draft pull-request creation or refresh.
 
-- Checkout and Node setup
-- Consumer installation invocation
-- Release resolution and asset synchronization
-- Consumer validation invocation
-- Change detection over declared tracked paths
-- Update-branch creation
-- Commit and force-refresh of the automation branch
-- Draft pull-request creation or refresh
+Each consumer owns schedule, manual trigger, Node version, installation command, validation command, tracked paths, and product name. Consumer workflows MUST pin reusable workflows to immutable design-system commits.
 
-Each consumer owns only:
+### Machine-readable conformance
 
-- Schedule and manual trigger
-- Node version
-- Installation command
-- Validation command
-- Tracked paths
-- Product name
+`conformance/contract.json` assigns stable rule IDs to enforceable requirements in this document. Each rule records title, description, severity, applicable products, accepted evidence classes, and a canonical source section.
 
-Consumer workflows MUST pin the reusable workflow to an immutable design-system commit.
+Each consumer MUST provide `design-system.conformance.json` after adopting the conformance framework. Applicable rules MUST have repository-local evidence or an explicit manual status. Unknown rules and missing applicable declarations fail.
+
+`scripts/conformance-runner.mjs` MUST:
+
+- Read data only and never execute consumer commands
+- Confine the manifest, evidence files, and report output to the consumer repository
+- Support file, fragment, regular-expression, and JSON evidence
+- Produce machine-readable JSON and human-readable Markdown reports
+- Block required automated failures and manual failures
+- Record pending manual checks without treating them as automated passes
+- Support strict-manual mode for final release approval
+
+`.github/workflows/consumer-conformance.yml` standardizes checkout, Node setup, consumer command invocation, and report artifact upload. The consumer remains responsible for building meaningful application states and running its own tests.
+
+A reduced viewport MUST NOT be described as actual browser zoom. Automated narrow-layout checks and actual 200% browser zoom review are separate evidence.
 
 ## 11. Approved product baselines
 
 ### Portfolio
 
-Preserve:
-
-- Homepage composition and section rhythm
-- Editorial display hierarchy
-- Numbered selected-work rows
-- Narrative case studies
-- Restrained terracotta use
-- Dark contact and next-project sections
-- Responsive navigation and contact availability
+Preserve homepage composition and section rhythm, editorial display hierarchy, numbered selected-work rows, narrative case studies, restrained terracotta use, dark contact and next-project sections, and responsive navigation/contact availability.
 
 Case-study headers SHOULD exist in source HTML rather than being constructed by runtime enhancement. Technical cleanup MUST preserve the rendered design.
 
-The portfolio currently adopts the shared updater workflow and content primitives used by case-study actions. It does not adopt the shared dialog shell because it has no matching product dialog.
+The portfolio adopts the shared updater workflow and selected content primitives. It does not adopt the shared dialog shell because it has no matching product dialog.
 
 ### Network Diagnostics
 
-Preserve:
-
-- Hero and sticky test-control composition
-- Quick, Full, and Stress profiles with duration and maximum-transfer disclosure
-- Idle, download-loaded, and upload-loaded conditions
-- Metric cards, charts, findings, tables, recent history, and native probe
-- Local-only result history
-- Terracotta text hierarchy with product-owned analytical colors
-- Exact dot canvas without a visible grid
+Preserve hero and sticky test controls; Quick, Full, and Stress profiles with duration and maximum-transfer disclosure; idle and loaded conditions; metric cards, charts, findings, tables, recent history, and native probe; local-only result history; terracotta hierarchy with product-owned analytical colors; and the exact dot canvas without a visible grid.
 
 Browser request loss MUST NOT be labeled raw packet loss. Charts retain stable labels, summaries, and grayscale distinction.
 
@@ -360,15 +308,7 @@ The data-use confirmation dialog uses the shared dialog shell. Transfer-cap logi
 
 ### RolePacket
 
-Preserve:
-
-- Dense review-first workflow
-- Wide sidebar and accessible compact drawer
-- Ruled application rows
-- Explicit status and provenance
-- Before/proposed comparisons
-- Resume preview, version history, answer matching, notes, and memory workflows
-- Current panel density and form structure
+Preserve the dense review-first workflow, wide sidebar and accessible compact drawer, ruled application rows, explicit status and provenance, before/proposed comparisons, resume preview, version history, answer matching, notes, memory workflows, and current panel density/form structure.
 
 RolePacket feature work MAY substantially change workflow behavior. It MUST NOT force workflow-specific patterns onto the portfolio or Network Diagnostics.
 
@@ -376,19 +316,7 @@ The reusable confirmation service uses the shared dialog shell. Queueing, extens
 
 ## 12. Component states and responsive behavior
 
-Every interactive product component defines the states that apply:
-
-- Default
-- Hover
-- Focus-visible
-- Disabled
-- Loading or pending
-- Empty
-- Error with recovery
-- Success when important
-- Compact transformation
-- Forced-colors behavior
-- Reduced-motion behavior
+Every interactive product component defines the states that apply: default, hover, focus-visible, disabled, loading or pending, empty, error with recovery, important success, compact transformation, forced-colors behavior, and reduced-motion behavior.
 
 Responsive requirements:
 
@@ -401,7 +329,7 @@ Responsive requirements:
 - Action groups stack to full-width controls when needed.
 - Dialogs remain within the viewport and preserve reachable actions.
 - No document-level overflow at 320px.
-- Pages remain usable at 200% browser zoom.
+- Pages remain usable at actual 200% browser zoom.
 
 ## 13. Motion, privacy, and performance
 
@@ -415,41 +343,27 @@ Responsive requirements:
 - Product bundles avoid duplicate shared assets.
 - Static pages SHOULD avoid JavaScript for content that can exist in source HTML.
 - New visual dependencies require a measured reason and ownership record.
-- Update automation MUST not weaken consumer validation or bypass repository protections.
+- Update and conformance automation MUST not weaken consumer validation or bypass repository protections.
+- Bundle and user-experience performance baselines remain manual-pending until measured and approved; automation MUST not invent thresholds before that record exists.
 
 ## 14. Governance
 
-A shared change includes:
+A shared change includes atomic tokens, global accessibility behavior, global header and site controls, canonical site registry, shared semantic roles, shared primitive and dialog structure, consumer release and synchronization tooling, conformance contract and runner, shared responsive principles, and optional reusable content utilities.
 
-- Atomic tokens
-- Global accessibility behavior
-- Global header and site controls
-- Canonical owned-site registry
-- Shared semantic status roles
-- Shared standalone primitive structure
-- Shared native-dialog shell
-- Consumer release resolver and reusable synchronization workflow
-- Shared responsive principles
-- Optional reusable content utilities
-
-A product-local change includes:
-
-- Portfolio narrative composition
-- Network measurement logic, charts, controls, profiles, Worker behavior, and probe behavior
-- RolePacket authentication, application state, workflow logic, APIs, storage, extension behavior, and workspace drawer
-- Product-specific spacing, density, animation, copy, or color expression that preserves shared roles
-- Consumer validation commands and schedules
+A product-local change includes portfolio narrative composition; Network measurement logic, charts, controls, profiles, Worker and probe behavior; RolePacket authentication, application state, workflow logic, APIs, storage, extension behavior, and workspace drawer; product-specific spacing, density, animation, copy, or color expression; consumer state fixtures; and consumer validation commands and schedules.
 
 Shared distributable changes require:
 
 1. Design-system update
 2. Semantic-version decision
 3. Canonical documentation, specimen, or contract update
-4. Package validation
+4. Package validation and conformance-runner self-test
 5. Immutable consumer pin update
-6. Product-level tests
+6. Product-level static, runtime, visual, and application tests
 7. Visual comparison when appearance changes
 8. Independent consumer pull requests and rollback boundaries
+9. Cross-consumer release-gate validation after all consumers support the contract
+10. Recorded manual approval for checks that cannot be automated honestly
 
 Documentation-only changes do not require repinning when packaged assets are unchanged.
 
@@ -466,11 +380,13 @@ Documentation-only changes do not require repinning when packaged assets are unc
 - Uses the shared dialog shell for matching native confirmation dialogs
 - Keeps product dialog logic, wording, state, and focus behavior local
 - Pins shared workflows and generated assets to immutable commits
-- Keeps consumer schedules and validation commands product-owned
+- Keeps consumer schedules, state fixtures, and validation commands product-owned
+- Provides evidence for every applicable machine-readable rule
+- Distinguishes automated narrow-layout evidence from actual browser-zoom review
 - Preserves product-specific information architecture
 - Does not hide essential compact navigation
 - Has no document-level overflow at 320px
-- Remains usable at 200% zoom
+- Remains usable at actual 200% zoom
 - Supports keyboard, focus, reduced motion, and forced colors
 - Communicates semantic status with text and appropriate token roles
 - Keeps tables, code, charts, dialogs, and media locally bounded
