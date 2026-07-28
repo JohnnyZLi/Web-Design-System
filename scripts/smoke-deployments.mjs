@@ -4,6 +4,7 @@ const OWNED_LINKS = [
   "https://network.johnnyli.dev",
   "https://rolepacket.johnnyli.dev",
 ];
+const ROLEPACKET_ORIGIN = "https://rolepacket.johnnyli.dev";
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -39,11 +40,26 @@ async function checkPublicSite({ name, url, marker }) {
   return { name, status: response.status, finalUrl: response.url, mode: "public" };
 }
 
+function isCloudflareAccessRedirect(location) {
+  let target;
+  try {
+    target = new URL(location, ROLEPACKET_ORIGIN);
+  } catch {
+    return false;
+  }
+  if (target.protocol !== "https:") return false;
+  const accessHostname = target.hostname === "cloudflareaccess.com"
+    || target.hostname.endsWith(".cloudflareaccess.com");
+  const sameOriginAccessPath = target.origin === ROLEPACKET_ORIGIN
+    && target.pathname.startsWith("/cdn-cgi/access/");
+  return accessHostname || sameOriginAccessPath;
+}
+
 async function checkRolePacket() {
   const clientId = process.env.ROLEPACKET_ACCESS_CLIENT_ID;
   const clientSecret = process.env.ROLEPACKET_ACCESS_CLIENT_SECRET;
   const authenticated = Boolean(clientId && clientSecret);
-  const response = await request("https://rolepacket.johnnyli.dev", {
+  const response = await request(ROLEPACKET_ORIGIN, {
     redirect: authenticated ? "follow" : "manual",
     headers: authenticated
       ? {
@@ -67,10 +83,7 @@ async function checkRolePacket() {
   const location = response.headers.get("location") ?? "";
   const protectedResponse = response.status === 302 || response.status === 303 || response.status === 307 || response.status === 308;
   assert(protectedResponse, `RolePacket unauthenticated smoke expected an Access redirect, received HTTP ${response.status}.`);
-  assert(
-    location.includes("cloudflareaccess.com") || location.includes("/cdn-cgi/access"),
-    "RolePacket redirected somewhere other than Cloudflare Access.",
-  );
+  assert(isCloudflareAccessRedirect(location), "RolePacket redirected somewhere other than Cloudflare Access.");
   return { name: "RolePacket", status: response.status, finalUrl: location, mode: "access-gate" };
 }
 
