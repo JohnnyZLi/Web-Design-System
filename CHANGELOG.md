@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.8.0 — 2026-07-28
+
+- Added a versioned machine-readable conformance contract with stable `DS-*` rule identifiers tied to canonical design-system sections.
+- Added a dependency-free consumer evidence runner that produces JSON and Markdown reports without executing consumer commands.
+- Added repository-confined file, fragment, regular-expression, and JSON evidence with path-escape rejection.
+- Added explicit manual-passed, manual-pending, and manual-failed states plus strict-manual release mode.
+- Added a reusable consumer conformance workflow with standard report artifact handling.
+- Added runner self-tests for normal reports, strict manual blocking, and repository-boundary enforcement.
+- Kept product state construction, visual audits, builds, application tests, and deployment checks in their owning repositories.
+
 ## 1.7.0 — 2026-07-28
 
 - Added a variable-backed native-dialog shell covering centering, backdrop, surface, title, message, actions, compact placement, and forced-colors behavior.
