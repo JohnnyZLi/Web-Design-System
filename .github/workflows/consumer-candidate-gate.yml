@@ -3,6 +3,12 @@ name: Consumer candidate gate
 on:
   pull_request:
   workflow_dispatch:
+    inputs:
+      rolepacket-ref:
+        description: RolePacket ref used while validating an adoption branch before it reaches main.
+        required: false
+        default: main
+        type: string
 
 permissions:
   contents: read
@@ -101,20 +107,30 @@ jobs:
   rolepacket:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 45
     env:
       CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      ROLEPACKET_REF: ${{ inputs.rolepacket-ref || 'main' }}
+      ROLEPACKET_REPOSITORY_TOKEN: ${{ secrets.ROLEPACKET_REPOSITORY_TOKEN }}
     steps:
       - name: Check out design-system candidate
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           persist-credentials: false
           path: wds
+      - name: Require private-consumer read token
+        shell: bash
+        run: |
+          if [[ -z "$ROLEPACKET_REPOSITORY_TOKEN" ]]; then
+            echo "::error::Add a fine-grained ROLEPACKET_REPOSITORY_TOKEN secret with read access to JohnnyZLi/RolePacket."
+            exit 1
+          fi
       - name: Check out RolePacket
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           repository: JohnnyZLi/RolePacket
-          ref: main
+          ref: ${{ env.ROLEPACKET_REF }}
+          token: ${{ secrets.ROLEPACKET_REPOSITORY_TOKEN }}
           persist-credentials: false
           path: consumer
       - name: Set up Node.js
@@ -131,6 +147,8 @@ jobs:
           NODE
       - name: Validate RolePacket consumer
         working-directory: consumer
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
         run: |
           npm ci --no-audit --no-fund
           npm run design-system:sync
@@ -139,3 +157,7 @@ jobs:
           npm run typecheck
           npm run build
           npm run cloud:deploy:dry
+          npm run test:unit
+          npm run test:server
+          npm run test:browser
+          npm audit --omit=dev --audit-level=high
