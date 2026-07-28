@@ -4,7 +4,7 @@
 
 A shared UI and UX system for `johnnyli.dev`, `network.johnnyli.dev`, and `rolepacket.johnnyli.dev`.
 
-**Version:** 1.6.0  
+**Version:** 1.6.1  
 **Package status:** Implementation candidate  
 **Production visual baseline:** Approved  
 **License:** All rights reserved
@@ -67,13 +67,13 @@ The complete CSS package remains available for new components or deliberate cons
 @import "@johnnyzli/web-design-system";
 ```
 
-Products that need only adaptable buttons, callouts, empty states, action groups, or table regions can import the smaller shell after their shared tokens:
+Products that need only adaptable buttons, callouts, empty states, action groups, or table regions can import the standalone shell immediately after shared tokens:
 
 ```css
 @import "@johnnyzli/web-design-system/content-primitives.css";
 ```
 
-The primitives expose `--jl-button-*`, `--jl-callout-*`, `--jl-empty-state-*`, `--jl-actions-*`, and `--jl-table-region-*` customization hooks. Consumers should tune those variables rather than copying the complete structural declaration. Semantic variants remain shared while product-specific density and visual expression remain local.
+The standalone export includes its own structural display, alignment, interaction, responsive, and forced-colors behavior; it does not require `content.css`. It exposes `--jl-button-*`, `--jl-callout-*`, `--jl-empty-state-*`, `--jl-actions-*`, and `--jl-table-region-*` customization hooks. Consumers should tune those variables rather than copying complete structural declarations. Semantic variants remain shared while product-specific density and expression remain local.
 
 Static sites copy the reviewed assets into their generated artifact. Owned sites must not fetch the design system from a runtime CDN.
 
@@ -91,7 +91,7 @@ Static sites copy the reviewed assets into their generated artifact. Owned sites
 - [`scripts/site-controls.js`](scripts/site-controls.js) owns the site directory and framework-neutral Sites and header-menu controllers.
 - [`scripts/site-controls.d.ts`](scripts/site-controls.d.ts) provides the TypeScript contract for the shared controllers.
 - [`styles/content.css`](styles/content.css) and [`styles/content-guard.css`](styles/content-guard.css) provide optional content patterns and resilience against generic resets.
-- [`styles/content-primitives.css`](styles/content-primitives.css) provides adaptable cross-product shells for selective consolidation.
+- [`styles/content-primitives.css`](styles/content-primitives.css) provides standalone, adaptable cross-product shells for selective consolidation.
 - [`scripts/smoke-deployments.mjs`](scripts/smoke-deployments.mjs) validates the live domain and Access-gate contract.
 
 ## Structure
@@ -114,7 +114,3 @@ Static sites copy the reviewed assets into their generated artifact. Owned sites
 ```
 
 The repository is public, but public visibility does not grant permission to reuse the work. See `LICENSE`.
-
-## Security
-
-The repository validates release contents, package exports, CSS override syntax, common secret patterns, private network addresses, local home-directory paths, and sensitive filenames. Report vulnerabilities privately as described in [`SECURITY.md`](SECURITY.md).
