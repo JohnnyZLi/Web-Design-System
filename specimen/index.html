@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="../styles/foundations.css">
   <link rel="stylesheet" href="../styles/site-identity.css">
   <link rel="stylesheet" href="../styles/content.css">
+  <link rel="stylesheet" href="../styles/content-primitives.css">
   <link rel="stylesheet" href="specimen.css">
   <script src="specimen.js" defer></script>
 </head>
@@ -37,7 +38,7 @@
     <section class="hero jl-page-hero jl-page__inner jl-page__inner--portfolio" aria-labelledby="hero-title">
       <div class="jl-page-hero__grid">
         <div>
-          <p class="eyebrow jl-eyebrow">Implementation candidate · v1.4.0</p>
+          <p class="eyebrow jl-eyebrow">Implementation candidate · v1.8.2</p>
           <h1 class="jl-page-title" id="hero-title">Editorial warmth,<br><em>systems precision.</em></h1>
         </div>
         <div class="hero-aside jl-prose">
@@ -63,7 +64,7 @@
         <button class="primary-button jl-button jl-button--primary" type="button">Run test</button>
         <button class="neutral-button jl-button" type="button">Save changes</button>
         <button class="secondary-button jl-button" type="button">Review details</button>
-        <button class="danger-button jl-button" type="button" data-open-dialog>Delete application</button>
+        <button class="danger-button jl-button jl-button--danger" type="button" data-open-dialog>Delete application</button>
         <button class="secondary-button jl-button" type="button" disabled>Disabled</button>
       </div>
       <div class="status-row jl-grid-4 jl-responsive-region" aria-label="Status examples">
@@ -182,12 +183,12 @@
     </section>
   </main>
 
-  <dialog id="delete-dialog" aria-labelledby="dialog-title" aria-describedby="dialog-description">
-    <form method="dialog">
+  <dialog class="jl-dialog" id="delete-dialog" aria-labelledby="dialog-title" aria-describedby="dialog-description">
+    <form class="jl-dialog__surface" method="dialog">
       <p class="eyebrow jl-eyebrow">Destructive confirmation</p>
-      <h2 id="dialog-title">Delete application?</h2>
-      <p id="dialog-description">Delete “Network Infrastructure Engineer” at Example Corp? This demonstration does not remove real data.</p>
-      <div class="dialog-actions jl-actions"><button class="secondary-button jl-button" value="cancel">Cancel</button><button class="danger-button jl-button" value="delete">Delete application</button></div>
+      <h2 class="jl-dialog__title" id="dialog-title">Delete application?</h2>
+      <p class="jl-dialog__message" id="dialog-description">Delete “Network Infrastructure Engineer” at Example Corp? This demonstration does not remove real data.</p>
+      <div class="dialog-actions jl-dialog__actions jl-actions"><button class="secondary-button jl-button" value="cancel">Cancel</button><button class="danger-button jl-button jl-button--danger" value="delete">Delete application</button></div>
     </form>
   </dialog>
 </body>
