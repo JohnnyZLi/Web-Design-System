@@ -7,13 +7,16 @@ import { spawnSync } from "node:child_process";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const runner = resolve(root, "scripts/conformance-runner.mjs");
 const contract = resolve(root, "conformance/contract.json");
+const contractMetadata = JSON.parse(await readFile(contract, "utf8"));
 const fixture = await mkdtemp(resolve(tmpdir(), "jl-conformance-"));
+const sourceCommit = "1234567890123456789012345678901234567890";
 
-await writeFile(resolve(fixture, "design-system.lock.json"), JSON.stringify({
+const writeLock = async (version = contractMetadata.designSystemVersion) => writeFile(resolve(fixture, "design-system.lock.json"), JSON.stringify({
   package: "@johnnyzli/web-design-system",
-  version: "1.8.0",
-  sourceCommit: "1234567890123456789012345678901234567890",
+  version,
+  sourceCommit,
 }), "utf8");
+await writeLock();
 await writeFile(resolve(fixture, "page.html"), '<header class="jl-global-header"><div data-site-switcher></div></header>', "utf8");
 await writeFile(resolve(fixture, "audit.yml"), "uses: shared\nwidth: 320\nEscape\nfocus restoration\n", "utf8");
 await writeFile(resolve(fixture, "styles.css"), "", "utf8");
@@ -45,7 +48,8 @@ const manifest = {
     "DS-PERF-001": manual("Performance baseline remains manual."),
   },
 };
-await writeFile(resolve(fixture, "design-system.conformance.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+const writeManifest = async () => writeFile(resolve(fixture, "design-system.conformance.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+await writeManifest();
 
 function execute(extra = []) {
   return spawnSync(process.execPath, [runner, "--contract", contract, "--root", fixture, ...extra], {
@@ -56,18 +60,34 @@ function execute(extra = []) {
 const normal = execute([]);
 if (normal.status !== 0) throw new Error(`Normal conformance self-test failed: ${normal.stderr || normal.stdout}`);
 const report = JSON.parse(await readFile(resolve(fixture, "design-system-conformance/report.json"), "utf8"));
-if (report.summary.blockingFailures !== 0 || report.summary.manualPending !== 3) {
-  throw new Error("Conformance report summary is incorrect.");
+if (report.summary.blockingFailures !== 0 || report.summary.manualPending !== 3) throw new Error("Conformance report summary is incorrect.");
+if (report.designSystemVersion !== contractMetadata.designSystemVersion || report.sourceCommit !== sourceCommit) {
+  throw new Error("Conformance report provenance is incorrect.");
 }
-if (!(await readFile(resolve(fixture, "design-system-conformance/report.md"), "utf8")).includes("DS-DIST-001")) {
-  throw new Error("Markdown conformance report is incomplete.");
+if (!(await readFile(resolve(fixture, "design-system-conformance/report.md"), "utf8")).includes(sourceCommit)) {
+  throw new Error("Markdown conformance report is missing provenance.");
 }
 
 const strict = execute(["--strict-manual"]);
 if (strict.status === 0) throw new Error("Strict manual mode did not block pending manual checks.");
 
+await writeLock("0.0.0");
+const mismatch = execute([]);
+if (mismatch.status === 0 || !mismatch.stderr.includes("does not match consumer lock")) {
+  throw new Error("Conformance runner did not reject mismatched contract and lock versions.");
+}
+await writeLock();
+
+manifest.rules["DS-PERF-001"] = { status: "manual-pending", reason: "" };
+await writeManifest();
+const malformed = execute([]);
+if (malformed.status === 0 || !malformed.stderr.includes("requires a reason")) {
+  throw new Error("Conformance runner did not reject a malformed manual declaration.");
+}
+manifest.rules["DS-PERF-001"] = manual("Performance baseline remains manual.");
+
 manifest.rules["DS-DIST-002"] = { evidence: [{ type: "file-exists", file: "../outside-repository" }] };
-await writeFile(resolve(fixture, "design-system.conformance.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+await writeManifest();
 const escape = execute([]);
 const escapeReport = JSON.parse(await readFile(resolve(fixture, "design-system-conformance/report.json"), "utf8"));
 const escapeResult = escapeReport.results.find((result) => result.id === "DS-DIST-002");
