@@ -34,6 +34,8 @@ jobs:
         run: node --check scripts/conformance-runner.mjs
       - name: Exercise conformance runner
         run: node scripts/test-conformance-runner.mjs
+      - name: Validate extreme-compact header
+        run: python scripts/validate_header_contract.py
       - name: Validate design system
         run: make validate
       - name: Verify npm package contents
