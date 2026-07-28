@@ -4,7 +4,7 @@
 
 A shared UI and UX system for `johnnyli.dev`, `network.johnnyli.dev`, and `rolepacket.johnnyli.dev`.
 
-**Version:** 1.8.1  
+**Version:** 1.8.2  
 **Package status:** Implementation candidate  
 **Production visual baseline:** Approved  
 **License:** All rights reserved
@@ -88,17 +88,23 @@ Static sites copy the reviewed assets into their generated artifact. Owned sites
 
 [`.github/workflows/consumer-design-system-sync.yml`](.github/workflows/consumer-design-system-sync.yml) is a reusable workflow. Consumer repositories keep their own install and validation commands, while the shared workflow owns update resolution, synchronization invocation, change detection, branch publication, and draft pull-request creation.
 
+Consumer integration checks derive the expected package version and source commit from `design-system.lock.json`. This lets an update synchronize a new candidate and validate it before opening a pull request instead of failing against hard-coded metadata from the previous release.
+
 ## Conformance testbench
 
 [`conformance/contract.json`](conformance/contract.json) gives enforceable design-system requirements stable `DS-*` rule IDs. Each rule names the products it applies to, its severity, accepted evidence classes, and the canonical design-document section that owns it.
 
-[`scripts/conformance-runner.mjs`](scripts/conformance-runner.mjs) evaluates a consumer-owned `design-system.conformance.json` manifest. It supports repository-confined file, fragment, regular-expression, and JSON evidence; emits both JSON and Markdown reports; blocks required failures; and tracks actual browser zoom, assistive-technology review, and performance approval as explicit manual items. It deliberately does not execute consumer commands.
+[`conformance/manifest.schema.json`](conformance/manifest.schema.json) defines the strict consumer declaration shape. Unknown properties, unsupported evidence types, malformed manual states, and incomplete evidence declarations are rejected before rule evaluation.
+
+[`scripts/conformance-runner.mjs`](scripts/conformance-runner.mjs) evaluates a consumer-owned `design-system.conformance.json` manifest. It supports repository-confined file, fragment, regular-expression, and JSON evidence; verifies that the consumer lock version matches the conformance contract; emits design-system and consumer commit provenance in JSON and Markdown reports; blocks required failures; and tracks actual browser zoom, assistive-technology review, and performance approval as explicit manual items. It deliberately does not execute consumer commands.
 
 ```bash
 node node_modules/@johnnyzli/web-design-system/scripts/conformance-runner.mjs
 ```
 
 [`.github/workflows/consumer-conformance.yml`](.github/workflows/consumer-conformance.yml) is the reusable pipeline shell. Consumers retain the command that builds states and runs product tests; the shared workflow standardizes checkout, Node setup, execution, and report artifacts.
+
+[`.github/workflows/consumer-candidate-gate.yml`](.github/workflows/consumer-candidate-gate.yml) checks the current design-system candidate against Website, Network Diagnostics, and RolePacket before a shared release is merged. Each product keeps its own build and validation commands, while the gate proves that the package candidate can synchronize and pass all three integration boundaries.
 
 ## Deployed smoke checks
 
@@ -116,8 +122,9 @@ node node_modules/@johnnyzli/web-design-system/scripts/conformance-runner.mjs
 - [`styles/content.css`](styles/content.css) and [`styles/content-guard.css`](styles/content-guard.css) provide optional content patterns and resilience against generic resets.
 - [`styles/content-primitives.css`](styles/content-primitives.css) provides standalone, adaptable cross-product shells for selective consolidation, including native dialogs.
 - [`scripts/consumer-release.mjs`](scripts/consumer-release.mjs) provides constrained consumer lock resolution.
-- [`scripts/conformance-runner.mjs`](scripts/conformance-runner.mjs) evaluates consumer evidence and writes standard reports.
+- [`scripts/conformance-runner.mjs`](scripts/conformance-runner.mjs) evaluates consumer evidence and writes provenance-bearing reports.
 - [`conformance/contract.json`](conformance/contract.json) is the versioned machine-readable rule source.
+- [`conformance/manifest.schema.json`](conformance/manifest.schema.json) defines the consumer evidence-manifest contract.
 - [`scripts/smoke-deployments.mjs`](scripts/smoke-deployments.mjs) validates the live domain and Access-gate contract.
 
 ## Structure
