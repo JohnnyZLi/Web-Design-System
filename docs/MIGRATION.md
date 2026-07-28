@@ -18,7 +18,7 @@ Current reviewed package baseline:
 
 - Package: `@johnnyzli/web-design-system`
 - Version: `1.4.0`
-- Immutable source: `8a223a383fe1f41000c2fbe34ac5f92c73a1e710`
+- Immutable source: recorded in each consumer repository's generated source metadata
 
 Each consumer synchronizes the production foundations it currently uses:
 
