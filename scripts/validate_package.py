@@ -19,7 +19,7 @@ EXPECTED_FILES = {
     "tokens/tokens.css", "tokens/tokens.tokens.json",
     "styles/index.css", "styles/foundations.css", "styles/site-identity.css",
     "styles/content.css", "styles/content-guard.css", "styles/content-primitives.css",
-    "scripts/site-controls.js", "scripts/site-controls.d.ts",
+    "scripts/site-controls.js", "scripts/site-controls.d.ts", "scripts/consumer-release.mjs",
 }
 EXPECTED_EXPORTS = {
     ".": "./styles/index.css",
@@ -34,12 +34,14 @@ EXPECTED_EXPORTS = {
         "types": "./scripts/site-controls.d.ts",
         "default": "./scripts/site-controls.js",
     },
+    "./consumer-release.js": "./scripts/consumer-release.mjs",
     "./version.json": "./version.json",
     "./package.json": "./package.json",
 }
 RELEASE_ADDITIONS = {
     "package.json", "version.json", "scripts/validate_package.py",
     "scripts/site-controls.js", "scripts/site-controls.d.ts", "scripts/smoke-deployments.mjs",
+    "scripts/consumer-release.mjs", ".github/workflows/consumer-design-system-sync.yml",
     "styles/index.css", "styles/foundations.css", "styles/site-identity.css",
     "styles/content.css", "styles/content-guard.css", "styles/content-primitives.css",
 }
@@ -49,7 +51,7 @@ TOKEN_USE = re.compile(r"var\((--jl-[a-z0-9-]+)")
 IMPORT = re.compile(r"@import\s+[\"']([^\"']+)[\"']")
 COMPONENT_HOOK_PREFIXES = (
     "--jl-actions-", "--jl-button-", "--jl-callout-",
-    "--jl-empty-state-", "--jl-table-region-",
+    "--jl-empty-state-", "--jl-table-region-", "--jl-dialog-",
 )
 
 
@@ -149,8 +151,30 @@ def validate() -> None:
         ".jl-button--compact", ".jl-button--danger",
         "--jl-callout-padding", ".jl-callout--info",
         "--jl-empty-state-padding", "--jl-table-region-border-width",
+        ".jl-dialog {", "z-index: var(--jl-z-dialog);", ".jl-dialog::backdrop",
+        ".jl-dialog__surface", ".jl-dialog__title", ".jl-dialog__message",
+        ".jl-dialog__actions", "--jl-dialog-compact-width",
         "@media (forced-colors: active)",
     ), "standalone adaptable content primitives")
+
+    consumer = (ROOT / "scripts" / "consumer-release.mjs").read_text(encoding="utf-8")
+    require(consumer, (
+        'const REPOSITORY = "JohnnyZLi/Web-Design-System"',
+        "function localPath(value)", "relation.startsWith(\"..\")",
+        "export async function resolveConsumerRelease", "design-system.lock.json",
+        "api.github.com/repos/${REPOSITORY}/commits/main", "raw.githubusercontent.com",
+        "manifest.dependencies[PACKAGE]", "github:${REPOSITORY}#${sourceCommit}",
+    ), "constrained consumer release helper")
+    if "child_process" in consumer or "exec(" in consumer or "spawn(" in consumer:
+        fail("consumer release helper must not execute arbitrary commands")
+
+    workflow = (ROOT / ".github" / "workflows" / "consumer-design-system-sync.yml").read_text(encoding="utf-8")
+    require(workflow, (
+        "workflow_call:", "permissions:", "contents: write", "pull-requests: write",
+        "npm run design-system:update", "npm run design-system:sync",
+        "mapfile -t tracked_paths", 'git add -- "${tracked_paths[@]}"',
+        "automation/design-system-update", "gh pr create --draft",
+    ), "reusable consumer sync workflow")
 
     index = (STYLE_ROOT / "index.css").read_text(encoding="utf-8")
     imports = [
