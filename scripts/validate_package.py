@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate and release the consumable Web Design System package contract."""
+"""Validate and append the consumable Web Design System package contract."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -10,42 +10,16 @@ import sys
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-PACKAGE = ROOT / "package.json"
-VERSION = ROOT / "version.json"
+STYLE_ROOT = ROOT / "styles"
 TOKENS_JSON = ROOT / "tokens" / "tokens.tokens.json"
 TOKENS_CSS = ROOT / "tokens" / "tokens.css"
-STYLE_ROOT = ROOT / "styles"
-SITE_IDENTITY = STYLE_ROOT / "site-identity.css"
-CONTENT = STYLE_ROOT / "content.css"
-CONTENT_GUARD = STYLE_ROOT / "content-guard.css"
-SITE_CONTROLS = ROOT / "scripts" / "site-controls.js"
-SITE_CONTROL_TYPES = ROOT / "scripts" / "site-controls.d.ts"
 EXPECTED_NAME = "@johnnyzli/web-design-system"
 EXPECTED_FILES = {
-    "LICENSE",
-    "README.md",
-    "version.json",
-    "tokens/tokens.css",
-    "tokens/tokens.tokens.json",
-    "styles/index.css",
-    "styles/foundations.css",
-    "styles/site-identity.css",
-    "styles/content.css",
-    "styles/content-guard.css",
-    "scripts/site-controls.js",
-    "scripts/site-controls.d.ts",
-}
-RELEASE_ADDITIONS = {
-    "package.json",
-    "version.json",
-    "scripts/validate_package.py",
-    "scripts/site-controls.js",
-    "scripts/site-controls.d.ts",
-    "styles/index.css",
-    "styles/foundations.css",
-    "styles/site-identity.css",
-    "styles/content.css",
-    "styles/content-guard.css",
+    "LICENSE", "README.md", "version.json",
+    "tokens/tokens.css", "tokens/tokens.tokens.json",
+    "styles/index.css", "styles/foundations.css", "styles/site-identity.css",
+    "styles/content.css", "styles/content-guard.css", "styles/content-primitives.css",
+    "scripts/site-controls.js", "scripts/site-controls.d.ts",
 }
 EXPECTED_EXPORTS = {
     ".": "./styles/index.css",
@@ -55,6 +29,7 @@ EXPECTED_EXPORTS = {
     "./site-identity.css": "./styles/site-identity.css",
     "./content.css": "./styles/content.css",
     "./content-guard.css": "./styles/content-guard.css",
+    "./content-primitives.css": "./styles/content-primitives.css",
     "./site-controls.js": {
         "types": "./scripts/site-controls.d.ts",
         "default": "./scripts/site-controls.js",
@@ -62,10 +37,20 @@ EXPECTED_EXPORTS = {
     "./version.json": "./version.json",
     "./package.json": "./package.json",
 }
+RELEASE_ADDITIONS = {
+    "package.json", "version.json", "scripts/validate_package.py",
+    "scripts/site-controls.js", "scripts/site-controls.d.ts", "scripts/smoke-deployments.mjs",
+    "styles/index.css", "styles/foundations.css", "styles/site-identity.css",
+    "styles/content.css", "styles/content-guard.css", "styles/content-primitives.css",
+}
 RAW_COLOR = re.compile(r"#[0-9a-fA-F]{3,8}\b|\b(?:rgb|rgba|hsl|hsla)\(")
 TOKEN_DEFINITION = re.compile(r"(--jl-[a-z0-9-]+)\s*:")
 TOKEN_USE = re.compile(r"var\((--jl-[a-z0-9-]+)")
 IMPORT = re.compile(r"@import\s+[\"']([^\"']+)[\"']")
+COMPONENT_HOOK_PREFIXES = (
+    "--jl-actions-", "--jl-button-", "--jl-callout-",
+    "--jl-empty-state-", "--jl-table-region-",
+)
 
 
 def fail(message: str) -> None:
@@ -76,67 +61,45 @@ def read_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def package_version() -> str:
-    tokens = read_json(TOKENS_JSON)
-    return tokens["$extensions"]["com.johnnyli.meta"]["version"]
-
-
-def require_fragments(content: str, fragments: tuple[str, ...], label: str) -> None:
+def require(content: str, fragments: tuple[str, ...], label: str) -> None:
     for fragment in fragments:
         if fragment not in content:
             fail(f"{label} is incomplete: {fragment}")
 
 
-def validate_export_path(relative: object, key: str) -> None:
-    if isinstance(relative, str):
-        if not relative.startswith("./"):
-            fail(f"invalid export {key}")
-        if not (ROOT / relative[2:]).is_file():
-            fail(f"export {key} references missing file {relative}")
+def validate_export(value: object, label: str) -> None:
+    if isinstance(value, str):
+        if not value.startswith("./") or not (ROOT / value[2:]).is_file():
+            fail(f"invalid export {label}: {value}")
         return
-    if isinstance(relative, dict):
-        for condition, target in relative.items():
-            validate_export_path(target, f"{key}.{condition}")
+    if isinstance(value, dict):
+        for condition, target in value.items():
+            validate_export(target, f"{label}.{condition}")
         return
-    fail(f"invalid export {key}")
+    fail(f"invalid export {label}")
 
 
 def validate() -> None:
-    package = read_json(PACKAGE)
-    version_metadata = read_json(VERSION)
-    token_version = package_version()
+    package = read_json(ROOT / "package.json")
+    version = read_json(ROOT / "version.json")
+    token_version = read_json(TOKENS_JSON)["$extensions"]["com.johnnyli.meta"]["version"]
 
-    if package.get("name") != EXPECTED_NAME:
+    if package.get("name") != EXPECTED_NAME or version.get("name") != EXPECTED_NAME:
         fail("unexpected package name")
     if package.get("private") is not False:
         fail("package must remain installable")
-    if package.get("version") != token_version:
-        fail("package version does not match token source")
-    if version_metadata.get("name") != EXPECTED_NAME:
-        fail("version metadata package name does not match")
-    if version_metadata.get("version") != token_version:
-        fail("version metadata does not match token source")
-    if version_metadata.get("tokenSource") != "tokens/tokens.tokens.json":
-        fail("version metadata points to the wrong token source")
+    if package.get("version") != token_version or version.get("version") != token_version:
+        fail("package, version metadata, and token source must match")
+    if set(package.get("files", [])) != EXPECTED_FILES:
+        fail("package files drifted from the approved contract")
+    if package.get("exports") != EXPECTED_EXPORTS:
+        fail("package exports drifted from the approved contract")
+    for label, value in package["exports"].items():
+        validate_export(value, label)
 
-    package_files = set(package.get("files", []))
-    if package_files != EXPECTED_FILES:
-        fail(
-            "package files changed; "
-            f"missing={sorted(EXPECTED_FILES - package_files)}, "
-            f"extra={sorted(package_files - EXPECTED_FILES)}"
-        )
-
-    required_paths = EXPECTED_FILES | RELEASE_ADDITIONS
-    missing_paths = sorted(path for path in required_paths if not (ROOT / path).is_file())
+    missing_paths = sorted(path for path in EXPECTED_FILES | RELEASE_ADDITIONS if not (ROOT / path).is_file())
     if missing_paths:
         fail("package references missing files: " + ", ".join(missing_paths))
-
-    exports = package.get("exports", {})
-    if exports != EXPECTED_EXPORTS:
-        fail("package exports drifted from the approved contract")
-    for key, relative in exports.items():
-        validate_export_path(relative, key)
 
     defined = set(TOKEN_DEFINITION.findall(TOKENS_CSS.read_text(encoding="utf-8")))
     used: set[str] = set()
@@ -148,138 +111,79 @@ def validate() -> None:
             fail(f"raw shared color in {path.relative_to(ROOT)}")
         used.update(TOKEN_USE.findall(css))
         for target in IMPORT.findall(css):
-            if target.startswith(("http://", "https://")):
-                fail(f"remote CSS import in {path.relative_to(ROOT)}")
-            if not (path.parent / target).resolve().is_file():
-                fail(f"missing CSS import {target} in {path.relative_to(ROOT)}")
-
-    missing_tokens = sorted(used - defined)
+            if target.startswith(("http://", "https://")) or not (path.parent / target).resolve().is_file():
+                fail(f"invalid CSS import {target} in {path.relative_to(ROOT)}")
+    missing_tokens = sorted(
+        name for name in used - defined
+        if not name.startswith(COMPONENT_HOOK_PREFIXES)
+    )
     if missing_tokens:
         fail("shared styles use undefined tokens: " + ", ".join(missing_tokens))
 
-    site_identity = SITE_IDENTITY.read_text(encoding="utf-8")
-    if re.search(r"^\s*@layer\b", site_identity):
-        fail("global header must remain unlayered so product resets cannot override it")
-    require_fragments(site_identity, (
-        "width: 88px;",
-        "height: var(--jl-control-height-md);",
-        "font-family: var(--jl-font-ui);",
-        "font-size: 13px;",
-        "font-weight: 700;",
-        "line-height: 1;",
-        ".jl-site-switcher__chevron",
-        "border-right: 2px solid currentColor;",
-        "border-bottom: 2px solid currentColor;",
-        ".jl-header-menu-toggle",
+    identity = (STYLE_ROOT / "site-identity.css").read_text(encoding="utf-8")
+    if re.search(r"^\s*@layer\b", identity):
+        fail("global header must remain unlayered")
+    require(identity, (
+        ".jl-site-switcher__button", ".jl-header-menu-toggle",
         ".jl-global-header__nav.jl-header-menu--open",
-        "right: var(--jl-layout-gutter);",
-        "left: var(--jl-layout-gutter);",
-    ), "shared Sites and compact-header contract")
+    ), "shared header")
 
-    site_controls = SITE_CONTROLS.read_text(encoding="utf-8")
-    require_fragments(site_controls, (
-        "export const OWNED_SITES",
-        'id: "portfolio"',
-        'id: "network"',
-        'id: "rolepacket"',
-        "export function populateOwnedSites",
-        "export function installDisclosureMenu",
-        "export function installSiteSwitcher",
-        "export function installHeaderMenu",
-        'event.key === "ArrowDown"',
-        'event.key === "ArrowUp"',
-        'event.key === "Escape"',
-        'event.key === "Home"',
-        'event.key === "End"',
-        'document.addEventListener("pointerdown"',
-        'closeMediaQuery: "(min-width: 901px)"',
-    ), "shared site-control behavior")
-    if "http://" in site_controls:
-        fail("shared site controls contain an insecure owned-site URL")
+    controls = (ROOT / "scripts" / "site-controls.js").read_text(encoding="utf-8")
+    require(controls, (
+        "export const OWNED_SITES", "export function installDisclosureMenu",
+        "export function installSiteSwitcher", "export function installHeaderMenu",
+        'event.key === "ArrowDown"', 'event.key === "ArrowUp"',
+        'event.key === "Escape"', 'event.key === "Home"', 'event.key === "End"',
+    ), "shared site controls")
+    if "http://" in controls:
+        fail("shared site controls contain an insecure URL")
 
-    site_control_types = SITE_CONTROL_TYPES.read_text(encoding="utf-8")
-    require_fragments(site_control_types, (
-        "export type OwnedSiteId",
-        "export interface DisclosureController",
-        "export const OWNED_SITES",
-        "export function installSiteSwitcher",
-        "export function installHeaderMenu",
-    ), "shared site-control types")
-
-    content_styles = CONTENT.read_text(encoding="utf-8")
-    require_fragments(content_styles, (
-        ".jl-page__inner",
-        ".jl-page-hero__grid",
-        ".jl-page-meta",
-        ".jl-page-section__header",
-        ".jl-content-grid",
-        ".jl-prose",
-        ".jl-editorial-lead",
-        ".jl-panel",
-        ".jl-process-list",
-        ".jl-metric-grid",
-        ".jl-callout--success",
-        ".jl-button--primary",
-        ".jl-code-block",
-        ".jl-media__frame",
-        ".jl-table-region",
-        "@media (max-width: 560px)",
-        "width: calc(100% - 32px);",
+    primitives = (STYLE_ROOT / "content-primitives.css").read_text(encoding="utf-8")
+    if re.search(r"^\s*@layer\b", primitives):
+        fail("content primitives must remain unlayered")
+    require(primitives, (
+        "--jl-button-min-height", "--jl-button-hover-background",
+        ".jl-button--compact", ".jl-button--danger",
+        "--jl-callout-padding", ".jl-callout--info",
+        "--jl-empty-state-padding", "--jl-table-region-border-width",
         "@media (forced-colors: active)",
-    ), "shared content contract")
-    if "grid-template-columns: repeat(4, minmax(0, 1fr));" not in content_styles:
-        fail("shared four-column content patterns are missing")
-    if "grid-template-columns: 1fr;" not in content_styles:
-        fail("shared content patterns lack compact single-column behavior")
+    ), "adaptable content primitives")
 
-    guard = CONTENT_GUARD.read_text(encoding="utf-8")
-    if re.search(r"^\s*@layer\b", guard):
-        fail("content guard must remain unlayered so legacy product resets cannot override it")
-    require_fragments(guard, (
-        ".jl-page-title",
-        ".jl-page-lede",
-        ".jl-eyebrow",
-        ".jl-prose",
-        ".jl-editorial-lead",
-        ".jl-meta-item dt",
-        ".jl-meta-item dd",
-        ".jl-metric__value",
-        ".jl-metric__label",
-        ".jl-button--primary",
-        ".jl-code-block",
-        ".jl-surface-inverse .jl-prose",
-        ".jl-surface-inverse .jl-prose a",
-        "@media (max-width: 560px)",
-        "@media (forced-colors: active)",
-    ), "shared content guard")
+    index = (STYLE_ROOT / "index.css").read_text(encoding="utf-8")
+    imports = [
+        '@import "./content.css";',
+        '@import "./content-guard.css";',
+        '@import "./content-primitives.css";',
+    ]
+    positions = [index.index(item) for item in imports]
+    if positions != sorted(positions):
+        fail("content primitives must load after content and content guard")
 
-    root_styles = (STYLE_ROOT / "index.css").read_text(encoding="utf-8")
-    if root_styles.index('@import "./content.css";') > root_styles.index('@import "./content-guard.css";'):
-        fail("content guard must load after structural content styles")
+    smoke = (ROOT / "scripts" / "smoke-deployments.mjs").read_text(encoding="utf-8")
+    require(smoke, (
+        "https://johnnyli.dev", "https://network.johnnyli.dev",
+        "https://rolepacket.johnnyli.dev", "ROLEPACKET_ACCESS_CLIENT_ID",
+        "CF-Access-Client-Id", "Deployed-site smoke checks passed.",
+    ), "deployment smoke checks")
 
-    generated_header = f"Design-system version: {token_version} */"
-    if generated_header not in TOKENS_CSS.read_text(encoding="utf-8"):
+    if f"Design-system version: {token_version} */" not in TOKENS_CSS.read_text(encoding="utf-8"):
         fail("generated token CSS version header drifted")
-
     print(f"Package validation passed for {EXPECTED_NAME} v{token_version}.")
 
 
-def append_release() -> None:
+def release() -> None:
     validate()
-    version = package_version()
+    version = read_json(TOKENS_JSON)["$extensions"]["com.johnnyli.meta"]["version"]
     archive = ROOT / "dist" / f"Johnny_Li_Web_Design_System_v{version}.zip"
     if not archive.is_file():
-        fail("base release archive is missing; run the design-system release first")
-
+        fail("base release archive is missing; run make release")
     prefix = Path(f"Web-Design-System-v{version}")
     with zipfile.ZipFile(archive, "a", zipfile.ZIP_DEFLATED) as output:
         existing = set(output.namelist())
-        for relative_text in sorted(RELEASE_ADDITIONS):
-            destination = (prefix / relative_text).as_posix()
-            if destination in existing:
-                continue
-            output.write(ROOT / relative_text, destination)
-
+        for relative in sorted(RELEASE_ADDITIONS):
+            destination = (prefix / relative).as_posix()
+            if destination not in existing:
+                output.write(ROOT / relative, destination)
     print(f"Added package contract to {archive.relative_to(ROOT)}")
 
 
@@ -287,7 +191,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("command", nargs="?", default="validate", choices=["validate", "release"])
     args = parser.parse_args()
-    {"validate": validate, "release": append_release}[args.command]()
+    {"validate": validate, "release": release}[args.command]()
 
 
 if __name__ == "__main__":

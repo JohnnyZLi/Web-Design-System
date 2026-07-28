@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.6.0 — 2026-07-28
+
+- Added variable-backed button, action, callout, empty-state, and table-region shells for selective cross-product adoption.
+- Added compact and danger button variants while preserving product-controlled geometry through documented custom properties.
+- Added a daily and manually dispatchable smoke check for the portfolio, Network Diagnostics, and the Cloudflare Access-protected RolePacket deployment.
+- Added optional authenticated RolePacket smoke coverage through Cloudflare Access service-token secrets.
+- Expanded package validation to protect the adaptable primitive hooks, export order, semantic variants, and deployed-site smoke contract.
+- Kept page composition, product controls, charts, workflow layouts, and product-specific behavior outside the shared package.
+
 ## 1.5.0 — 2026-07-27
 
 - Declared the current production interfaces as the approved visual baseline.

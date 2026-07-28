@@ -4,7 +4,7 @@
 
 A shared UI and UX system for `johnnyli.dev`, `network.johnnyli.dev`, and `rolepacket.johnnyli.dev`.
 
-**Version:** 1.5.0  
+**Version:** 1.6.0  
 **Package status:** Implementation candidate  
 **Production visual baseline:** Approved  
 **License:** All rights reserved
@@ -29,6 +29,7 @@ make validate       # validate tokens, package contract, specimen, and public sa
 make package-check  # validate only the consumable package contract
 make serve          # preview http://localhost:8000/specimen/
 make release        # generate a consolidated Markdown release and ZIP in dist/
+node scripts/smoke-deployments.mjs
 ```
 
 Start with:
@@ -66,9 +67,19 @@ The complete CSS package remains available for new components or deliberate cons
 @import "@johnnyzli/web-design-system";
 ```
 
-The root stylesheet includes generated tokens, foundations, the exact dot canvas, the global header and Sites control, and reusable content utilities. Products retain their own application logic, charts, authentication, workflow state, navigation content, and data presentation.
+Products that need only adaptable buttons, callouts, empty states, action groups, or table regions can import the smaller shell after their shared tokens:
+
+```css
+@import "@johnnyzli/web-design-system/content-primitives.css";
+```
+
+The primitives expose `--jl-button-*`, `--jl-callout-*`, `--jl-empty-state-*`, `--jl-actions-*`, and `--jl-table-region-*` customization hooks. Consumers should tune those variables rather than copying the complete structural declaration. Semantic variants remain shared while product-specific density and visual expression remain local.
 
 Static sites copy the reviewed assets into their generated artifact. Owned sites must not fetch the design system from a runtime CDN.
+
+## Deployed smoke checks
+
+`.github/workflows/deployed-smoke.yml` checks all three owned domains every day and on manual dispatch. The public sites must return their expected product marker, shared header, and complete Sites directory. RolePacket is expected to remain behind Cloudflare Access; optional `ROLEPACKET_ACCESS_CLIENT_ID` and `ROLEPACKET_ACCESS_CLIENT_SECRET` repository secrets enable an authenticated application-shell check.
 
 ## Package contract
 
@@ -79,7 +90,9 @@ Static sites copy the reviewed assets into their generated artifact. Owned sites
 - [`styles/site-identity.css`](styles/site-identity.css) owns the shared global-header geometry, owner/product lockup, navigation slot, Sites control, compact header-menu shell, and menu styling.
 - [`scripts/site-controls.js`](scripts/site-controls.js) owns the site directory and framework-neutral Sites and header-menu controllers.
 - [`scripts/site-controls.d.ts`](scripts/site-controls.d.ts) provides the TypeScript contract for the shared controllers.
-- [`styles/content.css`](styles/content.css) and [`styles/content-guard.css`](styles/content-guard.css) provide optional shared content primitives and resilience against generic resets.
+- [`styles/content.css`](styles/content.css) and [`styles/content-guard.css`](styles/content-guard.css) provide optional content patterns and resilience against generic resets.
+- [`styles/content-primitives.css`](styles/content-primitives.css) provides adaptable cross-product shells for selective consolidation.
+- [`scripts/smoke-deployments.mjs`](scripts/smoke-deployments.mjs) validates the live domain and Access-gate contract.
 
 ## Structure
 

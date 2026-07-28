@@ -1,6 +1,6 @@
 {
   "name": "@johnnyzli/web-design-system",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Shared design tokens, site controls, page content patterns, and UI foundations for Johnny Li websites.",
   "license": "SEE LICENSE IN LICENSE",
   "private": false,
@@ -18,6 +18,7 @@
     "styles/site-identity.css",
     "styles/content.css",
     "styles/content-guard.css",
+    "styles/content-primitives.css",
     "scripts/site-controls.js",
     "scripts/site-controls.d.ts"
   ],
@@ -29,6 +30,7 @@
     "./site-identity.css": "./styles/site-identity.css",
     "./content.css": "./styles/content.css",
     "./content-guard.css": "./styles/content-guard.css",
+    "./content-primitives.css": "./styles/content-primitives.css",
     "./site-controls.js": {
       "types": "./scripts/site-controls.d.ts",
       "default": "./scripts/site-controls.js"
