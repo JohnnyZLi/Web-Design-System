@@ -46,4 +46,4 @@ For each product:
 5. Adopt blocking budgets only for stable values or timing changes with sufficient tolerance.
 6. Re-record after intentional architecture, framework, or rendering-state changes.
 
-Until reports are generated and reviewed, `DS-PERF-001` remains `manual-pending`. Adding a script or workflow alone does not prove that a product met an approved performance target.
+The initial Website, Network Diagnostics, and RolePacket reports were generated and reviewed on 2026-07-29. Each consumer therefore records `DS-PERF-001` as `manual-passed`. These reports are accepted engineering references, not universal field-performance guarantees or rigid blocking budgets.
