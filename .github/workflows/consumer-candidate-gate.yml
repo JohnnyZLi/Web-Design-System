@@ -186,5 +186,12 @@ jobs:
         run: |
           npm ci --no-audit --no-fund
           npm run design-system:sync
-          npm run verify:local:quick
+          npm run design-system:integration
+          npm run design-system:conformance
+          npm run typecheck
+          npm run build
+          npm run cloud:deploy:dry
+          npm run test:unit
+          npm run test:server
+          npm run test:browser
           npm audit --omit=dev --audit-level=high
