@@ -30,8 +30,10 @@ jobs:
         with:
           node-version: "24"
           package-manager-cache: false
-      - name: Validate conformance runner syntax
-        run: node --check scripts/conformance-runner.mjs
+      - name: Validate Node tooling syntax
+        run: |
+          node --check scripts/conformance-runner.mjs
+          node --check scripts/validate-rolepacket-candidate-local.mjs
       - name: Exercise conformance runner
         run: node scripts/test-conformance-runner.mjs
       - name: Validate extreme-compact header

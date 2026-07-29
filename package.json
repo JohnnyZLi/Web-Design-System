@@ -1,12 +1,15 @@
 {
   "name": "@johnnyzli/web-design-system",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "description": "Shared design tokens, site controls, page content patterns, conformance tooling, and UI foundations for Johnny Li websites.",
   "license": "SEE LICENSE IN LICENSE",
   "private": false,
   "sideEffects": [
     "**/*.css"
   ],
+  "scripts": {
+    "validate:rolepacket-local": "node scripts/validate-rolepacket-candidate-local.mjs"
+  },
   "files": [
     "LICENSE",
     "README.md",
@@ -21,6 +24,7 @@
     "styles/content-primitives.css",
     "conformance/contract.json",
     "conformance/contract.schema.json",
+    "conformance/manifest.schema.json",
     "scripts/site-controls.js",
     "scripts/site-controls.d.ts",
     "scripts/consumer-release.mjs",
@@ -43,6 +47,7 @@
     "./conformance-runner.js": "./scripts/conformance-runner.mjs",
     "./conformance/contract.json": "./conformance/contract.json",
     "./conformance/contract.schema.json": "./conformance/contract.schema.json",
+    "./conformance/manifest.schema.json": "./conformance/manifest.schema.json",
     "./version.json": "./version.json",
     "./package.json": "./package.json"
   },

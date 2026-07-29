@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.8.2 — 2026-07-28
+
+- Added a cross-consumer candidate gate that validates Website, Network Diagnostics, and RolePacket before a shared release can merge.
+- Added a strict consumer-manifest schema and package export.
+- Strengthened the conformance runner to validate declaration shapes, evidence properties, lock provenance, and contract-version alignment.
+- Added design-system source and consumer commit provenance to JSON and Markdown reports.
+- Expanded runner self-tests for malformed manifests, contract/lock mismatch, report provenance, and repository-boundary enforcement.
+- Required consumer integration validators to derive release identity from their lock files so scheduled updates do not self-block.
+
 ## 1.8.1 — 2026-07-28
 
 - Added an extreme-compact header transformation at 360px and below.
