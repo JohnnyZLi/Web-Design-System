@@ -6,11 +6,11 @@
 
 ## Accepted consumer commits
 
-- Website: `b0cc4546492f914fd30e779fb15ceda2c17b9463`
-- Network Diagnostics Suite: `4e8a4e53883b870636d4b087c77d9dbc5d969d69`
-- RolePacket: `388aaff75f40b32a03d8a4a1361845619196bb3d`
+- Website: `b0cc4546492f`
+- Network Diagnostics Suite: `4e8a4e53883b`
+- RolePacket: `388aaff75f40`
 
-These default-branch commits contain the reproducible performance recorders, accepted initial performance evidence, and consumer conformance manifests with the remaining manual rules recorded as `manual-passed`.
+These abbreviated identifiers refer to the accepted default-branch commits. Those commits contain the reproducible performance recorders, accepted initial performance evidence, and consumer conformance manifests with the remaining manual rules recorded as `manual-passed`.
 
 ## Automated acceptance
 
