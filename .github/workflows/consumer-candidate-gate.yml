@@ -125,7 +125,7 @@ jobs:
     timeout-minutes: 45
     env:
       CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-      ROLEPACKET_REF: ${{ inputs['rolepacket-ref'] || 'main' }}
+      ROLEPACKET_REF: ${{ inputs['rolepacket-ref'] || 'fix/design-system-audit-cleanup' }}
       ROLEPACKET_REPOSITORY_TOKEN: ${{ secrets.ROLEPACKET_REPOSITORY_TOKEN }}
     steps:
       - name: Require private-consumer access
