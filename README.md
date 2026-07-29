@@ -5,7 +5,7 @@
 A shared UI and UX system for `johnnyli.dev`, `network.johnnyli.dev`, and `rolepacket.johnnyli.dev`.
 
 **Version:** 1.8.2  
-**Package status:** Implementation candidate  
+**Package status:** Approved  
 **Production visual baseline:** Approved  
 **License:** All rights reserved
 
