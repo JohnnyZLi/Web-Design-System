@@ -73,10 +73,6 @@ jobs:
             echo "No tracked paths were configured."
             exit 1
           fi
-          if git diff --quiet -- "${tracked_paths[@]}"; then
-            echo "$PRODUCT_NAME already uses the latest design system."
-            exit 0
-          fi
 
           version=$(node -p "require('./design-system.lock.json').version")
           branch=automation/design-system-update
@@ -86,6 +82,12 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B "$branch"
           git add -- "${tracked_paths[@]}"
+
+          if git diff --cached --quiet; then
+            echo "$PRODUCT_NAME already uses the latest design system."
+            exit 0
+          fi
+
           git commit -m "Update Web Design System to v${version}"
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git push --force origin "HEAD:${branch}"
