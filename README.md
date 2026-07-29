@@ -41,6 +41,7 @@ Start with:
 - [`docs/DESIGN-SYSTEM.md`](docs/DESIGN-SYSTEM.md) — permanent rules and ownership boundaries
 - [`docs/CONFORMANCE.md`](docs/CONFORMANCE.md) — machine-readable rule and evidence model
 - [`docs/MIGRATION.md`](docs/MIGRATION.md) — current rollout and conformance status
+- [`docs/PERFORMANCE-BASELINES.md`](docs/PERFORMANCE-BASELINES.md) — consumer measurement, provenance, review, and budget standard
 - [`specimen/index.html`](specimen/index.html) — component reference, not a replacement application theme
 - [`tokens/tokens.tokens.json`](tokens/tokens.tokens.json) — sole editable token source
 
