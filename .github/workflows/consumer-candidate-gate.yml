@@ -28,6 +28,7 @@ jobs:
       - name: Check out design-system candidate
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
+          ref: ${{ env.CANDIDATE_SHA }}
           persist-credentials: false
           path: wds
       - name: Check out portfolio
@@ -73,6 +74,7 @@ jobs:
       - name: Check out design-system candidate
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
+          ref: ${{ env.CANDIDATE_SHA }}
           persist-credentials: false
           path: wds
       - name: Check out Network Diagnostics
@@ -126,20 +128,20 @@ jobs:
       ROLEPACKET_REF: ${{ inputs['rolepacket-ref'] || 'main' }}
       ROLEPACKET_REPOSITORY_TOKEN: ${{ secrets.ROLEPACKET_REPOSITORY_TOKEN }}
     steps:
-      - name: Detect private-consumer access
+      - name: Require private-consumer access
         id: access
         shell: bash
         run: |
-          if [[ -n "$ROLEPACKET_REPOSITORY_TOKEN" ]]; then
-            echo "available=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "available=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::RolePacket checkout was skipped because ROLEPACKET_REPOSITORY_TOKEN is not configured. Run npm run validate:rolepacket-local -- --rolepacket <path> and record the result before merging."
+          if [[ -z "$ROLEPACKET_REPOSITORY_TOKEN" ]]; then
+            echo "::error::ROLEPACKET_REPOSITORY_TOKEN is required. The shared release gate must not pass without validating RolePacket."
+            exit 1
           fi
+          echo "available=true" >> "$GITHUB_OUTPUT"
       - name: Check out design-system candidate
         if: steps.access.outputs.available == 'true'
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
+          ref: ${{ env.CANDIDATE_SHA }}
           persist-credentials: false
           path: wds
       - name: Check out RolePacket
@@ -190,7 +192,7 @@ jobs:
           npm run design-system:conformance
           npm run typecheck
           npm run build
-          npm run cloud:deploy:dry
+          npm run cloud:deploy:dry:built
           npm run test:unit
           npm run test:server
           npm run test:browser
