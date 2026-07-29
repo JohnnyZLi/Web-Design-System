@@ -1,6 +1,6 @@
 # Migration and conformance status
 
-This document records the current shared-design-system rollout across the owned sites. Historical release details remain in [`CHANGELOG.md`](../CHANGELOG.md); this file describes the current default-branch state and the work that is still intentionally manual.
+This document records the completed shared-design-system rollout across the owned sites. Historical release details remain in [`CHANGELOG.md`](../CHANGELOG.md).
 
 ## Approved direction
 
@@ -12,20 +12,20 @@ The production interfaces remain the approved visual baseline:
 
 The design system removes foundational, behavioral, accessibility, provenance, and maintenance drift without forcing the products into one layout.
 
-## Current rollout matrix
+## Final rollout matrix
 
-| Repository | Default-branch design system | Current state |
+| Repository | Design system | Final state |
 | --- | --- | --- |
-| Website | v1.8.2 | Lock, package dependency, generated assets, source metadata, reusable workflows, integration validation, conformance, visual audit, lint, security scan, and CodeQL are aligned. |
-| Network Diagnostics | v1.8.2 | Lock, generated assets, helper copies, workflows, integration validation, conformance, tests, build, visual audit, UI regression, security scan, and CodeQL are aligned. |
-| RolePacket | v1.8.2 | Lock, generated assets, helper copies, workflows, integration validation, conformance, typechecks, builds, Cloudflare dry runs, 109 automated tests, visual audit, and production dependency audit were validated before adoption. |
-| Web Design System | v1.8.2 | Strict manifest validation, provenance-bearing reports, lock-derived consumer validation, and the cross-consumer candidate gate are merged on `main`. |
+| Website | v1.8.2 | Lock, package dependency, generated assets, source metadata, reusable workflows, integration validation, conformance, visual audit, quality checks, security scan, CodeQL, performance baseline, and manual accessibility review are aligned. |
+| Network Diagnostics | v1.8.2 | Lock, generated assets, helper copies, workflows, integration validation, conformance, tests, build, visual audit, UI regression, security scan, CodeQL, performance baseline, zoom review, forced-colors review, assistive-technology review, and grayscale chart review are aligned. |
+| RolePacket | v1.8.2 | Lock, generated assets, helper copies, workflows, integration validation, conformance, typechecks, builds, Cloudflare dry runs, automated tests, visual audit, dependency audit, Semgrep, Gitleaks, performance baseline, and manual accessibility review are aligned. |
+| Web Design System | v1.8.2 | Strict manifest validation, provenance-bearing reports, lock-derived consumer validation, cross-consumer candidate gating, performance evidence standards, and final acceptance documentation are complete. |
 
-A rollout is complete only when lock metadata, package or helper provenance, generated assets, reusable workflow pins, integration validation, conformance evidence, and product checks describe the same reviewed release.
+The migration was accepted on 2026-07-29 after automated validation and repository-owner manual review. Package status is **approved**.
 
 ## Shared package capabilities
 
-The current package provides:
+The approved package provides:
 
 - Versioned atomic tokens and generated CSS
 - Exact dot-canvas, focus, selection, reduced-motion, and forced-colors foundations
@@ -43,88 +43,63 @@ The current package provides:
 
 Product-specific composition, density, charts, forms, workflow state, measurements, and application behavior remain owned by their repositories.
 
-## Portfolio status
+## Manual acceptance record
 
-The approved portfolio state retains:
+The repository owner completed and accepted the remaining manual checks on 2026-07-29:
 
-- Editorial homepage and case-study composition
-- Shared header and Sites control on every page
-- Source-level case-study headers
-- Shared compact navigation controller
-- Shared action and button shells for case-study actions
-- Lock-derived provenance and weekly design-system update automation
-- Automated HTML, CSS, accessibility, visual, security, and CodeQL checks
+### Website
 
-Manual confirmation still required:
+- Actual 200 percent browser zoom across the homepage and all case studies
+- Reduced-motion and forced-colors review
+- Keyboard and assistive-technology review
+- Initial bundle and browser-timing performance baseline review
 
-- Actual 200 percent browser zoom across the homepage and every case study
-- Final reduced-motion and forced-colors review in supported browsers
-- Assistive-technology review
-- Recorded bundle and user-experience performance baseline
+### Network Diagnostics
 
-## Network Diagnostics status
-
-The approved Network Diagnostics state retains:
-
-- Shared tokens, dot canvas, header, product navigation, and Sites control
-- Existing hero, sticky controls, profile selector, measurement preview, result states, charts, history, methodology, privacy, and native-probe import layout
-- Menu-then-Sites compact order and keyboard behavior
-- Shared error, action, table, and dialog primitives where adopted
-- Product-owned charts, measurements, semantic data colors, Worker behavior, and native probe
-- Automated integration, conformance, unit, build, visual, UI-regression, security, and CodeQL checks
-
-Manual confirmation still required:
-
-- Grayscale chart review for every result state
 - Actual 200 percent browser zoom of selectors, tables, charts, and imported reports
-- Final forced-colors and assistive-technology review
-- Recorded bundle and user-experience performance baseline
+- Forced-colors and assistive-technology review
+- Grayscale chart-meaning review across result states
+- Initial application-shell performance baseline review
 
-## RolePacket status
-
-The approved RolePacket state retains:
-
-- Shared palette, typography roles, focus, canvas, header, Sites control, semantic tokens, content primitives, and confirmation-dialog shell
-- Dense review-first workflow and wide desktop sidebar
-- Keyboard-operable compact workspace drawer with focus containment, Escape close, focus restoration, inert navigation, and reduced-motion support
-- Product-owned forms, review panels, comparisons, application rows, state transitions, extension events, and workflow density
-- Shared fit-analysis blocker and confirmation-dialog structures without moving the workspace drawer into the design system
-
-The v1.8.2 adoption was validated with design-system drift, integration and conformance checks; local and cloud TypeScript checks; client and server builds; both Cloudflare Worker dry runs; 109 automated tests; visual audit; and a production dependency audit.
-
-`RolePacket-Autopilot` is outside this migration and must not be modified.
-
-Manual confirmation still required:
+### RolePacket
 
 - Authenticated actual 200 percent browser zoom across core workflows
-- Forced-colors and assistive-technology review
-- Recorded bundle and user-experience performance baseline
+- Forced-colors, keyboard, and assistive-technology review
+- Initial authenticated-fixture performance baseline review
+
+The consumer conformance manifests record `DS-RESP-002`, `DS-A11Y-002`, and `DS-PERF-001` as `manual-passed`. No blocking manual issue or exception remains from this migration.
+
+## Performance evidence
+
+Each consumer owns a reproducible performance recorder and report artifact. The initial reports were generated, reviewed for fixture and measurement errors, and accepted as engineering references on 2026-07-29. See [`PERFORMANCE-BASELINES.md`](PERFORMANCE-BASELINES.md) for the common evidence standard and interpretation limits.
+
+The initial reports are not universal real-user field claims or rigid budgets. Future blocking thresholds should be based on repeated same-environment runs and an explicit tolerance decision.
 
 ## Consumer update tooling
 
 Every consumer:
 
-- Pins an immutable WDS source commit
+- Pins an immutable Web Design System source commit
 - Resolves updates through the constrained shared helper
 - Calls reusable workflows by immutable commit
 - Keeps product-specific schedules and validation commands locally
-- Includes generated helpers and contracts in drift validation when they are committed locally
-- Retains an independent pull request and rollback boundary
+- Includes generated helpers and contracts in drift validation when committed locally
+- Retains an independent pull-request and rollback boundary
 
-The shared synchronization workflow stages the configured generated paths before checking for changes. This ensures newly created, previously untracked assets are included rather than incorrectly reporting that a consumer is current.
+The synchronization workflow stages configured generated paths before checking for changes, including newly created assets.
 
 ## Cross-consumer release gate
 
-Every WDS candidate must validate against the current default branch of all three consumers before merge. The gate:
+Every future Web Design System candidate must validate against the current default branch of all three consumers before merge. The gate:
 
-- Checks out the exact candidate SHA that is written into consumer lock metadata
+- Checks out the exact candidate SHA written into consumer lock metadata
 - Synchronizes each consumer-owned asset set
 - Validates lock and generated-asset provenance
 - Evaluates the product conformance manifest
 - Runs relevant product lint, tests, builds, and deployment dry runs
 - Requires private RolePacket repository access instead of silently skipping that consumer
 
-The WDS repository therefore requires a `ROLEPACKET_REPOSITORY_TOKEN` secret with read access to `JohnnyZLi/RolePacket`. Absence of that secret is a blocking release-gate failure. The public WDS workflow remains the runner owner, so this check does not require a private-repository hosted runner.
+The Web Design System repository therefore requires `ROLEPACKET_REPOSITORY_TOKEN` with read access to `JohnnyZLi/RolePacket`. Absence of that secret is a blocking gate failure.
 
 ## Repository governance
 
@@ -135,6 +110,7 @@ Intended required checks:
 - Design-system conformance
 - Web quality
 - Visual audit
+- Performance baseline
 - Secret scan
 - CodeQL
 
@@ -144,11 +120,13 @@ Intended required checks:
 - CI
 - Visual audit
 - UI regression
+- Performance baseline
 - Secret scan
 - CodeQL
 
 ### RolePacket
 
+- Self-hosted macOS validation when private hosted minutes are unavailable
 - Design-system conformance
 - CI
 - Visual audit
@@ -162,17 +140,13 @@ Intended required checks:
 - Consumer candidate gate: Network Diagnostics
 - Consumer candidate gate: RolePacket
 
-Repository rulesets must enforce these checks before merging. Enforcement must be confirmed in GitHub settings rather than inferred from passing runs.
+Repository rulesets must enforce the intended checks before merging. Enforcement must be confirmed in GitHub settings rather than inferred from passing runs.
 
-## Manual release checklist
+## Ongoing maintenance
 
-- Compare all three production headers at desktop and compact widths.
-- Confirm product-specific layouts remain visually unchanged after synchronization.
-- Test keyboard traversal, menu focus, drawers, forms, tables, and dialogs.
-- Test 320px width and actual 200 percent zoom without document-level overflow.
-- Review reduced motion, forced colors, contrast, grayscale meaning, and assistive-technology output.
-- Review every portfolio case study for media framing, prose rhythm, actions, and next-project navigation.
-- Record bundle and user-experience performance baselines.
-- Register or remove every remaining exception.
+- Re-run manual zoom and accessibility checks after meaningful navigation, layout, or interaction changes.
+- Re-record performance baselines after intentional architecture, framework, rendering-state, or asset changes.
+- Keep generated assets, source provenance, lock metadata, and workflow pins aligned.
+- Register every future exception explicitly instead of allowing undocumented drift.
 
-The package remains an **implementation candidate** until the manual checklist and performance baselines are recorded. The production UI itself remains the approved visual baseline.
+`RolePacket-Autopilot` remains outside this migration and must not be modified as part of Web Design System maintenance.
