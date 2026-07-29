@@ -7,6 +7,9 @@
   "sideEffects": [
     "**/*.css"
   ],
+  "scripts": {
+    "validate:rolepacket-local": "node scripts/validate-rolepacket-candidate-local.mjs"
+  },
   "files": [
     "LICENSE",
     "README.md",
