@@ -129,17 +129,25 @@ The common testbench standardizes the contract and report format while product a
 
 ## Cross-consumer candidate gate
 
-`.github/workflows/consumer-candidate-gate.yml` validates a design-system candidate against the current default branch of every consumer before the shared change is merged.
+`.github/workflows/consumer-candidate-gate.yml` validates a design-system candidate against the current default branch of every accessible consumer before the shared change is merged.
 
 For each product, the gate:
 
 1. Checks out the design-system candidate and consumer repository.
 2. Points the consumer lock, and package dependency where applicable, at the candidate version and commit.
-3. Synchronizes the consumer-owned asset set.
+3. Synchronizes the consumer-owned asset set and provenance record.
 4. Runs the consumer’s integration and conformance commands.
 5. Runs relevant lint, test, build, and deployment-dry-run commands.
 
 The gate does not publish consumer branches or alter product state. Consumer rollout still occurs through independent pull requests after the shared release is merged.
+
+RolePacket is private. When `ROLEPACKET_REPOSITORY_TOKEN` is configured, the hosted gate validates it directly. When the token is unavailable, the hosted job reports a notice and the release owner must run the repository-owned local fallback before merge:
+
+```bash
+npm run validate:rolepacket-local -- --rolepacket /absolute/path/to/RolePacket-repo
+```
+
+The local fallback fetches RolePacket `origin/main`, creates an isolated detached worktree, injects the exact design-system candidate version and commit, synchronizes the candidate, runs `verify:local:quick` and the production dependency audit, prints both immutable commits on success, and removes the temporary worktree. It does not change the developer’s active RolePacket checkout.
 
 ## Responsive terminology
 
@@ -151,15 +159,16 @@ The runner resolves evidence, manifest, lock, and output paths against the consu
 
 The reusable workflow accepts a consumer-owned conformance command because GitHub Actions already treats workflow inputs as code owned by the calling repository. The shared runner itself remains data-only.
 
-The candidate gate uses immutable action pins, disables persisted checkout credentials, and runs only for branches in the design-system repository or by manual dispatch.
+The candidate gate uses immutable action pins, disables persisted checkout credentials, and runs only for branches in the design-system repository or by manual dispatch. The local RolePacket validator executes fixed repository-owned commands only; it does not accept arbitrary command input or modify the caller’s active worktree.
 
 ## Release sequence
 
 1. Update the design-system specification and machine-readable contract.
 2. Update package, token, schema, and version metadata atomically.
-3. Validate the contract, schemas, runner, package exports, generated assets, and self-tests.
-4. Run the cross-consumer candidate gate against all three product default branches.
-5. Merge the reviewed design-system release only after package and consumer gates pass.
-6. Update consumers independently and retain independent rollback boundaries.
-7. Run consumer static, runtime, visual, accessibility, build, deployment, and product tests.
-8. Use strict manual mode only for final release approval.
+3. Validate the contract, schemas, runner, package exports, generated assets, self-tests, and local fallback syntax.
+4. Run the hosted candidate gate against Website and Network Diagnostics.
+5. Validate RolePacket through the token-backed hosted job or the repository-owned local fallback.
+6. Merge the reviewed design-system release only after package and consumer gates pass.
+7. Update consumers independently and retain independent rollback boundaries.
+8. Run consumer static, runtime, visual, accessibility, build, deployment, and product tests.
+9. Use strict manual mode only for final release approval.
