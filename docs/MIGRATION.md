@@ -16,9 +16,9 @@ The design system removes foundational, behavioral, accessibility, provenance, a
 
 | Repository | Default-branch design system | Current state |
 | --- | --- | --- |
-| Website | v1.8.2 at `abb6c44f588afe09e8f593a8c467b564ac9fef86` | Lock, package dependency, generated assets, source metadata, reusable workflows, integration validation, conformance, visual audit, lint, security scan, and CodeQL are aligned. |
-| Network Diagnostics | v1.8.2 at `abb6c44f588afe09e8f593a8c467b564ac9fef86` | Lock, generated assets, helper copies, workflows, integration validation, conformance, tests, build, visual audit, UI regression, security scan, and CodeQL are aligned. |
-| RolePacket | v1.8.2 at `abb6c44f588afe09e8f593a8c467b564ac9fef86` | Lock, generated assets, helper copies, workflows, integration validation, conformance, typechecks, builds, Cloudflare dry runs, 109 automated tests, visual audit, and production dependency audit were validated before adoption. |
+| Website | v1.8.2 | Lock, package dependency, generated assets, source metadata, reusable workflows, integration validation, conformance, visual audit, lint, security scan, and CodeQL are aligned. |
+| Network Diagnostics | v1.8.2 | Lock, generated assets, helper copies, workflows, integration validation, conformance, tests, build, visual audit, UI regression, security scan, and CodeQL are aligned. |
+| RolePacket | v1.8.2 | Lock, generated assets, helper copies, workflows, integration validation, conformance, typechecks, builds, Cloudflare dry runs, 109 automated tests, visual audit, and production dependency audit were validated before adoption. |
 | Web Design System | v1.8.2 | Strict manifest validation, provenance-bearing reports, lock-derived consumer validation, and the cross-consumer candidate gate are merged on `main`. |
 
 A rollout is complete only when lock metadata, package or helper provenance, generated assets, reusable workflow pins, integration validation, conformance evidence, and product checks describe the same reviewed release.
