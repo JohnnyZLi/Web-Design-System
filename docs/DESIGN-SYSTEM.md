@@ -67,11 +67,11 @@ Consumers MUST use shared tokens directly or through documented product aliases.
 
 Accent roles are distinct:
 
-- `--jl-color-accent` is the primary readable accent on light surfaces and the approved fill or strong edge for primary actions.
+- `--jl-color-accent` is the primary readable terracotta for prominent emphasis, primary-action fills, and strong edges. It is valid on light surfaces and for selected high-emphasis text on inverse surfaces when the resulting contrast is sufficient.
 - `--jl-color-accent-decorative` is for compact labels, markers, metadata, and low-opacity decorative mixtures.
-- `--jl-color-accent-soft` is the readable accent for text and restrained borders on inverse surfaces.
+- `--jl-color-accent-soft` is the secondary terracotta for lower-emphasis text, arrows, underlines, and restrained borders on inverse surfaces.
 
-Consumers MAY define product aliases for these roles, but MUST preserve their semantic distinction. A decorative accent MUST NOT replace the primary or soft accent for prominent readable text merely because the hues are similar.
+Consumers MAY define product aliases for these roles, but MUST preserve their semantic distinction. A prominent phrase on an inverse surface MAY use the primary accent while surrounding headline text remains the inverse text color and secondary details use the soft accent. Decorative or soft accents MUST NOT replace the primary accent for prominent emphasis merely because the hues are similar.
 
 The canvas uses:
 
@@ -238,7 +238,7 @@ Reusable workflow references MUST use immutable commit identifiers rather than f
 
 ### Portfolio
 
-Preserve editorial composition, spacing, terracotta hierarchy, source-authored case-study headers, narrative sections, evidence, limitations, actions, and next-project navigation. The portfolio uses the shared header, Sites controller, compact product menu, and selected action/button primitives. It has no matching native confirmation dialog and therefore does not adopt the shared dialog shell.
+Preserve editorial composition, spacing, terracotta hierarchy, source-authored homepage and case-study emphasis, narrative sections, evidence, limitations, actions, next-project navigation, and the inverse contact section. The portfolio uses the shared header, Sites controller, compact product menu, and selected action/button primitives. It has no matching native confirmation dialog and therefore does not adopt the shared dialog shell.
 
 #### Portfolio case-study contract
 
@@ -256,11 +256,11 @@ The approved case-study pages use an open editorial composition rather than a ca
 
 **Terracotta cadence and hierarchy**
 
-- `--jl-color-accent` or its documented portfolio alias is used for readable emphasis on light surfaces, including emphasized case-study title text.
+- `--jl-color-accent` or its documented portfolio alias is used for readable emphasis on light surfaces and selected high-emphasis phrases on inverse surfaces.
 - `--jl-color-accent-decorative` or its alias is used for small section numbers, process markers, decision markers, metric labels, and low-opacity decorative mixtures.
-- `--jl-color-accent-soft` or its alias is reserved for next-project emphasis, restrained link borders, and other readable accents on inverse surfaces.
+- `--jl-color-accent-soft` or its alias is used for secondary inverse-surface details such as small labels, arrows, underlines, and restrained link borders.
 - Large narrative leads remain ink by default. Terracotta emphasis is source-authored around selected clauses or phrases only; entire lead or body sentences MUST NOT be colored as a shortcut.
-- Normal scrolling SHOULD retain a meaningful terracotta cadence through selective lead emphasis, metric labels, output accents, or next-project emphasis rather than relying only on tiny section numbers.
+- Normal scrolling SHOULD retain a meaningful terracotta cadence through selective lead emphasis, metric labels, output accents, or inverse-section emphasis rather than relying only on tiny section numbers.
 - Metric values remain ink. Their compact uppercase labels use the decorative terracotta role and a bold weight.
 - Dark code or evidence panels MAY use a subtle token-derived terracotta wash and a primary-accent edge. Raw color copies are not conforming.
 
@@ -273,6 +273,26 @@ The approved case-study pages use an open editorial composition rather than a ca
 - Metric groups omit top and bottom perimeter rules in the approved case-study expression and retain only the internal dividers needed to explain grouping.
 - Process stages, engineering decisions, and metric groups are noninteractive. They MUST NOT receive hover backgrounds, elevation, translation, pointer cursors, or other affordances that imply activation.
 - Spacing within these groups SHOULD keep labels, headings, values, and descriptions visually connected and avoid tall empty cells or floating divider lines.
+
+#### Portfolio inverse-section contract
+
+Inverse narrative sections retain cream or the inverse text token as the dominant readable color. Primary terracotta marks one semantically meaningful phrase or action; soft terracotta supports secondary details. Coloring the full display title with terracotta, or dividing it between two similar terracotta shades, SHOULD be avoided when it flattens the hierarchy.
+
+**Next project**
+
+- The non-emphasized headline clause remains cream.
+- The source-authored editorial phrase uses the primary terracotta.
+- The small `Next project` label and the link arrow or underline use the soft terracotta.
+- The link text remains cream.
+- This composition is shared by all portfolio case-study pages through the product-owned case-study stylesheet.
+
+**Homepage contact**
+
+- The editorial `Let’s` remains cream.
+- The action word `talk.` uses the primary terracotta because it carries the semantic emphasis.
+- The contact paragraph and link text remain cream.
+- The section number and link arrows use the primary terracotta; contact-link rules use the soft terracotta.
+- Footer metadata remains muted cream and does not compete with the contact action.
 
 ### Network Diagnostics
 
