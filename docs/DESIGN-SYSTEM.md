@@ -246,19 +246,19 @@ The approved case-study pages use an open editorial composition rather than a ca
 
 **Hero composition**
 
-- The hero uses an inverse surface with a token-derived warm radial light.
+- The hero uses the light canvas with a token-derived warm radial light.
 - The radial light MUST remain inside the hero and reach transparency before the content or viewport edge. A visible vertical clipping seam is not conforming.
 - The eyebrow, title, summary, and actions SHOULD begin without a large dead zone below the global header.
 - The title and summary use the twelve-column editorial grid and MUST stack before either side becomes cramped.
 - The project-facts row retains a top rule, four equal columns on desktop, and centered label/value alignment within each column. Its vertical placement remains deliberately offset rather than mechanically centered, while the band stays compact.
 - Hero actions remain content-width and use the shared action/button primitive. The approved desktop expression uses the large 52px control height, 20px inline padding, a 10px label/icon gap, 0.95rem semibold text, and a restrained 6px radius.
-- The primary hero action uses `--jl-color-accent` with the on-accent text role. The secondary action uses the inverse rule role and remains visually subordinate.
+- The primary hero action uses `--jl-color-accent` with the on-accent text role. The secondary action uses the standard light-surface rule role and remains visually subordinate.
 
 **Terracotta cadence and hierarchy**
 
-- `--jl-color-accent` or its documented portfolio alias is used for readable emphasis on light surfaces.
+- `--jl-color-accent` or its documented portfolio alias is used for readable emphasis on light surfaces, including emphasized case-study title text.
 - `--jl-color-accent-decorative` or its alias is used for small section numbers, process markers, decision markers, metric labels, and low-opacity decorative mixtures.
-- `--jl-color-accent-soft` or its alias is used for emphasized title text, next-project emphasis, and restrained link borders on inverse surfaces.
+- `--jl-color-accent-soft` or its alias is reserved for next-project emphasis, restrained link borders, and other readable accents on inverse surfaces.
 - Large narrative leads remain ink by default. Terracotta emphasis is source-authored around selected clauses or phrases only; entire lead or body sentences MUST NOT be colored as a shortcut.
 - Normal scrolling SHOULD retain a meaningful terracotta cadence through selective lead emphasis, metric labels, output accents, or next-project emphasis rather than relying only on tiny section numbers.
 - Metric values remain ink. Their compact uppercase labels use the decorative terracotta role and a bold weight.
