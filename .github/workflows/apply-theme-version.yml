@@ -1,0 +1,37 @@
+name: Align theme release metadata
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/apply-theme-version.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  align:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: feat/shared-dark-mode-v3
+          persist-credentials: true
+      - name: Align source version and regenerate
+        run: |
+          python3 <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path('tokens/tokens.tokens.json')
+          data = json.loads(path.read_text())
+          data['$extensions']['com.johnnyli.meta']['version'] = '1.9.0'
+          path.write_text(json.dumps(data, separators=(',', ':')) + '\n')
+          PY
+          python3 scripts/design_system.py generate
+          rm .github/workflows/apply-theme-version.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add tokens/tokens.tokens.json tokens/tokens.css .github/workflows/apply-theme-version.yml
+          git commit -m "Align theme release token metadata"
+          git push origin HEAD:feat/shared-dark-mode-v3
