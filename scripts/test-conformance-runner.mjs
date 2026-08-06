@@ -17,7 +17,7 @@ const writeLock = async (version = contractMetadata.designSystemVersion) => writ
   sourceCommit,
 }), "utf8");
 await writeLock();
-await writeFile(resolve(fixture, "page.html"), '<header class="jl-global-header"><div data-site-switcher></div></header>', "utf8");
+await writeFile(resolve(fixture, "page.html"), '<html data-theme="light" data-theme-preference="system"><header class="jl-global-header"><div data-site-switcher></div></header></html>', "utf8");
 await writeFile(resolve(fixture, "audit.yml"), "uses: shared\nwidth: 320\nEscape\nfocus restoration\n", "utf8");
 await writeFile(resolve(fixture, "styles.css"), "", "utf8");
 
@@ -46,6 +46,7 @@ const manifest = {
     "DS-WORKFLOW-001": automated("audit.yml", "uses: shared"),
     "DS-TEST-001": { evidence: [{ type: "file-exists", file: "audit.yml" }] },
     "DS-PERF-001": manual("Performance baseline remains manual."),
+    "DS-THEME-001": automated("page.html", "data-theme-preference"),
   },
 };
 const writeManifest = async () => writeFile(resolve(fixture, "design-system.conformance.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
