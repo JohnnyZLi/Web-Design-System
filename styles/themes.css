@@ -1,0 +1,51 @@
+/* Shared theme role mapping. Load after tokens.css and before product styles. */
+
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --jl-color-canvas: var(--jl-color-surface-inverse);
+  --jl-color-canvas-dot: color-mix(in srgb, var(--jl-color-text-inverse) 6%, transparent);
+  --jl-color-surface: color-mix(in srgb, var(--jl-color-surface-inverse) 92%, var(--jl-color-text-inverse));
+  --jl-color-surface-muted: color-mix(in srgb, var(--jl-color-surface-inverse) 87%, var(--jl-color-text-inverse));
+  --jl-color-surface-strong: color-mix(in srgb, var(--jl-color-surface-inverse) 80%, var(--jl-color-text-inverse));
+  --jl-color-ink: var(--jl-color-text-inverse);
+  --jl-color-text: var(--jl-color-muted-inverse);
+  --jl-color-muted: color-mix(in srgb, var(--jl-color-muted-inverse) 78%, var(--jl-color-surface-inverse));
+  --jl-color-rule: color-mix(in srgb, var(--jl-color-text-inverse) 16%, transparent);
+  --jl-color-rule-strong: color-mix(in srgb, var(--jl-color-text-inverse) 28%, transparent);
+  --jl-color-overlay: color-mix(in srgb, var(--jl-color-surface-inverse) 72%, transparent);
+  --jl-color-accent: color-mix(in srgb, var(--jl-color-accent-soft) 72%, var(--jl-color-text-inverse));
+  --jl-color-accent-hover: color-mix(in srgb, var(--jl-color-accent-soft) 84%, var(--jl-color-text-inverse));
+  --jl-color-accent-active: var(--jl-color-accent-soft);
+  --jl-color-accent-decorative: color-mix(in srgb, var(--jl-color-accent-soft) 80%, var(--jl-color-surface-inverse));
+  --jl-color-on-accent: var(--jl-color-surface-inverse);
+  --jl-color-placeholder: color-mix(in srgb, var(--jl-color-muted-inverse) 70%, var(--jl-color-surface-inverse));
+  --jl-color-selection-background: var(--jl-color-accent-soft);
+  --jl-color-selection-text: var(--jl-color-surface-inverse);
+  --jl-color-skeleton: color-mix(in srgb, var(--jl-color-text-inverse) 12%, var(--jl-color-surface-inverse));
+  --jl-color-focus-ring: color-mix(in srgb, var(--jl-color-accent-soft) 78%, var(--jl-color-text-inverse));
+  --jl-color-focus-gap-light: var(--jl-color-surface-inverse);
+
+  --jl-semantic-success-text: color-mix(in srgb, var(--jl-semantic-success-border) 72%, var(--jl-color-text-inverse));
+  --jl-semantic-success-surface: color-mix(in srgb, var(--jl-semantic-success-border) 16%, var(--jl-color-surface-inverse));
+  --jl-semantic-warning-text: color-mix(in srgb, var(--jl-semantic-warning-border) 72%, var(--jl-color-text-inverse));
+  --jl-semantic-warning-surface: color-mix(in srgb, var(--jl-semantic-warning-border) 16%, var(--jl-color-surface-inverse));
+  --jl-semantic-danger-text: color-mix(in srgb, var(--jl-semantic-danger-border) 72%, var(--jl-color-text-inverse));
+  --jl-semantic-danger-surface: color-mix(in srgb, var(--jl-semantic-danger-border) 16%, var(--jl-color-surface-inverse));
+  --jl-semantic-info-text: color-mix(in srgb, var(--jl-semantic-info-border) 72%, var(--jl-color-text-inverse));
+  --jl-semantic-info-surface: color-mix(in srgb, var(--jl-semantic-info-border) 16%, var(--jl-color-surface-inverse));
+  --jl-semantic-violet-text: color-mix(in srgb, var(--jl-semantic-violet-border) 72%, var(--jl-color-text-inverse));
+  --jl-semantic-violet-surface: color-mix(in srgb, var(--jl-semantic-violet-border) 16%, var(--jl-color-surface-inverse));
+}
+
+@media print {
+  :root,
+  :root[data-theme="dark"] {
+    color-scheme: light;
+  }
+}
