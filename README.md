@@ -4,7 +4,7 @@
 
 A shared UI and UX system for `johnnyli.dev`, `network.johnnyli.dev`, and `rolepacket.johnnyli.dev`.
 
-**Version:** 1.8.2  
+**Version:** 1.9.0  
 **Package status:** Approved  
 **Production visual baseline:** Approved  
 **License:** All rights reserved
@@ -35,6 +35,18 @@ node scripts/smoke-deployments.mjs
 node scripts/test-conformance-runner.mjs
 python scripts/validate_header_contract.py
 ```
+
+Load the pre-paint theme bootstrap before styles, then import the shared appearance-control stylesheet with the global header:
+
+```html
+<script src="/assets/design-system/theme-bootstrap.js"></script>
+<link rel="stylesheet" href="/assets/design-system/tokens.css">
+<link rel="stylesheet" href="/assets/design-system/foundations.css">
+<link rel="stylesheet" href="/assets/design-system/site-identity.css">
+<link rel="stylesheet" href="/assets/design-system/theme-control.css">
+```
+
+The Sites menu exposes System, Light, and Dark. The preference is shared across `*.johnnyli.dev` and System follows `prefers-color-scheme` live.
 
 Start with:
 

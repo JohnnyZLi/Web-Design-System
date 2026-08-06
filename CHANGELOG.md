@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.9.0 — 2026-08-06
+
+- Added shared System, Light, and Dark appearance preferences with a pre-paint bootstrap.
+- Added cross-subdomain preference persistence for all owned sites.
+- Added dark semantic color and status tokens while preserving the approved warm editorial palette.
+- Added the shared Appearance control to the Sites menu with keyboard and forced-colors behavior.
+- Forced print and PDF output back to the light paper theme.
+- Added a required conformance rule for shared theme adoption.
+
 ## 1.8.2 — 2026-07-28
 
 - Added a cross-consumer candidate gate that validates Website, Network Diagnostics, and RolePacket before a shared release can merge.

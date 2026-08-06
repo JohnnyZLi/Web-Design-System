@@ -42,6 +42,8 @@ RELEASE_PATHS = (
     "docs/DESIGN-SYSTEM.md",
     "docs/MIGRATION.md",
     "scripts/design_system.py",
+    "scripts/theme-bootstrap.js",
+    "styles/theme-control.css",
     "specimen/index.html",
     "specimen/specimen.css",
     "specimen/specimen.js",

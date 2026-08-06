@@ -18,9 +18,9 @@ EXPECTED_FILES = {
     "LICENSE", "README.md", "version.json",
     "tokens/tokens.css", "tokens/tokens.tokens.json",
     "styles/index.css", "styles/foundations.css", "styles/site-identity.css",
-    "styles/content.css", "styles/content-guard.css", "styles/content-primitives.css",
+    "styles/theme-control.css", "styles/content.css", "styles/content-guard.css", "styles/content-primitives.css",
     "conformance/contract.json", "conformance/contract.schema.json", "conformance/manifest.schema.json",
-    "scripts/site-controls.js", "scripts/site-controls.d.ts", "scripts/consumer-release.mjs",
+    "scripts/theme-bootstrap.js", "scripts/site-controls.js", "scripts/site-controls.d.ts", "scripts/consumer-release.mjs",
     "scripts/conformance-runner.mjs",
 }
 EXPECTED_EXPORTS = {
@@ -29,9 +29,11 @@ EXPECTED_EXPORTS = {
     "./tokens.json": "./tokens/tokens.tokens.json",
     "./foundations.css": "./styles/foundations.css",
     "./site-identity.css": "./styles/site-identity.css",
+    "./theme-control.css": "./styles/theme-control.css",
     "./content.css": "./styles/content.css",
     "./content-guard.css": "./styles/content-guard.css",
     "./content-primitives.css": "./styles/content-primitives.css",
+    "./theme-bootstrap.js": "./scripts/theme-bootstrap.js",
     "./site-controls.js": {
         "types": "./scripts/site-controls.d.ts",
         "default": "./scripts/site-controls.js",
@@ -46,13 +48,13 @@ EXPECTED_EXPORTS = {
 }
 RELEASE_ADDITIONS = {
     "package.json", "version.json", "scripts/validate_package.py",
-    "scripts/site-controls.js", "scripts/site-controls.d.ts", "scripts/smoke-deployments.mjs",
+    "scripts/theme-bootstrap.js", "scripts/site-controls.js", "scripts/site-controls.d.ts", "scripts/smoke-deployments.mjs",
     "scripts/consumer-release.mjs", "scripts/conformance-runner.mjs",
     "conformance/contract.json", "conformance/contract.schema.json", "conformance/manifest.schema.json",
     ".github/workflows/consumer-design-system-sync.yml", ".github/workflows/consumer-conformance.yml",
     ".github/workflows/consumer-candidate-gate.yml",
     "styles/index.css", "styles/foundations.css", "styles/site-identity.css",
-    "styles/content.css", "styles/content-guard.css", "styles/content-primitives.css",
+    "styles/theme-control.css", "styles/content.css", "styles/content-guard.css", "styles/content-primitives.css",
 }
 RAW_COLOR = re.compile(r"#[0-9a-fA-F]{3,8}\b|\b(?:rgb|rgba|hsl|hsla)\(")
 TOKEN_DEFINITION = re.compile(r"(--jl-[a-z0-9-]+)\s*:")
@@ -216,13 +218,25 @@ def validate() -> None:
 
     controls = (ROOT / "scripts" / "site-controls.js").read_text(encoding="utf-8")
     require(controls, (
-        "export const OWNED_SITES", "export function installDisclosureMenu",
+        "export const OWNED_SITES", "export const THEME_PREFERENCES",
+        "export function installThemeControl", "export function installDisclosureMenu",
         "export function installSiteSwitcher", "export function installHeaderMenu",
         'event.key === "ArrowDown"', 'event.key === "ArrowUp"',
         'event.key === "Escape"', 'event.key === "Home"', 'event.key === "End"',
     ), "shared site controls")
     if "http://" in controls:
         fail("shared site controls contain an insecure URL")
+
+    bootstrap = (ROOT / "scripts" / "theme-bootstrap.js").read_text(encoding="utf-8")
+    require(bootstrap, (
+        "prefers-color-scheme: dark", "data-theme", "data-theme-preference",
+        "Domain=.johnnyli.dev", "beforeprint", "afterprint", "jl-theme-change",
+    ), "pre-paint theme bootstrap")
+    theme_css = (STYLE_ROOT / "theme-control.css").read_text(encoding="utf-8")
+    require(theme_css, (
+        ".jl-theme-menu-item", ".jl-theme-options", "aria-pressed",
+        "@media (forced-colors: active)",
+    ), "shared theme control")
 
     primitives = (STYLE_ROOT / "content-primitives.css").read_text(encoding="utf-8")
     if re.search(r"^\s*@layer\b", primitives):
