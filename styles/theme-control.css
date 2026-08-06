@@ -100,30 +100,6 @@
   color: var(--jl-color-on-accent);
 }
 
-@media print {
-  :root[data-theme="dark"] {
-    color-scheme: light;
-    --jl-color-canvas: #f2efe8;
-    --jl-color-canvas-dot: rgba(23, 23, 20, 0.035);
-    --jl-color-surface: #fbf8f2;
-    --jl-color-surface-muted: #f6f2eb;
-    --jl-color-surface-strong: #ece5da;
-    --jl-color-surface-inverse: #171714;
-    --jl-color-ink: #171714;
-    --jl-color-text: #3f3d38;
-    --jl-color-muted: #706b64;
-    --jl-color-text-inverse: #f2efe8;
-    --jl-color-muted-inverse: #c7c1b7;
-    --jl-color-rule: rgba(23, 23, 20, 0.16);
-    --jl-color-rule-strong: rgba(23, 23, 20, 0.28);
-    --jl-color-rule-inverse: rgba(242, 239, 232, 0.28);
-    --jl-color-accent: #9f553e;
-    --jl-color-accent-decorative: #a55d45;
-    --jl-color-accent-soft: #d9b8a5;
-    --jl-color-on-accent: #fffaf4;
-  }
-}
-
 @media (forced-colors: active) {
   .jl-theme-options button {
     border-color: ButtonText;
