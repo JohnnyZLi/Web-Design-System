@@ -2,7 +2,7 @@
 
 ## 1. Status and normative language
 
-**Version:** 1.8.2  
+**Version:** 1.9.0  
 **Documentation revision:** 2026-08-05  
 **Package status:** Implementation candidate  
 **Production visual baseline:** Approved  
@@ -34,7 +34,7 @@ The specimen demonstrates shared language. It is not a replacement application t
 
 The design system owns:
 
-- Atomic color, typography, spacing, radius, control, motion, elevation, icon, z-index, and layout tokens
+- Atomic color, typography, spacing, radius, control, motion, elevation, icon, z-index, layout, and light/dark theme tokens
 - Warm off-white canvas and exact faint dot texture
 - Global focus, selection, reduced-motion, and forced-colors behavior
 - Global-header geometry and owner/product identity lockup
@@ -80,6 +80,12 @@ The canvas uses:
 - No second visible grid or competing background texture
 
 Product visualizations MAY use product-owned analytical colors when color meaning remains accessible without color alone.
+
+### Theme modes
+
+Every owned site MUST support `System`, `Light`, and `Dark` through the shared theme contract. The pre-paint bootstrap resolves the stored preference before styles render, writes `data-theme-preference` and the resolved `data-theme` to the root element, follows operating-system changes while set to System, and preserves the preference across `*.johnnyli.dev`.
+
+The Sites menu owns the shared Appearance control. Consumers MUST use the shared controller and theme-control stylesheet rather than introducing a separate product toggle. Theme values change through semantic tokens; products MUST NOT maintain independent light and dark component implementations. Print and PDF output MUST resolve to the light paper theme. Forced-colors behavior remains independent of the selected theme.
 
 ## 5. Typography and layout
 
