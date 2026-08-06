@@ -1,6 +1,7 @@
 @layer reset, tokens, base, layout, components, features, utilities, overrides;
 
 @import "../tokens/tokens.css" layer(tokens);
+@import "./theme.css";
 @import "./foundations.css";
 @import "./site-identity.css";
 @import "./content.css";
