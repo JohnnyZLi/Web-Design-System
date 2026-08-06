@@ -41,6 +41,13 @@
       : preference
   );
 
+  const syncThemeColor = (theme) => {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (!(meta instanceof HTMLMetaElement)) return;
+    const value = theme === "dark" ? meta.dataset.themeDark : meta.dataset.themeLight;
+    if (value) meta.content = value;
+  };
+
   const writePreference = (preference) => {
     try {
       window.localStorage.setItem(storageKey, preference);
@@ -60,6 +67,7 @@
     root.dataset.themePreference = nextPreference;
     root.dataset.theme = theme;
     root.style.colorScheme = theme;
+    syncThemeColor(theme);
     if (persist) writePreference(nextPreference);
     if (announce) {
       window.dispatchEvent(new CustomEvent("jl-theme-change", {
@@ -100,12 +108,14 @@
     printTheme = { preference: api.getPreference(), theme: api.getTheme() };
     root.dataset.theme = "light";
     root.style.colorScheme = "light";
+    syncThemeColor("light");
   });
 
   window.addEventListener("afterprint", () => {
     if (!printTheme) return;
     root.dataset.theme = printTheme.theme;
     root.style.colorScheme = printTheme.theme;
+    syncThemeColor(printTheme.theme);
     printTheme = null;
   });
 })();
