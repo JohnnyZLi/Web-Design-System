@@ -1,0 +1,103 @@
+name: Apply shared dark mode contract
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.head_ref == 'feat/shared-dark-mode' && github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: feat/shared-dark-mode
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+      - name: Apply package, documentation, and conformance updates
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import json
+
+          def replace(path, old, new):
+              file = Path(path)
+              text = file.read_text()
+              if old not in text:
+                  raise SystemExit(f'Missing patch fragment in {path}: {old[:80]}')
+              file.write_text(text.replace(old, new, 1))
+
+          replace('scripts/validate_package.py',
+              '"styles/index.css", "styles/foundations.css", "styles/site-identity.css",\n    "styles/content.css",',
+              '"styles/index.css", "styles/foundations.css", "styles/site-identity.css",\n    "styles/theme-control.css", "styles/content.css",')
+          replace('scripts/validate_package.py',
+              '"scripts/site-controls.js", "scripts/site-controls.d.ts", "scripts/consumer-release.mjs",',
+              '"scripts/theme-bootstrap.js", "scripts/site-controls.js", "scripts/site-controls.d.ts", "scripts/consumer-release.mjs",')
+          replace('scripts/validate_package.py',
+              '"./site-identity.css": "./styles/site-identity.css",\n    "./content.css":',
+              '"./site-identity.css": "./styles/site-identity.css",\n    "./theme-control.css": "./styles/theme-control.css",\n    "./content.css":')
+          replace('scripts/validate_package.py',
+              '"./content-primitives.css": "./styles/content-primitives.css",\n    "./site-controls.js":',
+              '"./content-primitives.css": "./styles/content-primitives.css",\n    "./theme-bootstrap.js": "./scripts/theme-bootstrap.js",\n    "./site-controls.js":')
+          replace('scripts/validate_package.py',
+              '"scripts/site-controls.js", "scripts/site-controls.d.ts", "scripts/smoke-deployments.mjs",',
+              '"scripts/theme-bootstrap.js", "scripts/site-controls.js", "scripts/site-controls.d.ts", "scripts/smoke-deployments.mjs",')
+          replace('scripts/validate_package.py',
+              '"styles/index.css", "styles/foundations.css", "styles/site-identity.css",\n    "styles/content.css",',
+              '"styles/index.css", "styles/foundations.css", "styles/site-identity.css",\n    "styles/theme-control.css", "styles/content.css",')
+          replace('scripts/validate_package.py',
+              '"export const OWNED_SITES", "export function installDisclosureMenu",',
+              '"export const OWNED_SITES", "export const THEME_PREFERENCES",\n        "export function installThemeControl", "export function installDisclosureMenu",')
+          replace('scripts/validate_package.py',
+              'if "http://" in controls:\n        fail("shared site controls contain an insecure URL")',
+              'if "http://" in controls:\n        fail("shared site controls contain an insecure URL")\n\n    bootstrap = (ROOT / "scripts" / "theme-bootstrap.js").read_text(encoding="utf-8")\n    require(bootstrap, (\n        "prefers-color-scheme: dark", "data-theme", "data-theme-preference",\n        "Domain=.johnnyli.dev", "beforeprint", "afterprint", "jl-theme-change",\n    ), "pre-paint theme bootstrap")\n    theme_css = (STYLE_ROOT / "theme-control.css").read_text(encoding="utf-8")\n    require(theme_css, (\n        ".jl-theme-menu-item", ".jl-theme-options", "aria-pressed",\n        "@media (forced-colors: active)",\n    ), "shared theme control")')
+
+          replace('scripts/design_system.py',
+              '"scripts/design_system.py",\n    "specimen/index.html",',
+              '"scripts/design_system.py",\n    "scripts/theme-bootstrap.js",\n    "styles/theme-control.css",\n    "specimen/index.html",')
+
+          contract_path = Path('conformance/contract.json')
+          contract = json.loads(contract_path.read_text())
+          contract['designSystemVersion'] = '1.9.0'
+          if not any(rule['id'] == 'DS-THEME-001' for rule in contract['rules']):
+              contract['rules'].append({
+                  'id': 'DS-THEME-001',
+                  'title': 'Shared appearance preference',
+                  'description': 'The product supports System, Light, and Dark through the shared pre-paint theme and appearance-control contract.',
+                  'severity': 'required',
+                  'appliesTo': ['portfolio', 'network', 'rolepacket'],
+                  'evidence': ['static', 'runtime'],
+                  'source': 'docs/DESIGN-SYSTEM.md#theme-modes'
+              })
+          contract_path.write_text(json.dumps(contract, indent=2) + '\n')
+
+          replace('docs/DESIGN-SYSTEM.md', '**Version:** 1.8.2', '**Version:** 1.9.0')
+          replace('docs/DESIGN-SYSTEM.md',
+              '- Atomic color, typography, spacing, radius, control, motion, elevation, icon, z-index, and layout tokens',
+              '- Atomic color, typography, spacing, radius, control, motion, elevation, icon, z-index, layout, and light/dark theme tokens')
+          replace('docs/DESIGN-SYSTEM.md',
+              'Product visualizations MAY use product-owned analytical colors when color meaning remains accessible without color alone.\n',
+              '''Product visualizations MAY use product-owned analytical colors when color meaning remains accessible without color alone.\n\n### Theme modes\n\nEvery owned site MUST support `System`, `Light`, and `Dark` through the shared theme contract. The pre-paint bootstrap resolves the stored preference before styles render, writes `data-theme-preference` and the resolved `data-theme` to the root element, follows operating-system changes while set to System, and preserves the preference across `*.johnnyli.dev`.\n\nThe Sites menu owns the shared Appearance control. Consumers MUST use the shared controller and theme-control stylesheet rather than introducing a separate product toggle. Theme values change through semantic tokens; products MUST NOT maintain independent light and dark component implementations. Print and PDF output MUST resolve to the light paper theme. Forced-colors behavior remains independent of the selected theme.\n''')
+
+          replace('README.md', '**Version:** 1.8.2', '**Version:** 1.9.0')
+          replace('README.md',
+              'Start with:\n',
+              '''Load the pre-paint theme bootstrap before styles, then import the shared appearance-control stylesheet with the global header:\n\n```html\n<script src="/assets/design-system/theme-bootstrap.js"></script>\n<link rel="stylesheet" href="/assets/design-system/tokens.css">\n<link rel="stylesheet" href="/assets/design-system/foundations.css">\n<link rel="stylesheet" href="/assets/design-system/site-identity.css">\n<link rel="stylesheet" href="/assets/design-system/theme-control.css">\n```\n\nThe Sites menu exposes System, Light, and Dark. The preference is shared across `*.johnnyli.dev` and System follows `prefers-color-scheme` live.\n\nStart with:\n''')
+
+          changelog = Path('CHANGELOG.md')
+          text = changelog.read_text()
+          entry = '''## 1.9.0 — 2026-08-06\n\n- Added shared System, Light, and Dark appearance preferences with a pre-paint bootstrap.\n- Added cross-subdomain preference persistence for all owned sites.\n- Added dark semantic color and status tokens while preserving the approved warm editorial palette.\n- Added the shared Appearance control to the Sites menu with keyboard and forced-colors behavior.\n- Forced print and PDF output back to the light paper theme.\n- Added a required conformance rule for shared theme adoption.\n\n'''
+          changelog.write_text(text.replace('# Changelog\n\n', '# Changelog\n\n' + entry, 1))
+
+          Path('.github/workflows/apply-shared-dark-mode-contract.yml').unlink()
+          PY
+          python3 scripts/design_system.py generate
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m "Complete shared dark mode contract"
+          git push origin HEAD:feat/shared-dark-mode
