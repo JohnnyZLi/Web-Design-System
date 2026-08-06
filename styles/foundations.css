@@ -38,7 +38,6 @@
 
 @layer base {
   :root {
-    color-scheme: light;
     --_jl-focus-gap-color: var(--jl-color-focus-gap-light);
   }
 
