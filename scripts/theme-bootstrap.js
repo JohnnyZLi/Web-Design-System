@@ -1,6 +1,7 @@
 (() => {
   "use strict";
 
+  // The bootstrap owns the root data-theme and data-theme-preference attributes.
   const GLOBAL_KEY = "JLTheme";
   if (window[GLOBAL_KEY]) return;
 
