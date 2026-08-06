@@ -3,6 +3,7 @@
 ## 1. Status and normative language
 
 **Version:** 1.8.2  
+**Documentation revision:** 2026-08-05  
 **Package status:** Implementation candidate  
 **Production visual baseline:** Approved  
 **Owner:** Johnny Li
@@ -63,6 +64,14 @@ A shared abstraction MUST NOT absorb product logic merely because two products c
 `tokens/tokens.tokens.json` is the only editable atomic-token source. `tokens/tokens.css` is generated and MUST match the package version.
 
 Consumers MUST use shared tokens directly or through documented product aliases. Shared package CSS MUST NOT introduce raw color values outside generated token definitions.
+
+Accent roles are distinct:
+
+- `--jl-color-accent` is the primary readable terracotta for prominent emphasis, primary-action fills, and strong edges. It is valid on light surfaces and for selected high-emphasis text on inverse surfaces when the resulting contrast is sufficient.
+- `--jl-color-accent-decorative` is for compact labels, markers, metadata, and low-opacity decorative mixtures.
+- `--jl-color-accent-soft` is the secondary terracotta for lower-emphasis text, arrows, underlines, and restrained borders on inverse surfaces.
+
+Consumers MAY define product aliases for these roles, but MUST preserve their semantic distinction. A prominent phrase on an inverse surface MAY use the primary accent while surrounding headline text remains the inverse text color and secondary details use the soft accent. Decorative or soft accents MUST NOT replace the primary accent for prominent emphasis merely because the hues are similar.
 
 The canvas uses:
 
@@ -229,7 +238,61 @@ Reusable workflow references MUST use immutable commit identifiers rather than f
 
 ### Portfolio
 
-Preserve editorial composition, spacing, terracotta hierarchy, source-authored case-study headers, narrative sections, evidence, limitations, actions, and next-project navigation. The portfolio uses the shared header, Sites controller, compact product menu, and selected action/button primitives. It has no matching native confirmation dialog and therefore does not adopt the shared dialog shell.
+Preserve editorial composition, spacing, terracotta hierarchy, source-authored homepage and case-study emphasis, narrative sections, evidence, limitations, actions, next-project navigation, and the inverse contact section. The portfolio uses the shared header, Sites controller, compact product menu, and selected action/button primitives. It has no matching native confirmation dialog and therefore does not adopt the shared dialog shell.
+
+#### Portfolio case-study contract
+
+The approved case-study pages use an open editorial composition rather than a card dashboard.
+
+**Hero composition**
+
+- The hero uses the light canvas with a token-derived warm radial light.
+- The radial light MUST remain inside the hero and reach transparency before the content or viewport edge. A visible vertical clipping seam is not conforming.
+- The eyebrow, title, summary, and actions SHOULD begin without a large dead zone below the global header.
+- The title and summary use the twelve-column editorial grid and MUST stack before either side becomes cramped.
+- The project-facts row retains a top rule, four equal columns on desktop, and centered label/value alignment within each column. Its vertical placement remains deliberately offset rather than mechanically centered, while the band stays compact.
+- Hero actions remain content-width and use the shared action/button primitive. The approved desktop expression uses the large 52px control height, 20px inline padding, a 10px label/icon gap, 0.95rem semibold text, and a restrained 6px radius.
+- The primary hero action uses `--jl-color-accent` with the on-accent text role. The secondary action uses the standard light-surface rule role and remains visually subordinate.
+
+**Terracotta cadence and hierarchy**
+
+- `--jl-color-accent` or its documented portfolio alias is used for readable emphasis on light surfaces and selected high-emphasis phrases on inverse surfaces.
+- `--jl-color-accent-decorative` or its alias is used for small section numbers, process markers, decision markers, metric labels, and low-opacity decorative mixtures.
+- `--jl-color-accent-soft` or its alias is used for secondary inverse-surface details such as small labels, arrows, underlines, and restrained link borders.
+- Large narrative leads remain ink by default. Terracotta emphasis is source-authored around selected clauses or phrases only; entire lead or body sentences MUST NOT be colored as a shortcut.
+- Normal scrolling SHOULD retain a meaningful terracotta cadence through selective lead emphasis, metric labels, output accents, or inverse-section emphasis rather than relying only on tiny section numbers.
+- Metric values remain ink. Their compact uppercase labels use the decorative terracotta role and a bold weight.
+- Dark code or evidence panels MAY use a subtle token-derived terracotta wash and a primary-accent edge. Raw color copies are not conforming.
+
+**Open editorial groups**
+
+- Process stages use an open four-column row on wide screens. The outer perimeter is omitted and only internal dividers remain.
+- Process stages become two columns and then one column before content becomes cramped; stacked layouts use horizontal separators.
+- Engineering decisions use an open two-by-two editorial grid with the center divider and the divider between rows. A complete outer box is omitted.
+- Validation uses a compact twelve-column composition with the metric group on the left and explanatory evidence alongside it on the right. It stacks at the product breakpoint before either side becomes cramped.
+- Metric groups omit top and bottom perimeter rules in the approved case-study expression and retain only the internal dividers needed to explain grouping.
+- Process stages, engineering decisions, and metric groups are noninteractive. They MUST NOT receive hover backgrounds, elevation, translation, pointer cursors, or other affordances that imply activation.
+- Spacing within these groups SHOULD keep labels, headings, values, and descriptions visually connected and avoid tall empty cells or floating divider lines.
+
+#### Portfolio inverse-section contract
+
+Inverse narrative sections retain cream or the inverse text token as the dominant readable color. Primary terracotta marks one semantically meaningful phrase or action; soft terracotta supports secondary details. Coloring the full display title with terracotta, or dividing it between two similar terracotta shades, SHOULD be avoided when it flattens the hierarchy.
+
+**Next project**
+
+- The non-emphasized headline clause remains cream.
+- The source-authored editorial phrase uses the primary terracotta.
+- The small `Next project` label and the link arrow or underline use the soft terracotta.
+- The link text remains cream.
+- This composition is shared by all portfolio case-study pages through the product-owned case-study stylesheet.
+
+**Homepage contact**
+
+- The editorial `Let’s` remains cream.
+- The action word `talk.` uses the primary terracotta because it carries the semantic emphasis.
+- The contact paragraph and link text remain cream.
+- The section number and link arrows use the primary terracotta; contact-link rules use the soft terracotta.
+- Footer metadata remains muted cream and does not compete with the contact action.
 
 ### Network Diagnostics
 
