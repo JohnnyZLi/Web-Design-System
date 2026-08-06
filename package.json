@@ -1,11 +1,12 @@
 {
   "name": "@johnnyzli/web-design-system",
-  "version": "1.8.2",
-  "description": "Shared design tokens, site controls, page content patterns, conformance tooling, and UI foundations for Johnny Li websites.",
+  "version": "1.9.0",
+  "description": "Shared design tokens, themes, site controls, page content patterns, conformance tooling, and UI foundations for Johnny Li websites.",
   "license": "SEE LICENSE IN LICENSE",
   "private": false,
   "sideEffects": [
-    "**/*.css"
+    "**/*.css",
+    "scripts/theme-bootstrap.js"
   ],
   "scripts": {
     "validate:rolepacket-local": "node scripts/validate-rolepacket-candidate-local.mjs"
@@ -17,6 +18,7 @@
     "tokens/tokens.css",
     "tokens/tokens.tokens.json",
     "styles/index.css",
+    "styles/themes.css",
     "styles/foundations.css",
     "styles/site-identity.css",
     "styles/content.css",
@@ -27,6 +29,8 @@
     "conformance/manifest.schema.json",
     "scripts/site-controls.js",
     "scripts/site-controls.d.ts",
+    "scripts/theme-bootstrap.js",
+    "scripts/theme-controller.js",
     "scripts/consumer-release.mjs",
     "scripts/conformance-runner.mjs"
   ],
@@ -34,6 +38,7 @@
     ".": "./styles/index.css",
     "./tokens.css": "./tokens/tokens.css",
     "./tokens.json": "./tokens/tokens.tokens.json",
+    "./themes.css": "./styles/themes.css",
     "./foundations.css": "./styles/foundations.css",
     "./site-identity.css": "./styles/site-identity.css",
     "./content.css": "./styles/content.css",
@@ -43,6 +48,8 @@
       "types": "./scripts/site-controls.d.ts",
       "default": "./scripts/site-controls.js"
     },
+    "./theme-bootstrap.js": "./scripts/theme-bootstrap.js",
+    "./theme-controller.js": "./scripts/theme-controller.js",
     "./consumer-release.js": "./scripts/consumer-release.mjs",
     "./conformance-runner.js": "./scripts/conformance-runner.mjs",
     "./conformance/contract.json": "./conformance/contract.json",
