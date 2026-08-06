@@ -32,6 +32,8 @@ jobs:
           package-manager-cache: false
       - name: Validate Node tooling syntax
         run: |
+          node --check scripts/theme-bootstrap.js
+          node --check scripts/site-controls.js
           node --check scripts/conformance-runner.mjs
           node --check scripts/validate-rolepacket-candidate-local.mjs
       - name: Exercise conformance runner
