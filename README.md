@@ -17,9 +17,9 @@ The current production interfaces are the reference point for this system:
 - Network Diagnostics remains analytical, measurement-heavy, and chart-oriented.
 - RolePacket remains dense, workflow-oriented, and optimized for review.
 
-Unification does **not** mean making the three products look identical or replacing their existing layouts with the specimen. The shared contract covers the palette, exact dot canvas, typography roles, focus behavior, global header, Sites control, compact header-menu shell, semantic states, responsive principles, accessibility expectations, and machine-readable conformance rules. Product-specific composition, density, controls, charts, application state, and workflow layout remain owned by each repository.
+Unification does **not** mean making the three products look identical or replacing their existing layouts with the specimen. The shared contract covers the palette, exact dot canvas, typography roles, focus behavior, global header, Sites and Settings controls, compact header-menu shell, semantic states, responsive principles, accessibility expectations, and machine-readable conformance rules. Product-specific composition, density, controls, charts, application state, and workflow layout remain owned by each repository.
 
-The shared header preserves the full product identity, Menu trigger, and exact 88px Sites control at the supported 320px viewport through an extreme-compact transformation rather than hiding required navigation.
+The shared header preserves the full product identity, Menu trigger, exact 88px Sites control, and adjacent compact Settings control at supported narrow viewports through an extreme-compact transformation rather than hiding required navigation or preferences.
 
 The package also includes reusable page-content utilities for future work and selective consolidation. Current consumers are not required to replace stable product markup solely to use those class names.
 
@@ -46,7 +46,7 @@ Load the pre-paint theme bootstrap before styles, then import the shared appeara
 <link rel="stylesheet" href="/assets/design-system/theme-control.css">
 ```
 
-The Sites menu exposes System, Light, and Dark. The preference is shared across `*.johnnyli.dev` and System follows `prefers-color-scheme` live.
+The Sites menu contains only the three owned destinations. An adjacent Settings gear opens the shared System, Light, and Dark appearance control. The preference is shared across `*.johnnyli.dev` and System follows `prefers-color-scheme` live.
 
 Start with:
 
@@ -77,7 +77,7 @@ import {
 } from "@johnnyzli/web-design-system/site-controls.js";
 ```
 
-`OWNED_SITES` is the canonical cross-site directory. The framework-neutral controllers provide consistent outside-click, Escape, ArrowUp, ArrowDown, Home, End, focus-entry, focus-restoration, and compact-menu behavior without adding a runtime framework dependency.
+`OWNED_SITES` is the canonical cross-site directory. The framework-neutral controllers provide consistent outside-click, Escape, ArrowUp, ArrowDown, Home, End, focus-entry, focus-restoration, Sites/Settings mutual exclusion, and compact-menu behavior without adding a runtime framework dependency.
 
 The complete CSS package remains available for new components or deliberate consolidation:
 
@@ -129,8 +129,8 @@ node node_modules/@johnnyzli/web-design-system/scripts/conformance-runner.mjs
 - [`version.json`](version.json) records the package version and authoritative token source.
 - [`styles/index.css`](styles/index.css) is the complete shared CSS entry point.
 - [`styles/foundations.css`](styles/foundations.css) provides canvas, focus, selection, reduced-motion, forced-colors, and utility foundations.
-- [`styles/site-identity.css`](styles/site-identity.css) owns the shared global-header geometry, owner/product lockup, navigation slot, Sites control, compact and extreme-compact header-menu shells, and menu styling.
-- [`scripts/site-controls.js`](scripts/site-controls.js) owns the site directory and framework-neutral Sites and header-menu controllers.
+- [`styles/site-identity.css`](styles/site-identity.css) owns the shared global-header geometry, owner/product lockup, navigation slot, Sites and Settings controls, compact and extreme-compact header-menu shells, and popover styling.
+- [`scripts/site-controls.js`](scripts/site-controls.js) owns the site directory and framework-neutral Sites, Settings, theme, and header-menu controllers.
 - [`scripts/site-controls.d.ts`](scripts/site-controls.d.ts) provides the TypeScript contract for the shared controllers.
 - [`styles/content.css`](styles/content.css) and [`styles/content-guard.css`](styles/content-guard.css) provide optional content patterns and resilience against generic resets.
 - [`styles/content-primitives.css`](styles/content-primitives.css) provides standalone, adaptable cross-product shells for selective consolidation, including native dialogs.
