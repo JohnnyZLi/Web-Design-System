@@ -58,6 +58,10 @@
   display: contents;
 }
 
+.jl-settings-menu {
+  width: min(184px, calc(100vw - (var(--jl-space-2) * 2)));
+}
+
 .jl-theme-options {
   position: relative;
   display: grid;
