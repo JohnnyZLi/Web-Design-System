@@ -18,6 +18,7 @@ required = (
     "clip-path: inset(0 0 100% 0);",
     "clip-path: inset(0);",
     "z-index: calc(var(--jl-z-menu) + 1);",
+    "margin: -2px 0 0;",
     ".jl-site-menu a:focus-visible {",
     "box-shadow: inset 0 0 0 2px var(--jl-color-focus-ring);",
     ".jl-site-switcher__button[aria-expanded=\"true\"]:hover,",
@@ -42,6 +43,9 @@ for fragment in (
     ".jl-site-menu::after",
     "grid-column: 1 / 3;",
     "transform: translateY(-7px) scaleY(0.97);",
+    "border-bottom-color: transparent;",
+    "border-bottom-right-radius: 0;",
+    "border-bottom-left-radius: 0;",
 ):
     if fragment in css:
         raise SystemExit(f"Sites menu must remain attached to the Sites column without overlapping the trigger: {fragment}")
