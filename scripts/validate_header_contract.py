@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 from pathlib import Path
 
-css = (Path(__file__).resolve().parents[1] / "styles" / "site-identity.css").read_text(encoding="utf-8")
+root = Path(__file__).resolve().parents[1]
+css = (root / "styles" / "site-identity.css").read_text(encoding="utf-8")
+controls = (root / "scripts" / "site-controls.js").read_text(encoding="utf-8")
 required = (
     "grid-template-columns: 104px var(--jl-control-height-md);",
     ".jl-site-switcher__button {\n  width: 104px;",
@@ -13,12 +15,16 @@ required = (
     "white-space: normal;",
     "justify-content: center;",
     "text-align: center;",
+    ".jl-site-disclosure,\n.jl-settings-disclosure {",
+    "max-height: var(--_jl-disclosure-trigger-height);",
+    "max-height: 190px;",
+    "box-shadow: inset 0 0 0 1px var(--jl-color-rule-strong);",
+    ".jl-site-disclosure > .jl-site-switcher__button,",
+    ".jl-settings-disclosure > .jl-settings-button",
     "@keyframes jl-attached-menu-reveal",
-    "animation: jl-attached-menu-reveal 190ms cubic-bezier(0.2, 0.8, 0.2, 1) both;",
+    "animation: jl-attached-menu-reveal 170ms 20ms cubic-bezier(0.2, 0.8, 0.2, 1) both;",
     "clip-path: inset(0 0 100% 0);",
     "clip-path: inset(0);",
-    "z-index: calc(var(--jl-z-menu) + 1);",
-    "margin: -2px 0 0;",
     ".jl-site-menu a:focus-visible {",
     "box-shadow: inset 0 0 0 2px var(--jl-color-focus-ring);",
     "@media (max-width: 420px)",
@@ -44,9 +50,18 @@ for fragment in (
     "border-bottom-color: transparent;",
     "border-bottom-right-radius: 0;",
     "border-bottom-left-radius: 0;",
+    "margin: -2px 0 0;",
 ):
     if fragment in css:
         raise SystemExit(f"Sites menu must remain attached to the Sites column without overlapping the trigger: {fragment}")
+
+for fragment in (
+    "function ensureDisclosureShell",
+    "\"jl-site-disclosure\"",
+    "\"jl-settings-disclosure\"",
+):
+    if fragment not in controls:
+        raise SystemExit(f"Shared site controls must create unified disclosure shells: {fragment}")
 
 compact_block = css.split("@media (max-width: 420px)", 1)[1].split("@media (forced-colors: active)", 1)[0]
 if ".jl-site-identity__product" in compact_block and "display: none" in compact_block:
