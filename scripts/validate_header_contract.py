@@ -3,10 +3,10 @@ from pathlib import Path
 
 css = (Path(__file__).resolve().parents[1] / "styles" / "site-identity.css").read_text(encoding="utf-8")
 required = (
-    "grid-template-columns: 88px var(--jl-control-height-md);",
-    ".jl-site-switcher__button {\n  width: 88px;",
-    "min-width: 88px;",
-    ".jl-site-menu {\n  width: 88px;",
+    "grid-template-columns: 104px var(--jl-control-height-md);",
+    ".jl-site-switcher__button {\n  width: 104px;",
+    "min-width: 104px;",
+    ".jl-site-menu {\n  width: 104px;",
     "grid-column: 1;",
     "justify-self: stretch;",
     ".jl-site-menu a {\n  width: 100%;",
@@ -17,9 +17,11 @@ required = (
     "border-color: var(--jl-color-rule-strong);",
     "@media (max-width: 420px)",
     "width: calc(100% - 8px);",
-    "grid-template-columns: 88px 40px;",
+    "grid-template-columns: 104px 40px;",
     ".jl-global-header__actions {\n    gap: calc(var(--jl-space-1) / 2);",
     ".jl-header-menu-toggle {\n    min-width: 40px;",
+    "grid-template-columns: 96px 40px;",
+    "width: 96px;",
 )
 for fragment in required:
     if fragment not in css:
