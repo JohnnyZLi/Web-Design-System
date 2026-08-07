@@ -1,0 +1,102 @@
+name: One-time attached menu visual
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    if: github.head_ref == 'agent/animate-attached-menus'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Install Chromium renderer
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Create shared-control visual fixture
+        run: |
+          cat > visual-fixture.html <<'HTML'
+          <!doctype html>
+          <html lang="en" data-theme="light">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <link rel="stylesheet" href="/styles/index.css">
+            <style>
+              body { margin: 0; min-height: 100vh; background: var(--jl-color-canvas); }
+              main { min-height: 520px; padding: 80px 24px; background-image: radial-gradient(var(--jl-color-canvas-dot) 1px, transparent 1px); background-size: 16px 16px; }
+            </style>
+          </head>
+          <body>
+            <header class="jl-global-header">
+              <div class="jl-global-header__inner">
+                <div class="jl-site-identity"><span class="jl-site-identity__owner">Johnny Li</span><span class="jl-site-identity__separator">/</span><span class="jl-site-identity__product">Portfolio</span></div>
+                <nav class="jl-global-header__nav"><a href="#">Projects</a><a href="#">About</a></nav>
+                <div class="jl-global-header__actions">
+                  <div class="jl-site-switcher" id="fixture-switcher">
+                    <button class="jl-site-switcher__button" type="button" data-site-switcher-button aria-expanded="false" aria-controls="fixture-sites">Sites <span class="jl-site-switcher__chevron" aria-hidden="true"></span></button>
+                    <ul class="jl-site-menu" id="fixture-sites" data-site-switcher-menu hidden></ul>
+                  </div>
+                </div>
+              </div>
+            </header>
+            <main></main>
+            <script type="module">
+              import { installSiteSwitcher } from '/scripts/site-controls.js';
+              installSiteSwitcher(document.querySelector('#fixture-switcher'), { populate: true, currentSite: 'portfolio' });
+            </script>
+          </body>
+          </html>
+          HTML
+
+          cat > render-menu-visual.mjs <<'JS'
+          import { chromium } from 'playwright';
+          import { mkdir } from 'node:fs/promises';
+          const browser = await chromium.launch({ headless: true });
+          const page = await browser.newPage({ viewport: { width: 320, height: 600 }, deviceScaleFactor: 1 });
+          await page.goto('http://127.0.0.1:4173/visual-fixture.html');
+          await page.waitForSelector('[data-site-switcher-button]');
+          await mkdir('visual-artifacts', { recursive: true });
+
+          async function sequence(kind, selector) {
+            await page.click(selector);
+            for (const [label, delay] of [['000', 0], ['050', 50], ['110', 60], ['210', 100]]) {
+              if (delay) await page.waitForTimeout(delay);
+              await page.screenshot({ path: `visual-artifacts/${kind}-${label}.png` });
+            }
+          }
+
+          await sequence('sites', '[data-site-switcher-button]');
+          await page.click('[data-site-switcher-button]');
+          await page.waitForTimeout(30);
+          await sequence('settings', '[data-settings-button]');
+          await browser.close();
+          JS
+
+      - name: Render animation frames
+        run: |
+          python3 -m http.server 4173 >/tmp/jl-visual-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          sleep 1
+          node render-menu-visual.mjs
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: attached-menu-animation-frames
+          path: visual-artifacts/*.png
+          if-no-files-found: error
