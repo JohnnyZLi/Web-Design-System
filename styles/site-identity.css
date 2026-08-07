@@ -91,7 +91,6 @@
 }
 
 .jl-site-switcher {
-  --jl-settings-control-size: var(--jl-control-height-md);
   position: relative;
   flex: none;
   display: flex;
@@ -143,10 +142,10 @@
 }
 
 .jl-settings-button {
-  width: var(--jl-settings-control-size);
-  height: var(--jl-settings-control-size);
-  min-width: var(--jl-settings-control-size);
-  min-height: var(--jl-settings-control-size);
+  width: var(--jl-control-height-md);
+  height: var(--jl-control-height-md);
+  min-width: var(--jl-control-height-md);
+  min-height: var(--jl-control-height-md);
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
@@ -200,7 +199,7 @@
 }
 
 .jl-site-menu {
-  right: calc(var(--jl-settings-control-size) + var(--jl-space-2));
+  right: calc(var(--jl-control-height-md) + var(--jl-space-2));
   list-style: none;
 }
 
@@ -324,13 +323,19 @@
     display: none;
   }
 
-  .jl-site-switcher {
-    --jl-settings-control-size: 40px;
-  }
-
-  .jl-site-switcher__button {
+  .jl-site-switcher__button,
+  .jl-settings-button {
     height: 40px;
     min-height: 40px;
+  }
+
+  .jl-settings-button {
+    width: 40px;
+    min-width: 40px;
+  }
+
+  .jl-site-menu {
+    right: calc(40px + var(--jl-space-2));
   }
 
   .jl-header-menu-toggle {
@@ -375,7 +380,7 @@
   }
 
   .jl-site-menu {
-    right: calc(var(--jl-settings-control-size) + var(--jl-space-1));
+    right: calc(40px + var(--jl-space-1));
   }
 
   .jl-global-header__nav.jl-header-menu,
