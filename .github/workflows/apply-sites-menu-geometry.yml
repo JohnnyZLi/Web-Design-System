@@ -1,0 +1,45 @@
+name: Apply Sites menu geometry fix
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.head_ref == 'agent/fix-sites-menu-geometry'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: agent/fix-sites-menu-geometry
+          fetch-depth: 0
+      - name: Patch shared Sites geometry
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          p = Path('styles/site-identity.css')
+          s = p.read_text()
+          s = s.replace('grid-template-columns: 136px var(--jl-control-height-md);', 'grid-template-columns: 88px var(--jl-control-height-md);', 1)
+          s = s.replace('width: 136px;\n  height: var(--jl-control-height-md);\n  min-width: 136px;', 'width: 88px;\n  height: var(--jl-control-height-md);\n  min-width: 88px;', 1)
+          s = s.replace('''\.jl-site-switcher__button:hover,\n.jl-settings-button:hover {\n  border-color: var(--jl-color-accent);\n}\n'''.replace('\\',''), '''.jl-site-switcher__button:hover,\n.jl-settings-button:hover {\n  border-color: var(--jl-color-accent);\n}\n\n.jl-site-switcher__button[aria-expanded="true"]:hover,\n.jl-settings-button[aria-expanded="true"]:hover {\n  border-color: var(--jl-color-rule-strong);\n  border-bottom-color: transparent;\n}\n''')
+          s = s.replace('''\.jl-site-menu {\n  width: 136px;\n  box-sizing: border-box;\n  grid-column: 1;\n  grid-row: 2;\n  justify-self: stretch;\n  padding: var(--jl-space-1);\n  border-radius: 0 0 var(--jl-radius-md) var(--jl-radius-md);\n  list-style: none;\n}\n'''.replace('\\',''), '''.jl-site-menu {\n  width: 144px;\n  min-width: 144px;\n  box-sizing: border-box;\n  grid-column: 1;\n  grid-row: 2;\n  justify-self: start;\n  padding: var(--jl-space-1);\n  border-radius: 0 0 var(--jl-radius-md) var(--jl-radius-md);\n  list-style: none;\n}\n\n.jl-site-menu::before {\n  content: "";\n  position: absolute;\n  top: 0;\n  right: -1px;\n  left: 87px;\n  border-top: 1px solid var(--jl-color-rule-strong);\n}\n''')
+          s = s.replace('''\.jl-site-menu a {\n  min-height: calc(var(--jl-control-height-md) - var(--jl-space-1));\n  display: flex;\n  align-items: center;\n  padding: var(--jl-space-2);\n'''.replace('\\',''), '''.jl-site-menu a {\n  width: 100%;\n  min-width: 0;\n  min-height: calc(var(--jl-control-height-md) - var(--jl-space-1));\n  box-sizing: border-box;\n  display: flex;\n  align-items: center;\n  padding: var(--jl-space-2);\n''')
+          s = s.replace('''\.jl-site-menu a[aria-current="page"] {\n  font-weight: 700;\n}\n'''.replace('\\',''), '''.jl-site-menu a[aria-current="page"] {\n  font-weight: 700;\n}\n\n.jl-site-menu a:focus-visible {\n  outline: none;\n  outline-offset: 0;\n  box-shadow: inset 0 0 0 2px var(--jl-color-focus-ring);\n}\n''')
+          s = s.replace('grid-template-columns: 136px 40px;', 'grid-template-columns: 88px 40px;', 1)
+          s = s.replace('grid-template-columns: 116px 40px;', 'grid-template-columns: 88px 40px;', 1)
+          s = s.replace('''  .jl-site-switcher__button,\n  .jl-site-menu {\n    width: 116px;\n    min-width: 116px;\n  }\n\n  .jl-site-menu {\n    font-size: 11.5px;\n  }\n\n  .jl-site-menu a {\n    padding: 4px;\n  }\n''', '''  .jl-site-switcher__button {\n    width: 88px;\n    min-width: 88px;\n  }\n\n  .jl-site-menu a {\n    padding: 4px;\n  }\n''')
+          p.write_text(s)
+          PY
+          git diff --check
+          git diff -- styles/site-identity.css
+      - name: Commit patch
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add styles/site-identity.css
+          git commit -m "Fix Sites trigger and menu geometry"
+          git push origin HEAD:agent/fix-sites-menu-geometry
