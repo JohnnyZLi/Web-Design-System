@@ -21,8 +21,6 @@ required = (
     "margin: -2px 0 0;",
     ".jl-site-menu a:focus-visible {",
     "box-shadow: inset 0 0 0 2px var(--jl-color-focus-ring);",
-    ".jl-site-switcher__button[aria-expanded=\"true\"]:hover,",
-    "border-color: var(--jl-color-rule-strong);",
     "@media (max-width: 420px)",
     "width: calc(100% - 8px);",
     "grid-template-columns: 104px 40px;",
