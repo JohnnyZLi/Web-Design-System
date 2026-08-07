@@ -1,16 +1,16 @@
 name: One-time unified disclosure shells
 
 on:
-  push:
+  pull_request:
     branches:
-      - agent/unified-expanding-header-shells
+      - main
 
 permissions:
   contents: write
 
 jobs:
   migrate:
-    if: github.actor != 'github-actions[bot]'
+    if: github.head_ref == 'agent/unified-expanding-header-shells' && github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -63,12 +63,7 @@ jobs:
           new_motion = '''@media (prefers-reduced-motion: no-preference) {\n  .jl-site-disclosure,\n  .jl-settings-disclosure {\n    transition: max-height 190ms cubic-bezier(0.2, 0.8, 0.2, 1),\n      box-shadow 120ms ease;\n  }\n\n  .jl-site-menu:not([hidden]),\n  .jl-settings-menu:not([hidden]) {\n    animation: jl-attached-menu-reveal 170ms 20ms cubic-bezier(0.2, 0.8, 0.2, 1) both;\n  }\n}\n'''
           css = replace_once(css, old_motion, new_motion, 'menu motion')
 
-          css = replace_once(
-              css,
-              '    grid-template-rows: 40px auto;\n',
-              '    grid-template-rows: 40px;\n',
-              'mobile switcher row',
-          )
+          css = replace_once(css, '    grid-template-rows: 40px auto;\n', '    grid-template-rows: 40px;\n', 'mobile switcher row')
           css = replace_once(
               css,
               '''  .jl-site-switcher__button,\n  .jl-settings-button {\n    height: 40px;\n    min-height: 40px;\n  }\n\n  .jl-settings-button,\n  .jl-settings-menu {\n    width: 40px;\n    min-width: 40px;\n  }\n''',
@@ -98,12 +93,7 @@ jobs:
           controls_path = Path('scripts/site-controls.js')
           controls = controls_path.read_text()
           helper = '''\nfunction ensureDisclosureShell(root, button, menu, className) {\n  let shell = button.parentElement;\n  if (!(shell instanceof HTMLElement) || !shell.classList.contains(className)) {\n    shell = root.ownerDocument.createElement("div");\n    shell.className = className;\n    root.insertBefore(shell, button);\n  }\n  if (button.parentElement !== shell) shell.append(button);\n  if (menu.parentElement !== shell) shell.append(menu);\n  return shell;\n}\n'''
-          controls = replace_once(
-              controls,
-              '\nexport function populateOwnedSites(menu, currentSite) {\n',
-              helper + '\nexport function populateOwnedSites(menu, currentSite) {\n',
-              'disclosure helper insertion',
-          )
+          controls = replace_once(controls, '\nexport function populateOwnedSites(menu, currentSite) {\n', helper + '\nexport function populateOwnedSites(menu, currentSite) {\n', 'disclosure helper insertion')
           controls = replace_once(
               controls,
               '''  const settings = ensureSettingsControl(root, button, menu);\n  const theme = installThemeControl(settings.menu);\n''',
@@ -126,15 +116,10 @@ jobs:
               '''    ".jl-site-disclosure,\\n.jl-settings-disclosure {",\n    "max-height: var(--_jl-disclosure-trigger-height);",\n    "max-height: 190px;",\n    "box-shadow: inset 0 0 0 1px var(--jl-color-rule-strong);",\n    ".jl-site-disclosure > .jl-site-switcher__button,",\n    ".jl-settings-disclosure > .jl-settings-button",\n    "@keyframes jl-attached-menu-reveal",\n    "animation: jl-attached-menu-reveal 170ms 20ms cubic-bezier(0.2, 0.8, 0.2, 1) both;",\n    "clip-path: inset(0 0 100% 0);",\n    "clip-path: inset(0);",\n''',
               'contract shell requirements',
           )
+          contract = replace_once(contract, '    "border-bottom-left-radius: 0;",\n):\n', '    "border-bottom-left-radius: 0;",\n    "margin: -2px 0 0;",\n):\n', 'contract forbidden underlap')
           contract = replace_once(
               contract,
-              '''    "border-bottom-left-radius: 0;",\n):\n''',
-              '''    "border-bottom-left-radius: 0;",\n    "margin: -2px 0 0;",\n):\n''',
-              'contract forbidden underlap',
-          )
-          contract = replace_once(
-              contract,
-              '''compact_block = css.split("@media (max-width: 420px)", 1)[1].split("@media (forced-colors: active)", 1)[0]\n''',
+              'compact_block = css.split("@media (max-width: 420px)", 1)[1].split("@media (forced-colors: active)", 1)[0]\n',
               '''for fragment in (\n    "function ensureDisclosureShell",\n    "\\\"jl-site-disclosure\\\"",\n    "\\\"jl-settings-disclosure\\\"",\n):\n    if fragment not in controls:\n        raise SystemExit(f"Shared site controls must create unified disclosure shells: {fragment}")\n\ncompact_block = css.split("@media (max-width: 420px)", 1)[1].split("@media (forced-colors: active)", 1)[0]\n''',
               'contract control requirements',
           )
