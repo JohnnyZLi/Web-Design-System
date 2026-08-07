@@ -46,3 +46,92 @@ jobs:
         run: npm pack --dry-run --json
       - name: Build release artifacts
         run: make release
+
+  sites-portfolio-render:
+    if: github.event_name == 'pull_request' && github.head_ref == 'agent/sites-menu-true-attached-width'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - name: Check out design-system candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          path: wds
+          persist-credentials: false
+      - name: Check out Portfolio
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: JohnnyZLi/Website
+          ref: main
+          path: portfolio
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "24"
+          package-manager-cache: false
+      - name: Inject candidate shared CSS
+        run: cp wds/styles/site-identity.css portfolio/assets/design-system/site-identity.css
+      - name: Install browser
+        working-directory: portfolio
+        run: |
+          npm install --no-save playwright@1.54.1
+          npx playwright install --with-deps chromium
+      - name: Start Portfolio
+        working-directory: portfolio
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/portfolio-sites.log 2>&1 &
+          for attempt in {1..30}; do
+            curl --fail --silent http://127.0.0.1:4173/ >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/portfolio-sites.log
+          exit 1
+      - name: Verify and capture dark Sites state
+        working-directory: portfolio
+        run: |
+          mkdir -p sites-candidate
+          node <<'NODE'
+          const fs = require('node:fs');
+          const { chromium } = require('playwright');
+          (async () => {
+            const browser = await chromium.launch({ headless: true });
+            const context = await browser.newContext({ viewport: { width: 320, height: 700 }, colorScheme: 'dark', deviceScaleFactor: 2, reducedMotion: 'reduce' });
+            await context.addInitScript(() => localStorage.setItem('jl-theme', 'dark'));
+            const page = await context.newPage();
+            await page.goto('http://127.0.0.1:4173/', { waitUntil: 'networkidle' });
+            const button = page.locator('.jl-site-switcher__button');
+            const menu = page.locator('#owned-sites-menu');
+            await button.click();
+            await menu.waitFor({ state: 'visible' });
+            await page.screenshot({ path: 'sites-candidate/portfolio-320-dark-sites-open.png', fullPage: false });
+            await page.locator('.jl-site-switcher').screenshot({ path: 'sites-candidate/control-320-dark.png' });
+            const metrics = await page.evaluate(() => {
+              const button = document.querySelector('.jl-site-switcher__button');
+              const menu = document.querySelector('#owned-sites-menu');
+              const settings = document.querySelector('.jl-settings-button');
+              const links = [...document.querySelectorAll('#owned-sites-menu a')];
+              const r = (el) => { const x = el.getBoundingClientRect(); return { left:x.left, right:x.right, top:x.top, bottom:x.bottom, width:x.width, height:x.height }; };
+              return {
+                button: r(button), menu: r(menu), settings: r(settings),
+                docWidth: document.documentElement.scrollWidth, viewportWidth: innerWidth,
+                links: links.map((el) => ({ text: el.textContent.trim(), rect: r(el), whiteSpace: getComputedStyle(el).whiteSpace, scrollWidth: el.scrollWidth, clientWidth: el.clientWidth })),
+              };
+            });
+            fs.writeFileSync('sites-candidate/report.json', JSON.stringify(metrics, null, 2));
+            const near = (a,b) => Math.abs(a-b) <= .75;
+            if (!near(metrics.button.width, 88) || !near(metrics.menu.width, 88)) throw new Error(`Sites widths ${metrics.button.width}/${metrics.menu.width}`);
+            if (Math.abs(metrics.menu.left - metrics.button.left) > .75 || Math.abs(metrics.menu.right - metrics.button.right) > .75) throw new Error('Sites menu is not directly attached beneath trigger');
+            if (metrics.menu.right > metrics.settings.left + .75) throw new Error('Sites menu intrudes under Settings');
+            if (metrics.docWidth > metrics.viewportWidth + 1) throw new Error('Sites state causes horizontal overflow');
+            const network = metrics.links.find((link) => link.text === 'Network Diagnostics');
+            if (!network || network.whiteSpace !== 'normal' || network.scrollWidth > network.clientWidth + 1) throw new Error('Network Diagnostics does not wrap cleanly inside Sites column');
+            await browser.close();
+          })();
+          NODE
+      - name: Upload candidate render
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with:
+          name: sites-attached-candidate
+          path: portfolio/sites-candidate
+          retention-days: 1
