@@ -13,8 +13,11 @@ required = (
     "white-space: normal;",
     "justify-content: center;",
     "text-align: center;",
-    "@keyframes jl-attached-menu-lower",
-    "animation: jl-attached-menu-lower 190ms cubic-bezier(0.2, 0.8, 0.2, 1) both;",
+    "@keyframes jl-attached-menu-reveal",
+    "animation: jl-attached-menu-reveal 190ms cubic-bezier(0.2, 0.8, 0.2, 1) both;",
+    "clip-path: inset(0 0 100% 0);",
+    "clip-path: inset(0);",
+    "z-index: calc(var(--jl-z-menu) + 1);",
     ".jl-site-menu a:focus-visible {",
     "box-shadow: inset 0 0 0 2px var(--jl-color-focus-ring);",
     ".jl-site-switcher__button[aria-expanded=\"true\"]:hover,",
@@ -38,9 +41,10 @@ for fragment in (
     ".jl-site-menu::before",
     ".jl-site-menu::after",
     "grid-column: 1 / 3;",
+    "transform: translateY(-7px) scaleY(0.97);",
 ):
     if fragment in css:
-        raise SystemExit(f"Sites menu must remain attached to the Sites column: {fragment}")
+        raise SystemExit(f"Sites menu must remain attached to the Sites column without overlapping the trigger: {fragment}")
 
 compact_block = css.split("@media (max-width: 420px)", 1)[1].split("@media (forced-colors: active)", 1)[0]
 if ".jl-site-identity__product" in compact_block and "display: none" in compact_block:
