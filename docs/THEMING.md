@@ -24,7 +24,7 @@ Hosted consumers persist the preference through the `jl-theme` cookie scoped to 
 
 `installSiteSwitcher` adds the Appearance group to the Sites menu. The three buttons expose pressed state, participate in ArrowUp, ArrowDown, Home, and End traversal, and preserve Escape dismissal and focus restoration.
 
-The Appearance choices render as one compact segmented control rather than three independent action buttons. The group owns the muted surface and a quiet shared outline; individual choices stay visually quiet until hover or selection. The selected preference uses a mid-strength terracotta surface blended from the shared accent and surface colors, keeping the active state clearly branded without matching the visual weight of a primary CTA. Light and dark themes choose the corresponding high-contrast selected text automatically.
+The Appearance choices render as three distinct compact controls rather than a shared segmented capsule. Inactive choices use the muted surface and standard strong rule; the selected preference uses the primary terracotta fill with on-accent text. This intentionally preserves the more tactile visual rhythm of the original control while keeping the section compact enough that site navigation remains the dominant content in the menu.
 
 ## Product ownership
 
