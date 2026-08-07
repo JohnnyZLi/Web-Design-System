@@ -1,0 +1,38 @@
+name: One-time attached menu motion
+
+on:
+  push:
+    branches:
+      - agent/animate-attached-menus
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: agent/animate-attached-menus
+          fetch-depth: 0
+
+      - name: Apply shared Sites and Settings motion
+        run: python scripts/apply-attached-menu-motion.py
+
+      - name: Validate shared header contract
+        run: python scripts/validate_header_contract.py
+
+      - name: Remove one-time scaffolding
+        run: |
+          rm scripts/apply-attached-menu-motion.py
+          rm .github/workflows/one-time-attached-menu-motion.yml
+
+      - name: Commit final change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add styles/site-identity.css scripts/validate_header_contract.py scripts/apply-attached-menu-motion.py .github/workflows/one-time-attached-menu-motion.yml
+          git commit -m "Animate attached header menus"
+          git push origin HEAD:agent/animate-attached-menus
