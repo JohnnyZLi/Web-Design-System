@@ -26,7 +26,7 @@ The global header keeps navigation and preferences conceptually separate. `Sites
 
 The settings gear uses a small rotational response on hover/focus and a slightly stronger open-state rotation. This motion is disabled when `prefers-reduced-motion` is active. Opening Sites closes Settings and opening Settings closes Sites, while both preserve Escape dismissal, outside-click dismissal, ArrowUp/ArrowDown/Home/End traversal, and focus restoration.
 
-The Appearance choices render without a redundant visible heading because `System`, `Light`, and `Dark` are self-explanatory inside the Settings popover. The group retains an accessible `Appearance` label. It renders as one narrow vertical track with monitor, sun, and moon icons beside the labels. A single terracotta selection pill slides vertically between the three real buttons. Forced-colors mode removes the decorative slider and restores explicit selected-button styling for platform accessibility.
+The Appearance choices render without visible text in a compact vertical rail: monitor for `System`, sun for `Light`, and moon for `Dark`. Each real button retains an accessible label and a native hover title. A single terracotta selection pill slides vertically between the three icons, keeping the Settings popover visually distinct from the text-based Sites menu. Forced-colors mode removes the decorative slider and restores explicit selected-button styling for platform accessibility.
 
 ## Product ownership
 
