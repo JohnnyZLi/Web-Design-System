@@ -24,7 +24,7 @@ Hosted consumers persist the preference through the `jl-theme` cookie scoped to 
 
 `installSiteSwitcher` adds the Appearance group to the Sites menu. The three buttons expose pressed state, participate in ArrowUp, ArrowDown, Home, and End traversal, and preserve Escape dismissal and focus restoration.
 
-The Appearance choices render as three distinct compact controls rather than a shared segmented capsule. Inactive choices use the muted surface and standard strong rule; the selected preference uses the primary terracotta fill with on-accent text. This intentionally preserves the more tactile visual rhythm of the original control while keeping the section compact enough that site navigation remains the dominant content in the menu.
+The Appearance choices render as a single seamless track with one terracotta selection pill that slides between `System`, `Light`, and `Dark`. The labels remain real buttons above the visual slider, preserving the existing pressed-state, focus, keyboard, and pointer behavior while avoiding individual button borders. The motion is intentionally short and is disabled when `prefers-reduced-motion` is active. Forced-colors mode removes the decorative slider and restores explicit selected-button styling for platform accessibility.
 
 ## Product ownership
 
