@@ -71,7 +71,7 @@
   display: grid;
   grid-template-columns: 1fr;
   grid-auto-rows: calc(var(--jl-control-height-md) - var(--jl-space-1));
-  padding: var(--jl-space-1) calc(var(--jl-space-1) / 2);
+  padding: var(--jl-space-1) 2px;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -82,8 +82,8 @@
   position: absolute;
   z-index: 0;
   top: var(--jl-space-1);
-  right: calc(var(--jl-space-1) / 2);
-  left: calc(var(--jl-space-1) / 2);
+  right: 2px;
+  left: 2px;
   height: calc(var(--jl-control-height-md) - var(--jl-space-1));
   border-radius: var(--jl-radius-sm);
   background: var(--jl-color-accent);
