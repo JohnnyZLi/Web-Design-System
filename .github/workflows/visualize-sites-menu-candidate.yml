@@ -25,22 +25,118 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: 24
-      - name: Point Portfolio at candidate and sync
-        working-directory: consumer
-        env:
-          CANDIDATE_SHA: ${{ github.event.pull_request.head.sha }}
+      - name: Apply final dropdown alignment locally
+        working-directory: wds
         run: |
-          node <<'NODE'
-          const fs = require('node:fs');
-          const sourceCommit = process.env.CANDIDATE_SHA;
-          const version = JSON.parse(fs.readFileSync('../wds/version.json', 'utf8')).version;
-          fs.writeFileSync('design-system.lock.json', `${JSON.stringify({ package: '@johnnyzli/web-design-system', version, sourceCommit }, null, 2)}\n`);
-          const manifest = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-          manifest.dependencies['@johnnyzli/web-design-system'] = `github:JohnnyZLi/Web-Design-System#${sourceCommit}`;
-          fs.writeFileSync('package.json', `${JSON.stringify(manifest, null, 2)}\n`);
-          NODE
-          npm install --no-audit --no-fund --no-package-lock
-          npm run design-system:sync
+          python3 <<'PY'
+          from pathlib import Path
+          p = Path('styles/site-identity.css')
+          s = p.read_text()
+          old = '''.jl-site-menu {
+  width: 144px;
+  min-width: 144px;
+  box-sizing: border-box;
+  grid-column: 1;
+  grid-row: 2;
+  justify-self: start;
+  padding: var(--jl-space-1);
+  border-radius: 0 0 var(--jl-radius-md) var(--jl-radius-md);
+  list-style: none;
+}
+
+.jl-site-menu::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -1px;
+  left: 87px;
+  border-top: 1px solid var(--jl-color-rule-strong);
+}
+'''
+          new = '''.jl-site-menu {
+  --_jl-site-menu-trigger-offset: calc(144px - 88px - var(--jl-space-2) - var(--jl-control-height-md));
+  width: 144px;
+  min-width: 144px;
+  box-sizing: border-box;
+  grid-column: 1 / 3;
+  grid-row: 2;
+  justify-self: end;
+  padding: var(--jl-space-1);
+  border-radius: 0 0 var(--jl-radius-md) var(--jl-radius-md);
+  list-style: none;
+}
+
+.jl-site-menu::before,
+.jl-site-menu::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  border-top: 1px solid var(--jl-color-rule-strong);
+}
+
+.jl-site-menu::before {
+  left: -1px;
+  width: calc(var(--_jl-site-menu-trigger-offset) + 1px);
+}
+
+.jl-site-menu::after {
+  right: -1px;
+  left: calc(var(--_jl-site-menu-trigger-offset) + 88px);
+}
+'''
+          if old not in s:
+              raise SystemExit('expected Sites menu block not found')
+          s = s.replace(old, new, 1)
+          s = s.replace('''  .jl-site-menu a {
+    min-height: 36px;
+    padding: 6px;
+  }
+''', '''  .jl-site-menu {
+    --_jl-site-menu-trigger-offset: calc(144px - 88px - var(--jl-space-2) - 40px);
+  }
+
+  .jl-site-menu a {
+    min-height: 36px;
+    padding: 6px;
+  }
+''', 1)
+          s = s.replace('''  .jl-site-switcher__button {
+    width: 88px;
+    min-width: 88px;
+  }
+
+  .jl-site-menu a {
+''', '''  .jl-site-switcher__button {
+    width: 88px;
+    min-width: 88px;
+  }
+
+  .jl-site-menu {
+    --_jl-site-menu-trigger-offset: calc(144px - 88px - (var(--jl-space-1) / 2) - 40px);
+  }
+
+  .jl-site-menu a {
+''', 1)
+          s = s.replace('''  .jl-site-switcher {
+    column-gap: 0;
+  }
+}
+''', '''  .jl-site-switcher {
+    column-gap: 0;
+  }
+
+  .jl-site-menu {
+    --_jl-site-menu-trigger-offset: 16px;
+  }
+}
+''', 1)
+          p.write_text(s)
+          PY
+          git diff --check
+      - name: Inject candidate CSS into Portfolio
+        run: |
+          cp wds/styles/site-identity.css consumer/assets/design-system/site-identity.css
+          cd consumer
           npm install --no-save playwright@1.54.1
           npx playwright install --with-deps chromium
       - name: Start Portfolio
@@ -60,44 +156,51 @@ jobs:
           (async () => {
             const browser = await chromium.launch({ headless: true });
             const report = [];
-            for (const [name, viewport] of [
-              ['desktop', { width: 1440, height: 900 }],
-              ['mobile', { width: 390, height: 844 }],
-              ['minimum', { width: 320, height: 700 }],
-            ]) {
-              const context = await browser.newContext({ viewport, deviceScaleFactor: 2, reducedMotion: 'reduce' });
-              const page = await context.newPage();
-              await page.goto('http://127.0.0.1:4173/', { waitUntil: 'networkidle' });
-              const button = page.locator('.jl-site-switcher__button');
-              const menu = page.locator('[data-site-switcher-menu]');
-              await button.click();
-              await menu.waitFor({ state: 'visible' });
-              await page.screenshot({ path: `candidate-visual/sites-open-${name}.png`, fullPage: false });
-              await page.locator('.jl-site-switcher').screenshot({ path: `candidate-visual/sites-control-${name}.png` });
-              const metrics = await page.evaluate(() => {
-                const button = document.querySelector('.jl-site-switcher__button');
-                const menu = document.querySelector('[data-site-switcher-menu]');
-                const links = [...document.querySelectorAll('[data-site-switcher-menu] a')];
-                const rect = (el) => { const r = el.getBoundingClientRect(); return { left:r.left, right:r.right, top:r.top, bottom:r.bottom, width:r.width, height:r.height }; };
-                const br = rect(button);
-                const mr = rect(menu);
-                return {
-                  viewportWidth: innerWidth,
-                  documentWidth: document.documentElement.scrollWidth,
-                  button: br,
-                  menu: mr,
-                  buttonBorderColor: getComputedStyle(button).borderTopColor,
-                  links: links.map((el) => ({ text: el.textContent.trim(), rect: rect(el), scrollWidth: el.scrollWidth, clientWidth: el.clientWidth, current: el.getAttribute('aria-current') })),
-                  overflow: links.some((el) => { const r = el.getBoundingClientRect(); return r.left < mr.left - .5 || r.right > mr.right + .5; }),
-                };
-              });
-              report.push({ name, ...metrics });
-              if (Math.abs(metrics.button.width - 88) > 0.75) throw new Error(`${name}: Sites trigger width ${metrics.button.width}`);
-              if (Math.abs(metrics.menu.width - 144) > 0.75) throw new Error(`${name}: Sites menu width ${metrics.menu.width}`);
-              if (metrics.overflow) throw new Error(`${name}: menu row escaped dropdown bounds`);
-              if (metrics.links.some((link) => link.scrollWidth > link.clientWidth + 1)) throw new Error(`${name}: menu text clips`);
-              if (metrics.documentWidth > metrics.viewportWidth + 1) throw new Error(`${name}: horizontal overflow ${metrics.documentWidth}/${metrics.viewportWidth}`);
-              await context.close();
+            for (const theme of ['light', 'dark']) {
+              for (const [name, viewport] of [
+                ['desktop', { width: 1440, height: 900 }],
+                ['mobile', { width: 390, height: 844 }],
+                ['minimum', { width: 320, height: 700 }],
+              ]) {
+                const context = await browser.newContext({ viewport, deviceScaleFactor: 2, colorScheme: theme, reducedMotion: 'reduce' });
+                await context.addInitScript((value) => localStorage.setItem('jl-theme', value), theme);
+                const page = await context.newPage();
+                await page.goto('http://127.0.0.1:4173/', { waitUntil: 'networkidle' });
+                const button = page.locator('.jl-site-switcher__button');
+                const menu = page.locator('[data-site-switcher-menu]');
+                await button.click();
+                await menu.waitFor({ state: 'visible' });
+                await page.screenshot({ path: `candidate-visual/sites-open-${name}-${theme}.png`, fullPage: false });
+                await page.locator('.jl-site-switcher').screenshot({ path: `candidate-visual/sites-control-${name}-${theme}.png` });
+                const metrics = await page.evaluate(() => {
+                  const button = document.querySelector('.jl-site-switcher__button');
+                  const menu = document.querySelector('[data-site-switcher-menu]');
+                  const links = [...document.querySelectorAll('[data-site-switcher-menu] a')];
+                  const rootStyle = getComputedStyle(document.documentElement);
+                  const rect = (el) => { const r = el.getBoundingClientRect(); return { left:r.left, right:r.right, top:r.top, bottom:r.bottom, width:r.width, height:r.height }; };
+                  const br = rect(button);
+                  const mr = rect(menu);
+                  return {
+                    viewportWidth: innerWidth,
+                    documentWidth: document.documentElement.scrollWidth,
+                    button: br,
+                    menu: mr,
+                    buttonBorderColor: getComputedStyle(button).borderTopColor,
+                    accentColor: rootStyle.getPropertyValue('--jl-color-accent').trim(),
+                    links: links.map((el) => ({ text: el.textContent.trim(), rect: rect(el), scrollWidth: el.scrollWidth, clientWidth: el.clientWidth, current: el.getAttribute('aria-current') })),
+                    rowOverflow: links.some((el) => { const r = el.getBoundingClientRect(); return r.left < mr.left - .5 || r.right > mr.right + .5; }),
+                  };
+                });
+                report.push({ theme, name, ...metrics });
+                if (Math.abs(metrics.button.width - 88) > 0.75) throw new Error(`${theme}/${name}: Sites trigger width ${metrics.button.width}`);
+                if (Math.abs(metrics.menu.width - 144) > 0.75) throw new Error(`${theme}/${name}: Sites menu width ${metrics.menu.width}`);
+                if (metrics.menu.left < -0.5 || metrics.menu.right > metrics.viewportWidth + 0.5) throw new Error(`${theme}/${name}: menu outside viewport ${metrics.menu.left}/${metrics.menu.right}`);
+                if (metrics.rowOverflow) throw new Error(`${theme}/${name}: menu row escaped dropdown bounds`);
+                if (metrics.links.some((link) => link.scrollWidth > link.clientWidth + 1)) throw new Error(`${theme}/${name}: menu text clips`);
+                if (metrics.documentWidth > metrics.viewportWidth + 1) throw new Error(`${theme}/${name}: horizontal overflow ${metrics.documentWidth}/${metrics.viewportWidth}`);
+                if (metrics.buttonBorderColor === metrics.accentColor) throw new Error(`${theme}/${name}: expanded pointer hover still uses accent border`);
+                await context.close();
+              }
             }
             fs.writeFileSync('candidate-visual/report.json', JSON.stringify(report, null, 2));
             await browser.close();
@@ -107,5 +210,7 @@ jobs:
         if: always()
         with:
           name: sites-menu-candidate-visual
-          path: consumer/candidate-visual
-          retention-days: 7
+          path: |
+            consumer/candidate-visual
+            wds/styles/site-identity.css
+          retention-days: 1
