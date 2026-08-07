@@ -17,21 +17,22 @@
   box-sizing: border-box;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  grid-template-rows: var(--jl-control-height-md) auto;
+  grid-template-rows: auto;
   column-gap: clamp(var(--jl-space-4), 2.5vw, var(--jl-space-8));
-  row-gap: 0;
-  align-items: center;
+  align-items: start;
   margin-inline: auto;
   padding-block: 19px;
 }
 
 .jl-site-identity {
   min-width: 0;
+  height: var(--jl-control-height-md);
+  grid-column: 1;
   grid-row: 1;
   display: flex;
   flex-wrap: nowrap;
   gap: 10px;
-  align-items: baseline;
+  align-items: center;
   color: var(--jl-color-ink);
   font-size: 1.125rem;
   font-weight: 650;
@@ -67,6 +68,7 @@
 
 .jl-global-header__nav {
   min-width: 0;
+  height: var(--jl-control-height-md);
   grid-column: 2;
   grid-row: 1;
   display: flex;
@@ -90,7 +92,7 @@
 
 .jl-global-header__actions {
   grid-column: 3;
-  grid-row: 1 / span 2;
+  grid-row: 1;
   align-self: start;
   display: flex;
   gap: var(--jl-space-2);
@@ -144,6 +146,8 @@
 }
 
 .jl-site-switcher__button[aria-expanded="true"] {
+  position: relative;
+  z-index: calc(var(--jl-z-menu) + 1);
   border-bottom-color: transparent;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
@@ -186,6 +190,8 @@
 }
 
 .jl-settings-button[aria-expanded="true"] {
+  position: relative;
+  z-index: calc(var(--jl-z-menu) + 1);
   border-bottom-color: transparent;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
@@ -224,15 +230,18 @@
   margin: 0;
   border: 1px solid var(--jl-color-rule-strong);
   background: var(--jl-color-surface);
+  box-shadow: none;
   font-family: var(--jl-font-ui);
   font-size: var(--jl-type-metadata-size);
 }
 
 .jl-site-menu {
   width: min(280px, calc(100vw - (var(--jl-layout-gutter) * 2)));
+  box-sizing: border-box;
   grid-column: 1;
   grid-row: 2;
   justify-self: end;
+  margin-top: -1px;
   padding: var(--jl-space-2);
   border-radius: var(--jl-radius-md) 0 var(--jl-radius-md) var(--jl-radius-md);
   list-style: none;
@@ -255,6 +264,7 @@
   grid-column: 2;
   grid-row: 2;
   justify-self: stretch;
+  margin-top: -1px;
   padding: 0;
   border-top: 0;
   border-radius: 0 0 var(--jl-radius-md) var(--jl-radius-md);
@@ -315,6 +325,7 @@
   .jl-global-header__nav.jl-header-menu--open {
     width: auto;
     min-height: 0;
+    height: auto;
     position: absolute;
     z-index: var(--jl-z-menu);
     top: 100%;
@@ -364,13 +375,17 @@
 
   .jl-global-header__inner {
     width: calc(100% - 32px);
-    grid-template-rows: 40px auto;
     column-gap: var(--jl-space-3);
     padding-block: 14px;
   }
 
   .jl-site-identity {
+    height: 40px;
     font-size: var(--jl-type-body-size);
+  }
+
+  .jl-global-header__nav {
+    height: 40px;
   }
 
   .jl-site-identity__owner,
