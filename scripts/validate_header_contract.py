@@ -3,17 +3,24 @@ from pathlib import Path
 
 css = (Path(__file__).resolve().parents[1] / "styles" / "site-identity.css").read_text(encoding="utf-8")
 required = (
-    "grid-template-columns: 136px var(--jl-control-height-md);",
-    "width: 136px;",
-    "min-width: 136px;",
+    "grid-template-columns: 88px var(--jl-control-height-md);",
+    ".jl-site-switcher__button {\n  width: 88px;",
+    "min-width: 88px;",
+    ".jl-site-menu {\n  width: 144px;",
+    "min-width: 144px;",
+    ".jl-site-menu::before {",
+    "left: 87px;",
+    ".jl-site-menu a {\n  width: 100%;",
+    "min-width: 0;",
+    ".jl-site-menu a:focus-visible {",
+    "box-shadow: inset 0 0 0 2px var(--jl-color-focus-ring);",
+    ".jl-site-switcher__button[aria-expanded=\"true\"]:hover,",
+    "border-color: var(--jl-color-rule-strong);",
     "@media (max-width: 420px)",
     "width: calc(100% - 8px);",
-    "grid-template-columns: 116px 40px;",
-    "width: 116px;",
-    "min-width: 116px;",
+    "grid-template-columns: 88px 40px;",
     ".jl-global-header__actions {\n    gap: calc(var(--jl-space-1) / 2);",
     ".jl-header-menu-toggle {\n    min-width: 40px;",
-    "font-size: 11.5px;",
     "white-space: nowrap;",
 )
 for fragment in required:
