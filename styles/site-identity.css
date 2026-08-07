@@ -355,7 +355,10 @@
     letter-spacing: -0.035em;
   }
 
-  .jl-global-header__actions,
+  .jl-global-header__actions {
+    gap: var(--jl-space-1);
+  }
+
   .jl-site-switcher {
     gap: var(--jl-space-1);
   }
