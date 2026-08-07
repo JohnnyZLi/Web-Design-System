@@ -1,0 +1,66 @@
+name: Apply attached control visual fix
+
+on:
+  push:
+    branches:
+      - agent/fix-attached-control-visuals
+    paths:
+      - .github/workflows/apply-attached-control-visual-fix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: agent/fix-attached-control-visuals
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "24"
+      - name: Patch shared controls
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          css_path = Path('styles/site-identity.css')
+          css = css_path.read_text()
+          replacements = [
+            ('grid-template-columns: 88px var(--jl-control-height-md);', 'grid-template-columns: 136px var(--jl-control-height-md);'),
+            ('width: 88px;\n  height: var(--jl-control-height-md);\n  min-width: 88px;', 'width: 136px;\n  height: var(--jl-control-height-md);\n  min-width: 136px;'),
+            ('width: 88px;\n  box-sizing: border-box;\n  grid-column: 1;', 'width: 136px;\n  box-sizing: border-box;\n  grid-column: 1;'),
+            ('  line-height: 1.15;\n  overflow-wrap: break-word;\n  white-space: normal;', '  line-height: 1.15;\n  overflow-wrap: normal;\n  white-space: nowrap;'),
+            ('grid-template-columns: 88px 40px;', 'grid-template-columns: 136px 40px;'),
+            ('  .jl-global-header__inner {\n    width: calc(100% - 16px);\n    column-gap: var(--jl-space-1);\n  }\n\n  .jl-site-identity {\n    font-size: 0.875rem;\n    letter-spacing: -0.035em;\n  }\n\n  .jl-global-header__actions {\n    gap: var(--jl-space-1);\n  }\n\n  .jl-site-switcher {\n    column-gap: var(--jl-space-1);\n  }\n\n  .jl-header-menu-toggle {\n    min-width: 44px;\n    padding-inline: 6px;\n    font-size: 11px;\n  }', '  .jl-global-header__inner {\n    width: calc(100% - 8px);\n    column-gap: calc(var(--jl-space-1) / 2);\n  }\n\n  .jl-site-identity {\n    font-size: 0.75rem;\n    letter-spacing: -0.04em;\n  }\n\n  .jl-global-header__actions {\n    gap: calc(var(--jl-space-1) / 2);\n  }\n\n  .jl-site-switcher {\n    grid-template-columns: 116px 40px;\n    column-gap: calc(var(--jl-space-1) / 2);\n  }\n\n  .jl-site-switcher__button,\n  .jl-site-menu {\n    width: 116px;\n    min-width: 116px;\n  }\n\n  .jl-site-menu {\n    font-size: 11.5px;\n  }\n\n  .jl-site-menu a {\n    padding: 4px;\n  }\n\n  .jl-header-menu-toggle {\n    min-width: 40px;\n    padding-inline: 4px;\n    font-size: 11px;\n  }'),
+            ('  .jl-site-menu {\n    width: 88px;\n  }', '  .jl-site-menu {\n    width: 116px;\n    min-width: 116px;\n  }'),
+          ]
+          for old, new in replacements:
+            if old not in css:
+              raise SystemExit(f'Missing CSS pattern: {old[:80]!r}')
+            css = css.replace(old, new, 1)
+          css = css.replace('  outline: 0;\n  box-shadow: inset 0 0 0 2px var(--jl-color-focus-ring);', '  outline: none;\n  outline-offset: 0;\n  box-shadow: inset 0 0 0 2px var(--jl-color-focus-ring);', 1)
+          css_path.write_text(css)
+
+          js_path = Path('scripts/site-controls.js')
+          js = js_path.read_text()
+          old = '  const handleButtonClick = () => toggle();'
+          new = '''  const handleButtonClick = (event) => {\n    toggle();\n    if (event.detail > 0) button.blur();\n  };'''
+          if old not in js:
+            raise SystemExit('Missing disclosure click handler')
+          js = js.replace(old, new, 1)
+          js_path.write_text(js)
+          PY
+      - name: Validate package
+        run: |
+          node --check scripts/site-controls.js
+          python3 scripts/validate-extreme-compact-header.py
+          python3 scripts/validate-design-system.py
+      - name: Remove bootstrap workflow and commit
+        run: |
+          rm .github/workflows/apply-attached-control-visual-fix.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Fix attached control sizing and pointer focus"
+          git push origin HEAD:agent/fix-attached-control-visuals
