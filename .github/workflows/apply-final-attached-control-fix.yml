@@ -1,0 +1,100 @@
+name: Apply final attached-control fix
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.head_ref == 'agent/finalize-attached-control-visuals'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: agent/finalize-attached-control-visuals
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "24"
+      - name: Patch attached controls
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          css_path = Path('styles/site-identity.css')
+          css = css_path.read_text()
+          old_border = 'border-bottom-color: var(--jl-color-rule-strong);'
+          if css.count(old_border) < 2:
+            raise SystemExit('Expected two open-trigger bottom borders')
+          css = css.replace(old_border, 'border-bottom-color: transparent;', 2)
+
+          marker = '@media (forced-colors: active) {'
+          compact = '''@media (max-width: 360px) {
+  .jl-global-header__inner {
+    column-gap: 0;
+  }
+
+  .jl-site-identity {
+    font-size: 0.65625rem;
+    letter-spacing: -0.045em;
+  }
+
+  .jl-global-header__actions {
+    gap: 0;
+  }
+
+  .jl-site-switcher {
+    column-gap: 0;
+  }
+}
+
+'''
+          if compact not in css:
+            if marker not in css:
+              raise SystemExit('Forced-colors marker missing')
+            css = css.replace(marker, compact + marker, 1)
+          css_path.write_text(css)
+
+          js_path = Path('scripts/site-controls.js')
+          js = js_path.read_text()
+          old_click = '  const handleButtonClick = () => toggle();'
+          new_click = '''  const handleButtonClick = (event) => {
+    toggle();
+    if (event.detail > 0) button.blur();
+  };'''
+          if old_click not in js:
+            raise SystemExit('Disclosure click handler missing')
+          js = js.replace(old_click, new_click, 1)
+
+          old_settings = '''    onBeforeOpen: () => {
+      sitesDisclosure.close();
+      options.onBeforeOpen?.();
+    },
+    onOpenChange: options.onOpenChange,
+  });'''
+          new_settings = '''    onBeforeOpen: () => {
+      sitesDisclosure.close();
+      options.onBeforeOpen?.();
+    },
+  });'''
+          if old_settings not in js:
+            raise SystemExit('Settings disclosure callback block missing')
+          js = js.replace(old_settings, new_settings, 1)
+          js_path.write_text(js)
+          PY
+      - name: Validate
+        run: |
+          node --check scripts/site-controls.js
+          python3 scripts/validate_header_contract.py
+          python3 scripts/validate-design-system.py
+      - name: Remove workflow and commit
+        run: |
+          rm -f .github/workflows/apply-final-attached-control-fix.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Finalize attached control visuals"
+          git push origin HEAD:agent/finalize-attached-control-visuals
