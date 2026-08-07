@@ -1,0 +1,109 @@
+name: Visualize Sites spacing
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    if: github.head_ref == 'agent/relax-sites-menu-spacing'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        include:
+          - name: portfolio
+            repo: JohnnyZLi/Website
+            css: assets/design-system/site-identity.css
+            build: 'false'
+          - name: network
+            repo: JohnnyZLi/Network-Diagnostics-Suite
+            css: src/design-system/site-identity.css
+            build: 'true'
+    steps:
+      - name: Check out design system
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          path: wds
+          persist-credentials: false
+      - name: Check out consumer
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: ${{ matrix.repo }}
+          ref: main
+          path: consumer
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24'
+      - name: Inject candidate CSS and install browser
+        run: |
+          cp wds/styles/site-identity.css consumer/${{ matrix.css }}
+          cd consumer
+          if [ '${{ matrix.build }}' = 'true' ]; then npm ci --no-audit --no-fund; fi
+          npm install --no-save playwright@1.54.1
+          npx playwright install --with-deps chromium
+          if [ '${{ matrix.build }}' = 'true' ]; then npm run build; fi
+      - name: Start consumer
+        working-directory: consumer
+        run: |
+          if [ '${{ matrix.build }}' = 'true' ]; then
+            npm run preview -- --host 127.0.0.1 --port 4173 >/tmp/site.log 2>&1 &
+          else
+            python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/site.log 2>&1 &
+          fi
+          for attempt in {1..30}; do
+            curl --fail --silent http://127.0.0.1:4173/ >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/site.log
+          exit 1
+      - name: Render Sites-open states
+        working-directory: consumer
+        env:
+          CONSUMER: ${{ matrix.name }}
+        run: |
+          mkdir -p spacing-visual
+          node <<'NODE'
+          const fs = require('node:fs');
+          const { chromium } = require('playwright');
+          (async () => {
+            const browser = await chromium.launch({ headless: true });
+            const report = [];
+            for (const [name, viewport] of [['desktop',{width:1440,height:900}],['mobile',{width:390,height:844}],['minimum',{width:320,height:700}]]) {
+              const context = await browser.newContext({ viewport, colorScheme: 'dark', reducedMotion: 'reduce', deviceScaleFactor: 2 });
+              await context.addInitScript(() => localStorage.setItem('jl-theme','dark'));
+              const page = await context.newPage();
+              await page.goto('http://127.0.0.1:4173/', { waitUntil: 'networkidle' });
+              const button = page.locator('.jl-site-switcher__button');
+              const menu = page.locator('[data-site-switcher-menu], #owned-sites-menu').first();
+              await button.click();
+              await menu.waitFor({ state: 'visible' });
+              const metrics = await page.evaluate(() => {
+                const button = document.querySelector('.jl-site-switcher__button');
+                const menu = document.querySelector('[data-site-switcher-menu], #owned-sites-menu');
+                const links = [...document.querySelectorAll('[data-site-switcher-menu] a, #owned-sites-menu a')];
+                const b = button.getBoundingClientRect(); const m = menu.getBoundingClientRect();
+                return { viewport: innerWidth, document: document.documentElement.scrollWidth, buttonWidth:b.width, menuWidth:m.width, menuLeft:m.left, menuRight:m.right, links:links.map(x=>({text:x.textContent.trim(),w:x.getBoundingClientRect().width,h:x.getBoundingClientRect().height,scroll:x.scrollWidth,client:x.clientWidth})) };
+              });
+              report.push({ name, ...metrics });
+              if (metrics.document > metrics.viewport + 1) throw new Error(`${name}: horizontal overflow ${metrics.document}/${metrics.viewport}`);
+              if (metrics.menuLeft < -0.5 || metrics.menuRight > metrics.viewport + 0.5) throw new Error(`${name}: menu outside viewport`);
+              await page.screenshot({ path:`spacing-visual/${process.env.CONSUMER}-${name}-dark-sites.png` });
+              await page.locator('.jl-site-switcher').screenshot({ path:`spacing-visual/${process.env.CONSUMER}-${name}-control.png` });
+              await context.close();
+            }
+            fs.writeFileSync('spacing-visual/report.json', JSON.stringify(report,null,2));
+            await browser.close();
+          })();
+          NODE
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with:
+          name: sites-spacing-${{ matrix.name }}
+          path: consumer/spacing-visual
+          retention-days: 1
