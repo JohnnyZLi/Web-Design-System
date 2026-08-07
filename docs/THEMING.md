@@ -20,11 +20,13 @@ The bootstrap writes the stored preference to `data-theme-preference` and the re
 
 Hosted consumers persist the preference through the `jl-theme` cookie scoped to `.johnnyli.dev`. Local storage mirrors the preference for local development and same-origin recovery. System mode follows `prefers-color-scheme` and updates live when the operating-system setting changes.
 
-## Shared control
+## Shared controls
 
-`installSiteSwitcher` adds the Appearance group to the Sites menu. The three buttons expose pressed state, participate in ArrowUp, ArrowDown, Home, and End traversal, and preserve Escape dismissal and focus restoration.
+The global header keeps navigation and preferences conceptually separate. `Sites` opens only the canonical Portfolio, Network Diagnostics, and RolePacket destinations. `installSiteSwitcher` adds an adjacent icon-only Settings control whose accessible name is `Settings`; opening it exposes the shared appearance picker.
 
-The Appearance choices render as a single seamless track with one terracotta selection pill that slides between `System`, `Light`, and `Dark`. The labels remain real buttons above the visual slider, preserving the existing pressed-state, focus, keyboard, and pointer behavior while avoiding individual button borders. The motion is intentionally short and is disabled when `prefers-reduced-motion` is active. Forced-colors mode removes the decorative slider and restores explicit selected-button styling for platform accessibility.
+The settings gear uses a small rotational response on hover/focus and a slightly stronger open-state rotation. This motion is disabled when `prefers-reduced-motion` is active. Opening Sites closes Settings and opening Settings closes Sites, while both preserve Escape dismissal, outside-click dismissal, ArrowUp/ArrowDown/Home/End traversal, and focus restoration.
+
+The Appearance choices render without a redundant visible heading because `System`, `Light`, and `Dark` are self-explanatory inside the Settings popover. The group retains an accessible `Appearance` label. It renders as a single seamless track with one terracotta selection pill that slides between the three real buttons. Forced-colors mode removes the decorative slider and restores explicit selected-button styling for platform accessibility.
 
 ## Product ownership
 
