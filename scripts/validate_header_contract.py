@@ -6,16 +6,11 @@ required = (
     "grid-template-columns: 88px var(--jl-control-height-md);",
     ".jl-site-switcher__button {\n  width: 88px;",
     "min-width: 88px;",
-    ".jl-site-menu {\n  --_jl-site-menu-trigger-offset:",
-    "width: 144px;",
-    "min-width: 144px;",
-    "grid-column: 1 / 3;",
-    "justify-self: end;",
-    ".jl-site-menu::before,\n.jl-site-menu::after {",
-    "width: calc(var(--_jl-site-menu-trigger-offset) + 1px);",
-    "left: calc(var(--_jl-site-menu-trigger-offset) + 88px);",
+    ".jl-site-menu {\n  width: 88px;",
+    "grid-column: 1;",
+    "justify-self: stretch;",
     ".jl-site-menu a {\n  width: 100%;",
-    "min-width: 0;",
+    "white-space: normal;",
     ".jl-site-menu a:focus-visible {",
     "box-shadow: inset 0 0 0 2px var(--jl-color-focus-ring);",
     ".jl-site-switcher__button[aria-expanded=\"true\"]:hover,",
@@ -25,12 +20,21 @@ required = (
     "grid-template-columns: 88px 40px;",
     ".jl-global-header__actions {\n    gap: calc(var(--jl-space-1) / 2);",
     ".jl-header-menu-toggle {\n    min-width: 40px;",
-    "--_jl-site-menu-trigger-offset: 16px;",
-    "white-space: nowrap;",
 )
 for fragment in required:
     if fragment not in css:
         raise SystemExit(f"Extreme-compact header contract is incomplete: {fragment}")
+
+for fragment in (
+    "width: 144px;",
+    "min-width: 144px;",
+    "--_jl-site-menu-trigger-offset",
+    ".jl-site-menu::before",
+    ".jl-site-menu::after",
+    "grid-column: 1 / 3;",
+):
+    if fragment in css:
+        raise SystemExit(f"Sites menu must remain attached to the Sites column: {fragment}")
 
 compact_block = css.split("@media (max-width: 420px)", 1)[1].split("@media (forced-colors: active)", 1)[0]
 if ".jl-site-identity__product" in compact_block and "display: none" in compact_block:
