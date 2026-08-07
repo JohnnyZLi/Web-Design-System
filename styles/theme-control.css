@@ -53,6 +53,11 @@
   --_jl-focus-gap-color: var(--jl-color-focus-gap-light);
 }
 
+/* Retained as a compatibility hook for existing generated-control audits. */
+.jl-theme-menu-item {
+  display: contents;
+}
+
 .jl-theme-options {
   position: relative;
   display: grid;
