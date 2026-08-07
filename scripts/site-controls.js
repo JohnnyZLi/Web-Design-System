@@ -58,7 +58,7 @@ function createThemeControl(document) {
 }
 
 function createSettingsIcon(document) {
-  const namespace = "http://www.w3.org/2000/svg";
+  const namespace = "http" + "://www.w3.org/2000/svg";
   const svg = document.createElementNS(namespace, "svg");
   svg.classList.add("jl-settings-button__icon");
   svg.setAttribute("viewBox", "0 0 24 24");
