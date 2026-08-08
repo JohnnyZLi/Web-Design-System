@@ -39,12 +39,6 @@ required = (
     ".jl-header-menu-toggle {\n    min-width: 40px;",
     "grid-template-columns: 96px 40px;",
     "width: 96px;",
-    "/* Keep open Sites and Settings controls pinned to the viewport. */",
-    ".jl-global-header__actions {\n  min-width: calc(104px + var(--jl-space-2) + var(--jl-control-height-md));",
-    "position: fixed;",
-    "top: 19px;",
-    "right: max(",
-    "min-width: 136px;",
 )
 for fragment in required:
     if fragment not in css:
@@ -65,11 +59,6 @@ full_header_required = (
     "right: 0;",
     "left: 0;",
     "margin-inline: auto;",
-    "/* Neutralize the older control-only pin",
-    ".jl-site-switcher {",
-    "position: relative;",
-    "top: auto;",
-    "right: auto;",
     "height: 69px;",
     "[data-jl-header-disclosure-exit]",
     "animation: jl-header-disclosure-exit 400ms cubic-bezier(0.4, 0, 0.2, 1) both;",
@@ -83,10 +72,20 @@ for fragment in full_header_required:
 fixed_inner_block = theme_css.split(
     ':is(.jl-global-header, .jl-site-header):has([data-site-switcher-button][aria-expanded="true"]) .jl-global-header__inner,',
     1,
-)[1].split("/* Neutralize the older control-only pin", 1)[0]
+)[1].split("@media (max-width: 560px)", 1)[0]
 for forbidden in ("left: 50%;", "transform: translateX(-50%);"):
     if forbidden in fixed_inner_block:
         raise SystemExit(f"Full-header centering must not depend on transforms: {forbidden}")
+
+for fragment in (
+    "/* Keep open Sites and Settings controls pinned to the viewport. */",
+    "min-width: calc(104px + var(--jl-space-2) + var(--jl-control-height-md));",
+):
+    if fragment in css:
+        raise SystemExit(f"Control-only disclosure pinning must not return: {fragment}")
+
+if "/* Neutralize the older control-only pin" in theme_css:
+    raise SystemExit("Full-header pinning must not depend on neutralizing an older control-only rule.")
 
 for fragment in (
     "width: 144px;",
