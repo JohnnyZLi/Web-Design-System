@@ -61,7 +61,7 @@ The v1.9.0 header and appearance work established the following shared productio
 - Opening either disclosure keeps the complete header together while scrolling rather than pinning only the controls.
 - The normal page footprint remains reserved while the header is fixed: 83px on desktop and 69px in the compact header state, including the divider.
 - Closing a scrolled disclosure uses the complete-header exit animation; reduced-motion users receive no nonessential animation.
-- All three consumers currently pin Web Design System source commit `b5a3fc5898f5f62842d58f206d7ad6726e92f537` for the approved production assets.
+- All three consumers currently pin the same reviewed v1.9.0 shared-asset source.
 
 ## Manual acceptance record
 
