@@ -3,6 +3,7 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
 css = (root / "styles" / "site-identity.css").read_text(encoding="utf-8")
+theme_css = (root / "styles" / "theme-control.css").read_text(encoding="utf-8")
 controls = (root / "scripts" / "site-controls.js").read_text(encoding="utf-8")
 required = (
     "grid-template-columns: 104px var(--jl-control-height-md);",
@@ -49,6 +50,29 @@ for fragment in required:
     if fragment not in css:
         raise SystemExit(f"Extreme-compact header contract is incomplete: {fragment}")
 
+full_header_required = (
+    "/* Keep the complete top bar together while Sites or Settings is open.",
+    ":is(.jl-global-header, .jl-site-header):has([data-site-switcher-button][aria-expanded=\"true\"])",
+    ":is(.jl-global-header, .jl-site-header):has([data-settings-button][aria-expanded=\"true\"])",
+    "position: fixed;",
+    "z-index: calc(var(--jl-z-menu) - 1);",
+    "height: var(--jl-layout-header-height);",
+    "border-bottom: 1px solid var(--jl-color-rule);",
+    "background: var(--jl-color-canvas);",
+    ".jl-global-header__inner {",
+    "left: 50%;",
+    "transform: translateX(-50%);",
+    "/* Neutralize the older control-only pin",
+    ".jl-site-switcher {",
+    "position: relative;",
+    "top: auto;",
+    "right: auto;",
+    "height: 68px;",
+)
+for fragment in full_header_required:
+    if fragment not in theme_css:
+        raise SystemExit(f"Open disclosures must pin the complete top bar: {fragment}")
+
 for fragment in (
     "width: 144px;",
     "min-width: 144px;",
@@ -82,4 +106,4 @@ if ".jl-site-identity__product" in compact_block and "display: none" in compact_
 if ".jl-site-switcher__button" in compact_block and "display: none" in compact_block:
     raise SystemExit("Extreme-compact header must preserve the Sites control.")
 
-print("Extreme-compact header contract passed.")
+print("Extreme-compact and full-header disclosure contracts passed.")
