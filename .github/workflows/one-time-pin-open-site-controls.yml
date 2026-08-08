@@ -1,0 +1,98 @@
+name: One-time pinned site-controls migration
+
+on:
+  push:
+    branches: ["agent/pin-open-site-controls-source"]
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Move pinned-control behavior into the shared header stylesheet
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          css_path = Path("styles/site-identity.css")
+          css = css_path.read_text(encoding="utf-8")
+          marker = "/* Keep open Sites and Settings controls pinned to the viewport. */"
+          block = r'''
+          /* Keep open Sites and Settings controls pinned to the viewport. */
+          .jl-global-header__actions {
+            min-width: calc(104px + var(--jl-space-2) + var(--jl-control-height-md));
+          }
+
+          .jl-site-switcher:has(> .jl-site-disclosure > .jl-site-switcher__button[aria-expanded="true"]),
+          .jl-site-switcher:has(> .jl-settings-disclosure > .jl-settings-button[aria-expanded="true"]) {
+            position: fixed;
+            z-index: var(--jl-z-menu);
+            top: 19px;
+            right: max(
+              var(--jl-layout-gutter),
+              calc((100vw - var(--jl-layout-portfolio-max)) / 2)
+            );
+          }
+
+          @media (max-width: 560px) {
+            .jl-global-header__actions {
+              min-width: calc(104px + var(--jl-space-2) + 40px);
+            }
+
+            .jl-site-switcher:has(> .jl-site-disclosure > .jl-site-switcher__button[aria-expanded="true"]),
+            .jl-site-switcher:has(> .jl-settings-disclosure > .jl-settings-button[aria-expanded="true"]) {
+              top: 14px;
+              right: 16px;
+            }
+          }
+
+          @media (max-width: 420px) {
+            .jl-global-header__actions {
+              min-width: calc(104px + (var(--jl-space-1) / 2) + 40px);
+            }
+
+            .jl-site-switcher:has(> .jl-site-disclosure > .jl-site-switcher__button[aria-expanded="true"]),
+            .jl-site-switcher:has(> .jl-settings-disclosure > .jl-settings-button[aria-expanded="true"]) {
+              right: 4px;
+            }
+          }
+
+          @media (max-width: 360px) {
+            .jl-global-header__actions {
+              min-width: 136px;
+            }
+          }
+          '''.strip()
+
+          if marker not in css:
+              css_path.write_text(css.rstrip() + "\n\n" + block + "\n", encoding="utf-8")
+
+          Path("styles/index.css").write_text(
+              '@layer reset, tokens, base, layout, components, features, utilities, overrides;\n\n'
+              '@import "../tokens/tokens.css" layer(tokens);\n'
+              '@import "./foundations.css";\n'
+              '@import "./site-identity.css";\n'
+              '@import "./theme-control.css";\n'
+              '@import "./content.css";\n'
+              '@import "./content-guard.css";\n'
+              '@import "./content-primitives.css";\n',
+              encoding="utf-8",
+          )
+
+          Path(".github/workflows/one-time-pin-open-site-controls.yml").unlink()
+          PY
+      - name: Commit migrated source
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add styles/site-identity.css styles/index.css .github/workflows/one-time-pin-open-site-controls.yml
+          git commit -m "Move pinned controls into shared header source"
+          git push origin HEAD:${GITHUB_REF_NAME}
