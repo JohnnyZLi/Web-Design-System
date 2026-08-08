@@ -69,6 +69,10 @@ full_header_required = (
     "top: auto;",
     "right: auto;",
     "height: 68px;",
+    "[data-jl-header-disclosure-exit]",
+    "animation: jl-header-disclosure-exit 180ms cubic-bezier(0.2, 0.8, 0.2, 1) both;",
+    "@keyframes jl-header-disclosure-exit",
+    "top: var(--_jl-header-disclosure-exit-y, calc(-1 * var(--jl-layout-header-height)));",
 )
 for fragment in full_header_required:
     if fragment not in theme_css:
@@ -105,6 +109,11 @@ for fragment in (
     "function ensureDisclosureShell",
     "\"jl-site-disclosure\"",
     "\"jl-settings-disclosure\"",
+    "function installHeaderDisclosureExit",
+    "data-jl-header-disclosure-exit",
+    "--_jl-header-disclosure-exit-y",
+    "headerExit.sync(open)",
+    "onOpenChange: headerExit.sync",
 ):
     if fragment not in controls:
         raise SystemExit(f"Shared site controls must create unified disclosure shells: {fragment}")
