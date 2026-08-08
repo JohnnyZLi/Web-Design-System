@@ -70,7 +70,7 @@ full_header_required = (
     "right: auto;",
     "height: 68px;",
     "[data-jl-header-disclosure-exit]",
-    "animation: jl-header-disclosure-exit 180ms cubic-bezier(0.2, 0.8, 0.2, 1) both;",
+    "animation: jl-header-disclosure-exit 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;",
     "@keyframes jl-header-disclosure-exit",
     "top: var(--_jl-header-disclosure-exit-y, calc(-1 * var(--jl-layout-header-height)));",
 )
