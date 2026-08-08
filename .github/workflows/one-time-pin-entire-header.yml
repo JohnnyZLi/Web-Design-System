@@ -1,0 +1,190 @@
+name: One-time full-header disclosure pin
+
+on:
+  push:
+    branches: ["agent/pin-entire-header-disclosure"]
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: agent/pin-entire-header-disclosure
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+      - name: Replace control-only pinning with full-header pinning
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          css_path = Path("styles/site-identity.css")
+          css = css_path.read_text(encoding="utf-8")
+          marker = "/* Keep open Sites and Settings controls pinned to the viewport. */"
+          if marker not in css:
+              raise SystemExit("Control-only pinning marker not found")
+          css = css.split(marker, 1)[0].rstrip() + "\n\n" + '''/* Keep the full shared header pinned while Sites or Settings is open. */
+          .jl-global-header.jl-header--disclosure-pinned,
+          .jl-site-header.jl-header--disclosure-pinned {
+            position: fixed;
+            z-index: var(--jl-z-menu);
+            top: var(--_jl-pinned-header-top, 0px);
+            right: 0;
+            left: 0;
+            width: 100%;
+          }
+
+          .jl-header-pin-spacer {
+            width: 100%;
+            height: var(--_jl-pinned-header-height, var(--jl-layout-header-height));
+            flex: none;
+            pointer-events: none;
+          }
+          '''
+          css_path.write_text(css, encoding="utf-8")
+
+          controls_path = Path("scripts/site-controls.js")
+          controls = controls_path.read_text(encoding="utf-8")
+          insertion_point = "export function installSiteSwitcher(root, options = {}) {"
+          if "function createHeaderPinController" in controls:
+              raise SystemExit("Header pin controller already exists")
+          if insertion_point not in controls:
+              raise SystemExit("Site switcher installation point not found")
+          helper = '''function createHeaderPinController(root) {
+            const header = root.closest(".jl-global-header, .jl-site-header");
+            if (!(header instanceof HTMLElement)) {
+              return { sync() {}, destroy() {} };
+            }
+
+            let spacer = null;
+
+            const unpin = () => {
+              header.classList.remove("jl-header--disclosure-pinned");
+              header.style.removeProperty("--_jl-pinned-header-top");
+              spacer?.remove();
+              spacer = null;
+            };
+
+            const pin = () => {
+              if (header.classList.contains("jl-header--disclosure-pinned")) return;
+              const rect = header.getBoundingClientRect();
+              const nextSpacer = header.ownerDocument.createElement("div");
+              nextSpacer.className = "jl-header-pin-spacer";
+              nextSpacer.setAttribute("aria-hidden", "true");
+              nextSpacer.style.setProperty("--_jl-pinned-header-height", `${rect.height}px`);
+              header.after(nextSpacer);
+              header.style.setProperty("--_jl-pinned-header-top", `${rect.top}px`);
+              header.classList.add("jl-header--disclosure-pinned");
+              spacer = nextSpacer;
+            };
+
+            const sync = () => {
+              const open = root.querySelector(
+                '[data-site-switcher-button][aria-expanded="true"], [data-settings-button][aria-expanded="true"]',
+              ) !== null;
+              if (open) pin();
+              else unpin();
+            };
+
+            return { sync, destroy: unpin };
+          }
+
+          '''
+          controls = controls.replace(insertion_point, helper + insertion_point, 1)
+          controls = controls.replace(
+              "  const theme = installThemeControl(settings.menu);\n  let settingsDisclosure = null;",
+              "  const theme = installThemeControl(settings.menu);\n  const headerPin = createHeaderPinController(root);\n  let settingsDisclosure = null;",
+              1,
+          )
+          controls = controls.replace(
+              "    onOpenChange: options.onOpenChange,",
+              "    onOpenChange: (open) => {\n      headerPin.sync();\n      options.onOpenChange?.(open);\n    },",
+              1,
+          )
+          settings_old = '''    onBeforeOpen: () => {
+              sitesDisclosure.close();
+              options.onBeforeOpen?.();
+            },
+          });'''
+          settings_new = '''    onBeforeOpen: () => {
+              sitesDisclosure.close();
+              options.onBeforeOpen?.();
+            },
+            onOpenChange: () => headerPin.sync(),
+          });'''
+          if settings_old not in controls:
+              raise SystemExit("Settings disclosure block not found")
+          controls = controls.replace(settings_old, settings_new, 1)
+          controls = controls.replace(
+              "      settingsDisclosure.destroy();\n      theme.destroy();",
+              "      settingsDisclosure.destroy();\n      headerPin.destroy();\n      theme.destroy();",
+              1,
+          )
+          controls_path.write_text(controls, encoding="utf-8")
+
+          validator_path = Path("scripts/validate_header_contract.py")
+          validator = validator_path.read_text(encoding="utf-8")
+          old_required = '''    "/* Keep open Sites and Settings controls pinned to the viewport. */",
+              ".jl-global-header__actions {\\n  min-width: calc(104px + var(--jl-space-2) + var(--jl-control-height-md));",
+              "position: fixed;",
+              "top: 19px;",
+              "right: max(",
+              "min-width: 136px;",'''
+          new_required = '''    "/* Keep the full shared header pinned while Sites or Settings is open. */",
+              ".jl-global-header.jl-header--disclosure-pinned,",
+              ".jl-site-header.jl-header--disclosure-pinned {",
+              "position: fixed;",
+              "top: var(--_jl-pinned-header-top, 0px);",
+              "right: 0;",
+              "left: 0;",
+              "width: 100%;",
+              ".jl-header-pin-spacer {",
+              "height: var(--_jl-pinned-header-height, var(--jl-layout-header-height));",'''
+          if old_required not in validator:
+              raise SystemExit("Old pinning validator block not found")
+          validator = validator.replace(old_required, new_required, 1)
+          controls_required = '''    "function ensureDisclosureShell",
+              "\\\"jl-site-disclosure\\\"",
+              "\\\"jl-settings-disclosure\\\"",'''
+          controls_replacement = controls_required + '''
+              "function createHeaderPinController",
+              "\\\"jl-header--disclosure-pinned\\\"",
+              "\\\"jl-header-pin-spacer\\\"",
+              "headerPin.sync();",
+              "headerPin.destroy();",'''
+          if controls_required not in validator:
+              raise SystemExit("Controller validator block not found")
+          validator = validator.replace(controls_required, controls_replacement, 1)
+          forbidden_anchor = '''    "grid-template-rows: var(--_jl-disclosure-trigger-height) auto;",'''
+          forbidden_replacement = forbidden_anchor + '''
+              "/* Keep open Sites and Settings controls pinned to the viewport. */",
+              "top: 19px;",
+              "right: max(",'''
+          if forbidden_anchor not in validator:
+              raise SystemExit("Forbidden validator anchor not found")
+          validator = validator.replace(forbidden_anchor, forbidden_replacement, 1)
+          validator_path.write_text(validator, encoding="utf-8")
+          PY
+      - name: Validate migration
+        run: |
+          node --check scripts/site-controls.js
+          python scripts/validate_header_contract.py
+          make validate
+      - name: Remove one-time workflow
+        run: rm .github/workflows/one-time-pin-entire-header.yml
+      - name: Commit migrated shared header
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Pin entire header while disclosures are open"
+          git push origin HEAD:agent/pin-entire-header-disclosure
