@@ -16,11 +16,15 @@ required = (
     "justify-content: center;",
     "text-align: center;",
     ".jl-site-disclosure,\n.jl-settings-disclosure {",
-    "max-height: var(--_jl-disclosure-trigger-height);",
-    "max-height: 190px;",
+    "grid-template-rows: var(--_jl-disclosure-trigger-height) 0fr;",
+    "grid-template-rows: var(--_jl-disclosure-trigger-height) 1fr;",
+    "max-height: none;",
     "box-shadow: inset 0 0 0 1px var(--jl-color-rule-strong);",
     ".jl-site-disclosure > .jl-site-switcher__button,",
     ".jl-settings-disclosure > .jl-settings-button",
+    "min-height: 0;",
+    "overflow: hidden;",
+    "transition: grid-template-rows 190ms cubic-bezier(0.2, 0.8, 0.2, 1),",
     "@keyframes jl-attached-menu-reveal",
     "animation: jl-attached-menu-reveal 170ms 20ms cubic-bezier(0.2, 0.8, 0.2, 1) both;",
     "clip-path: inset(0 0 100% 0);",
@@ -51,6 +55,9 @@ for fragment in (
     "border-bottom-right-radius: 0;",
     "border-bottom-left-radius: 0;",
     "margin: -2px 0 0;",
+    "max-height: 190px;",
+    "transition: max-height 190ms",
+    "grid-template-rows: var(--_jl-disclosure-trigger-height) auto;",
 ):
     if fragment in css:
         raise SystemExit(f"Sites menu must remain attached to the Sites column without overlapping the trigger: {fragment}")
