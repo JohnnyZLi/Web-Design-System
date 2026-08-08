@@ -1,0 +1,93 @@
+name: One-time refine dark theme hierarchy
+
+on:
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: write
+
+jobs:
+  refine:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: agent/refine-dark-theme-hierarchy
+          fetch-depth: 0
+      - name: Refine dark semantic palette
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path('tokens/tokens.tokens.json')
+          data = json.loads(path.read_text())
+          dark = data['theme']['dark']['color']
+
+          def set_hex(name, value):
+              token = dark[name]['$value']
+              h = value.lstrip('#')
+              rgb = [int(h[i:i+2], 16) for i in (0, 2, 4)]
+              token['colorSpace'] = 'srgb'
+              token['components'] = [round(c / 255, 6) for c in rgb]
+              token['alpha'] = 1.0
+              token['hex'] = '#' + h.lower()
+
+          def set_alpha(name, alpha):
+              dark[name]['$value']['alpha'] = alpha
+
+          # Keep the warm-black character, but create clearer elevation and quieter texture.
+          set_hex('canvas', '#161613')
+          set_alpha('canvasDot', 0.045)
+          set_hex('surface', '#211f1b')
+          set_hex('surfaceMuted', '#2b2923')
+          set_hex('surfaceStrong', '#39352e')
+
+          # Dark mode should never reintroduce a bright cream slab for inverse sections.
+          # Preserve semantic contrast with a warmer elevated dark surface instead.
+          set_hex('surfaceInverse', '#261d19')
+          set_hex('textInverse', '#f2efe8')
+          set_hex('mutedInverse', '#c5beb3')
+          dark['ruleInverse']['$value']['components'] = [0.94902, 0.937255, 0.909804]
+          dark['ruleInverse']['$value']['alpha'] = 0.24
+
+          # Slightly improve long-form readability and component separation.
+          set_hex('ink', '#f4f0e8')
+          set_hex('text', '#d9d3c9')
+          set_hex('muted', '#aaa399')
+          dark['rule']['$value']['alpha'] = 0.18
+          dark['ruleStrong']['$value']['alpha'] = 0.32
+
+          # Pull the dark accent back toward terracotta rather than salmon.
+          set_hex('accent', '#d18468')
+          set_hex('accentHover', '#dc987d')
+          set_hex('accentActive', '#bd694f')
+          set_hex('accentDecorative', '#c7775b')
+          set_hex('accentSoft', '#754636')
+          set_hex('selectionBackground', '#6c4031')
+          set_hex('focusRing', '#df9f87')
+
+          path.write_text(json.dumps(data, separators=(',', ':')) + '\n')
+
+          foundations = Path('styles/foundations.css')
+          css = foundations.read_text()
+          old = '''  :root[data-theme="dark"] .jl-surface-inverse,\n  :root[data-theme="dark"] [data-jl-surface="inverse"] {\n    --_jl-focus-gap-color: var(--jl-color-focus-gap-light);\n  }\n\n'''
+          if old not in css:
+              raise SystemExit('Expected dark inverse focus override not found')
+          css = css.replace(old, '', 1)
+          foundations.write_text(css)
+          PY
+          make generate
+          make validate
+      - name: Commit intended changes only
+        run: |
+          rm .github/workflows/one-time-refine-dark-theme.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tokens/tokens.tokens.json tokens/tokens.css styles/foundations.css .github/workflows/one-time-refine-dark-theme.yml
+          git diff --cached --name-only
+          test "$(git diff --cached --name-only | sort | tr '\n' ' ')" = ".github/workflows/one-time-refine-dark-theme.yml styles/foundations.css tokens/tokens.css tokens/tokens.tokens.json "
+          git commit -m "Refine dark theme hierarchy"
+          git push origin HEAD:agent/refine-dark-theme-hierarchy
