@@ -60,8 +60,9 @@ full_header_required = (
     "border-bottom: 1px solid var(--jl-color-rule);",
     "background: var(--jl-color-canvas);",
     ".jl-global-header__inner {",
-    "left: 50%;",
-    "transform: translateX(-50%);",
+    "right: 0;",
+    "left: 0;",
+    "margin-inline: auto;",
     "/* Neutralize the older control-only pin",
     ".jl-site-switcher {",
     "position: relative;",
@@ -72,6 +73,14 @@ full_header_required = (
 for fragment in full_header_required:
     if fragment not in theme_css:
         raise SystemExit(f"Open disclosures must pin the complete top bar: {fragment}")
+
+fixed_inner_block = theme_css.split(
+    ':is(.jl-global-header, .jl-site-header):has([data-site-switcher-button][aria-expanded="true"]) .jl-global-header__inner,',
+    1,
+)[1].split("/* Neutralize the older control-only pin", 1)[0]
+for forbidden in ("left: 50%;", "transform: translateX(-50%);"):
+    if forbidden in fixed_inner_block:
+        raise SystemExit(f"Full-header centering must not depend on transforms: {forbidden}")
 
 for fragment in (
     "width: 144px;",
