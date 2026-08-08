@@ -5,9 +5,15 @@
 - Added shared System, Light, and Dark appearance preferences with a pre-paint bootstrap.
 - Added cross-subdomain preference persistence for all owned sites.
 - Added dark semantic color and status tokens while preserving the approved warm editorial palette.
-- Added the shared Appearance control to the Sites menu with keyboard and forced-colors behavior.
+- Moved Appearance into an adjacent Settings disclosure with an icon-only System, Light, and Dark selector instead of placing theme controls inside Sites.
+- Unified the primary terracotta accent family across light and dark themes while retaining theme-specific neutral, semantic, focus, selection, and soft-accent roles.
+- Finalized the shared header as adjacent 104px Sites and 44px Settings controls on desktop, with 40px compact controls and a 96px Sites fallback at the extreme compact breakpoint.
+- Added unified expanding Sites and Settings shells with content-driven height, centered menu content, downward clip reveal, mutual exclusion, and reduced-motion handling.
+- Pinned the complete header while either disclosure is open, preserved the normal header footprint to prevent page shifts, and added the complete-header dismissal animation after close.
+- Locked the final disclosure footprint to 83px on desktop and 69px on compact layouts and finalized the 400ms dismissal timing.
 - Forced print and PDF output back to the light paper theme.
-- Added a required conformance rule for shared theme adoption.
+- Added a required conformance rule for shared theme adoption and expanded header-contract validation for the final disclosure behavior.
+- Reconciled the normative design documentation, migration status, package status, and conformance wording with the approved production implementation on 2026-08-08.
 
 ## 1.8.2 — 2026-07-28
 
