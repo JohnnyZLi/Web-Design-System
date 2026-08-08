@@ -12,16 +12,16 @@ The production interfaces remain the approved visual baseline:
 
 The design system removes foundational, behavioral, accessibility, provenance, and maintenance drift without forcing the products into one layout.
 
-## Final rollout matrix
+## Current rollout matrix
 
-| Repository | Design system | Final state |
+| Repository | Design system | Current state |
 | --- | --- | --- |
-| Website | v1.8.2 | Lock, package dependency, generated assets, source metadata, reusable workflows, integration validation, conformance, visual audit, quality checks, security scan, CodeQL, performance baseline, and manual accessibility review are aligned. |
-| Network Diagnostics | v1.8.2 | Lock, generated assets, helper copies, workflows, integration validation, conformance, tests, build, visual audit, UI regression, security scan, CodeQL, performance baseline, zoom review, forced-colors review, assistive-technology review, and grayscale chart review are aligned. |
-| RolePacket | v1.8.2 | Lock, generated assets, helper copies, workflows, integration validation, conformance, typechecks, builds, Cloudflare dry runs, automated tests, visual audit, dependency audit, Semgrep, Gitleaks, performance baseline, and manual accessibility review are aligned. |
-| Web Design System | v1.8.2 | Strict manifest validation, provenance-bearing reports, lock-derived consumer validation, cross-consumer candidate gating, performance evidence standards, and final acceptance documentation are complete. |
+| Website | v1.9.0 | Lock, generated assets, shared dark theme, Sites/Settings disclosures, complete-header pinning, source metadata, reusable workflows, integration validation, conformance, visual audit, quality checks, security scan, CodeQL, performance baseline, and manual accessibility review are aligned. |
+| Network Diagnostics | v1.9.0 | Lock, generated assets, shared dark theme, Sites/Settings disclosures, complete-header pinning, helper copies, workflows, integration validation, conformance, tests, build, visual audit, UI regression, security scan, CodeQL, performance baseline, zoom review, forced-colors review, assistive-technology review, and grayscale chart review are aligned. |
+| RolePacket | v1.9.0 | Lock, generated assets, shared dark theme, Sites/Settings disclosures, complete-header pinning, helper copies, workflows, integration validation, conformance, typechecks, builds, Cloudflare dry runs, automated tests, visual audit, dependency audit, Semgrep, Gitleaks, performance baseline, and manual accessibility review are aligned. |
+| Web Design System | v1.9.0 | Approved light/dark tokens, separate Sites and Settings controls, unified attached disclosure shells, complete-header pinned and dismissal behavior, strict manifest validation, provenance-bearing reports, lock-derived consumer validation, cross-consumer candidate gating, performance evidence standards, and acceptance documentation are aligned. |
 
-The migration was accepted on 2026-07-29 after automated validation and repository-owner manual review. Package status is **approved**.
+The original shared-system migration was accepted on 2026-07-29 after automated validation and repository-owner manual review. The v1.9.0 appearance and header extension was completed and reconciled with the canonical documentation on 2026-08-08. Package status is **approved**.
 
 ## Shared package capabilities
 
@@ -29,8 +29,14 @@ The approved package provides:
 
 - Versioned atomic tokens and generated CSS
 - Exact dot-canvas, focus, selection, reduced-motion, and forced-colors foundations
+- Shared System, Light, and Dark preference resolution with cross-subdomain persistence
+- Warm dark-theme neutral and semantic roles with the primary terracotta family shared across light and dark themes
 - Shared global-header geometry and owner/product identity
-- Canonical owned-site directory and Sites-menu behavior
+- Canonical owned-site directory and Sites behavior
+- Adjacent 104px Sites and 44px Settings controls on desktop, with compact and extreme-compact transformations
+- Icon-only Settings appearance selector for System, Light, and Dark
+- Unified expanding Sites and Settings disclosure shells with centered content and downward reveal
+- Complete-header pinning while a disclosure is open, stable header footprint, and reduced-motion-aware dismissal behavior
 - Shared compact header-menu shell and controller
 - Reusable action, button, callout, empty-state, table-region, and native-dialog primitives
 - A constrained consumer-release resolver
@@ -43,9 +49,23 @@ The approved package provides:
 
 Product-specific composition, density, charts, forms, workflow state, measurements, and application behavior remain owned by their repositories.
 
+## Header and appearance acceptance record
+
+The v1.9.0 header and appearance work established the following shared production behavior:
+
+- Sites contains only the three owned destinations; appearance preferences are owned by the adjacent Settings disclosure.
+- Sites and Settings are mutually exclusive and use the same expanding-shell interaction model.
+- Disclosure content grows downward from the trigger and is clipped during reveal so the trigger does not flash between rounded and squared states.
+- Site labels are centered in the compact disclosure width.
+- The selected System, Light, or Dark icon is indicated by the shared terracotta selection rail.
+- Opening either disclosure keeps the complete header together while scrolling rather than pinning only the controls.
+- The normal page footprint remains reserved while the header is fixed: 83px on desktop and 69px in the compact header state, including the divider.
+- Closing a scrolled disclosure uses the complete-header exit animation; reduced-motion users receive no nonessential animation.
+- All three consumers currently pin Web Design System source commit `b5a3fc5898f5f62842d58f206d7ad6726e92f537` for the approved production assets.
+
 ## Manual acceptance record
 
-The repository owner completed and accepted the remaining manual checks on 2026-07-29:
+The repository owner completed and accepted the original remaining manual checks on 2026-07-29:
 
 ### Website
 
@@ -68,6 +88,8 @@ The repository owner completed and accepted the remaining manual checks on 2026-
 - Initial authenticated-fixture performance baseline review
 
 The consumer conformance manifests record `DS-RESP-002`, `DS-A11Y-002`, and `DS-PERF-001` as `manual-passed`. No blocking manual issue or exception remains from this migration.
+
+Meaningful navigation, layout, or interaction changes after those acceptance runs still require the applicable manual checks to be re-run rather than inheriting approval automatically.
 
 ## Performance evidence
 
@@ -147,6 +169,7 @@ Repository rulesets must enforce the intended checks before merging. Enforcement
 - Re-run manual zoom and accessibility checks after meaningful navigation, layout, or interaction changes.
 - Re-record performance baselines after intentional architecture, framework, rendering-state, or asset changes.
 - Keep generated assets, source provenance, lock metadata, and workflow pins aligned.
+- Keep canonical documentation synchronized with the shipped header and appearance contract whenever shared behavior changes.
 - Register every future exception explicitly instead of allowing undocumented drift.
 
 `RolePacket-Autopilot` remains outside this migration and must not be modified as part of Web Design System maintenance.
