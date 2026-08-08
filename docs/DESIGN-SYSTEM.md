@@ -3,8 +3,8 @@
 ## 1. Status and normative language
 
 **Version:** 1.9.0  
-**Documentation revision:** 2026-08-05  
-**Package status:** Implementation candidate  
+**Documentation revision:** 2026-08-08  
+**Package status:** Approved  
 **Production visual baseline:** Approved  
 **Owner:** Johnny Li
 
@@ -39,6 +39,8 @@ The design system owns:
 - Global focus, selection, reduced-motion, and forced-colors behavior
 - Global-header geometry and owner/product identity lockup
 - Canonical owned-site registry and Sites-control interaction contract
+- Adjacent Settings appearance control and shared System, Light, and Dark preference behavior
+- Unified Sites and Settings attached-disclosure shells, open-state pinning, and dismissal behavior
 - Compact and extreme-compact header-menu structure
 - Semantic status roles and shared content primitives
 - Native-dialog structural shell
@@ -73,6 +75,8 @@ Accent roles are distinct:
 
 Consumers MAY define product aliases for these roles, but MUST preserve their semantic distinction. A prominent phrase on an inverse surface MAY use the primary accent while surrounding headline text remains the inverse text color and secondary details use the soft accent. Decorative or soft accents MUST NOT replace the primary accent for prominent emphasis merely because the hues are similar.
 
+The primary accent, hover, active, and decorative terracotta roles use the same approved color family in Light and Dark. Dark mode changes the neutral surfaces, text hierarchy, semantic colors, selection, focus, and soft-accent roles rather than substituting a brighter independent primary accent palette.
+
 The canvas uses:
 
 - `--jl-color-canvas` as the base
@@ -85,7 +89,9 @@ Product visualizations MAY use product-owned analytical colors when color meanin
 
 Every owned site MUST support `System`, `Light`, and `Dark` through the shared theme contract. The pre-paint bootstrap resolves the stored preference before styles render, writes `data-theme-preference` and the resolved `data-theme` to the root element, follows operating-system changes while set to System, and preserves the preference across `*.johnnyli.dev`.
 
-The Sites menu owns the shared Appearance control. Consumers MUST use the shared controller and theme-control stylesheet rather than introducing a separate product toggle. Theme values change through semantic tokens; products MUST NOT maintain independent light and dark component implementations. Print and PDF output MUST resolve to the light paper theme. Forced-colors behavior remains independent of the selected theme.
+Appearance preferences are owned by the adjacent Settings disclosure, not by the Sites directory. Settings uses the shared icon-only System, Light, and Dark selector and the shared controller/theme-control stylesheet. The selected preference is communicated through the terracotta selection rail plus accessible pressed state and labels. Consumers MUST NOT introduce a separate product theme toggle.
+
+Theme values change through semantic tokens; products MUST NOT maintain independent light and dark component implementations. Print and PDF output MUST resolve to the light paper theme. Forced-colors behavior remains independent of the selected theme.
 
 ## 5. Typography and layout
 
@@ -123,38 +129,53 @@ Every route or application state MUST render the shared global-header contract:
 
 1. Owner/product identity
 2. Optional contextual navigation
-3. Sites control
+3. Sites disclosure
+4. Adjacent Settings disclosure
 
 The shared header owns:
 
-- 82px desktop height and 68px compact height
+- 82px desktop inner-row height and 68px compact inner-row height
+- A 1px divider, producing an 83px desktop and 69px compact reserved footprint while disclosures are pinned or dismissing
 - Shared inner rail and gutters
 - Owner/product typography and muted product treatment
-- Exact 88px Sites-control width
+- 104px Sites-control width through normal desktop and compact layouts
+- 96px Sites-control width at the 360px-and-below extreme-compact transformation
+- 44px desktop and 40px compact Settings-control width and height
 - 44px desktop and 40px compact Sites-control height
-- UI-font, weight, radius, border, and CSS-drawn chevron
+- UI-font, weight, radius, border, centered menu labels, CSS-drawn Sites chevron, and Settings gear treatment
 - Sticky placement, border, surface, menu layering, and forced-colors border treatment
+- Unified expanding Sites and Settings shells whose content grows below the trigger instead of replacing or overlaying it
+- Content-driven disclosure height and downward clip reveal so open-state transitions do not flash between rounded and squared trigger geometry
+- Sites/Settings mutual exclusion and shared keyboard, focus, outside-click, and dismissal behavior
+- Complete-header viewport pinning while either disclosure is open so the identity, navigation, controls, background, and divider remain one visual unit while scrolling
+- Preservation of the header's normal document footprint while pinned so disclosure state changes do not move page content
+- A 400ms complete-header dismissal animation using the approved easing after a scrolled disclosure closes, with nonessential motion removed under `prefers-reduced-motion`
 
-At 900px and below, applicable product navigation becomes the shared compact menu shell. At 560px and below, the owner and separator MAY hide while the product identity remains. At 360px and below, gutters, gaps, identity size, and Menu-trigger width reduce so the full product identity, Menu trigger, and Sites control remain contained at 320px.
+At 900px and below, applicable product navigation becomes the shared compact menu shell. At 560px and below, the owner and separator MAY hide while the product identity remains. At 420px and below, gutters and inter-control gaps tighten. At 360px and below, gutters, gaps, identity size, Menu-trigger width, and the Sites width reduce so the product identity, Menu trigger where applicable, Sites control, and Settings control remain contained at 320px.
 
-Required navigation MUST NOT be hidden as an overflow workaround.
+Required navigation or appearance preferences MUST NOT be hidden as an overflow workaround.
 
 ## 8. Shared site controls
 
-`OWNED_SITES` is the canonical directory for Portfolio, Network Diagnostics, and RolePacket.
+`OWNED_SITES` is the canonical directory for Portfolio, Network Diagnostics, and RolePacket. The Sites disclosure contains only those destinations; appearance preferences belong to Settings.
 
 The shared framework-neutral controllers own:
 
+- Sites and Settings control creation or normalization where the consumer markup does not already provide them
 - Open and close state synchronization
+- Sites/Settings mutual exclusion
 - Outside-click dismissal
 - Escape dismissal and focus restoration
 - ArrowUp and ArrowDown navigation
 - Home and End navigation
 - Focus entry when opened from the keyboard
+- Theme-button pressed-state synchronization
+- System-preference tracking and shared theme-change handling
+- Complete-header disclosure-exit coordination after close
 - Compact-menu closing at the desktop breakpoint
-- Coordination between Sites and product navigation menus
+- Coordination between Sites, Settings, and product navigation menus
 
-Consumers own their framework adapter and local state integration, but MUST NOT reimplement the shared keyboard or dismissal contract.
+Consumers own their framework adapter and local state integration, but MUST NOT reimplement the shared keyboard, dismissal, theme-preference, or Sites/Settings coordination contract.
 
 Owned-site links remain same-tab navigation and every site reaches the other two within two interactions.
 
@@ -244,7 +265,7 @@ Reusable workflow references MUST use immutable commit identifiers rather than f
 
 ### Portfolio
 
-Preserve editorial composition, spacing, terracotta hierarchy, source-authored homepage and case-study emphasis, narrative sections, evidence, limitations, actions, next-project navigation, and the inverse contact section. The portfolio uses the shared header, Sites controller, compact product menu, and selected action/button primitives. It has no matching native confirmation dialog and therefore does not adopt the shared dialog shell.
+Preserve editorial composition, spacing, terracotta hierarchy, source-authored homepage and case-study emphasis, narrative sections, evidence, limitations, actions, next-project navigation, and the inverse contact section. The portfolio uses the shared header, Sites/Settings controllers, compact product menu, shared appearance contract, and selected action/button primitives. It has no matching native confirmation dialog and therefore does not adopt the shared dialog shell.
 
 #### Portfolio case-study contract
 
@@ -330,6 +351,7 @@ Responsive requirements:
 - Genuine tables MAY scroll inside labeled regions.
 - Action groups stack to full-width controls when needed.
 - Dialogs remain within the viewport and preserve reachable actions.
+- The shared identity, required Menu trigger where applicable, Sites control, and Settings control remain available at the supported 320px viewport.
 - No document-level overflow occurs at 320px.
 - Pages remain usable at actual 200 percent browser zoom.
 
@@ -348,7 +370,7 @@ Automated suites SHOULD include desktop, narrow-desktop, mobile, and 320px minim
 - Static pages SHOULD avoid JavaScript for content that can exist in source HTML.
 - New visual dependencies require a measured reason and ownership record.
 - Update and conformance automation MUST NOT weaken consumer validation or bypass repository protections.
-- Bundle and user-experience performance baselines remain manual-pending until measured and approved; automation MUST NOT invent thresholds before that record exists.
+- Bundle and user-experience performance baselines are recorded and manually reviewed by each consumer. Automation MUST NOT invent new blocking thresholds without repeated same-environment evidence and an explicit tolerance decision.
 
 ## 14. Governance
 
@@ -378,9 +400,11 @@ Documentation-only changes do not require repinning when packaged assets are unc
 - Preserves approved appearance unless change is intentional
 - Uses the exact dot canvas without a second grid
 - Renders the shared header on every route or state
-- Uses the canonical site directory and shared interaction contract
+- Uses the canonical site directory and shared Sites/Settings interaction contract
+- Keeps appearance preferences in the adjacent shared Settings disclosure rather than the Sites directory or a product-local toggle
 - Uses shared compact-menu geometry where applicable
-- Preserves the full product identity, Menu trigger, and Sites control at 320px
+- Preserves the required product identity, Menu trigger where applicable, Sites control, and Settings control at 320px
+- Uses the shared complete-header pinned state without shifting page content when Sites or Settings is open
 - Uses shared tokens or documented product aliases
 - Uses standalone primitives where adopted and removes equivalent structural fallbacks
 - Uses the shared dialog shell for matching native confirmation dialogs
@@ -392,7 +416,7 @@ Documentation-only changes do not require repinning when packaged assets are unc
 - Includes source and consumer commit provenance in reports
 - Distinguishes automated narrow-layout evidence from actual browser-zoom review
 - Preserves product-specific information architecture
-- Does not hide essential compact navigation
+- Does not hide essential compact navigation or appearance preferences
 - Has no document-level overflow at 320px
 - Remains usable at actual 200 percent zoom
 - Supports keyboard, focus, reduced motion, and forced colors
