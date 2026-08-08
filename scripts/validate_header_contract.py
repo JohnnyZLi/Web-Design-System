@@ -38,6 +38,12 @@ required = (
     ".jl-header-menu-toggle {\n    min-width: 40px;",
     "grid-template-columns: 96px 40px;",
     "width: 96px;",
+    "/* Keep open Sites and Settings controls pinned to the viewport. */",
+    ".jl-global-header__actions {\n  min-width: calc(104px + var(--jl-space-2) + var(--jl-control-height-md));",
+    "position: fixed;",
+    "top: 19px;",
+    "right: max(",
+    "min-width: 136px;",
 )
 for fragment in required:
     if fragment not in css:
