@@ -16,9 +16,9 @@ The design system removes foundational, behavioral, accessibility, provenance, a
 
 | Repository | Design system | Current state |
 | --- | --- | --- |
-| Website | v1.9.0 | Lock, generated assets, shared dark theme, Sites/Settings disclosures, complete-header pinning, approved wide-desktop rail adapter, source metadata, reusable workflows, integration validation, conformance, visual audit, quality checks, security scan, CodeQL, and performance baseline are aligned. The 2026-07-29 manual accessibility/zoom review remains the historical manual baseline. |
-| Network Diagnostics | v1.9.0 | Lock, generated assets, shared dark theme, Sites/Settings disclosures, complete-header pinning, helper copies, workflows, integration validation, conformance, tests, build, visual audit, UI regression, security scan, CodeQL, performance baseline, zoom review, forced-colors review, assistive-technology review, and grayscale chart review are aligned. |
-| RolePacket | v1.9.0 | Lock, generated assets, shared dark theme, Sites/Settings disclosures, complete-header pinning, helper copies, workflows, integration validation, conformance, typechecks, builds, Cloudflare dry runs, automated tests, visual audit, dependency audit, Semgrep, Gitleaks, performance baseline, and manual accessibility review are aligned. |
+| Website | v1.9.0 | Lock, generated assets, shared dark theme, Sites/Settings disclosures, complete-header pinning, approved wide-desktop rail adapter, source metadata, reusable workflows, integration validation, conformance, visual audit, quality checks, security scan, CodeQL, and performance baseline are aligned. The 2026-07-29 manual accessibility/zoom review is historical; a refreshed review is pending after the 2026-08-09 rail change. |
+| Network Diagnostics | v1.9.0 | Lock, generated assets, shared dark theme, Sites/Settings disclosures, complete-header pinning, helper copies, workflows, integration validation, conformance, tests, build, visual audit, UI regression, security scan, CodeQL, and performance baseline are aligned. The 2026-07-29 manual accessibility/zoom review is historical; a refreshed review is pending after the 2026-08-08 v1.9.0 header and appearance update. |
+| RolePacket | v1.9.0 | Lock, generated assets, shared dark theme, Sites/Settings disclosures, complete-header pinning, helper copies, workflows, integration validation, conformance, typechecks, builds, Cloudflare dry runs, automated tests, visual audit, dependency audit, Semgrep, Gitleaks, and performance baseline are aligned. The 2026-07-29 authenticated manual accessibility/zoom review is historical; a refreshed review is pending after the 2026-08-08 v1.9.0 header and appearance update. |
 | Web Design System | v1.9.0 | Approved light/dark tokens, separate Sites and Settings controls, unified attached disclosure shells, complete-header pinned and dismissal behavior, strict manifest validation, provenance-bearing reports, lock-derived consumer validation, cross-consumer candidate gating, performance evidence standards, and acceptance documentation are aligned. |
 
 The original shared-system migration was accepted on 2026-07-29 after automated validation and repository-owner manual review. The v1.9.0 appearance and header extension was completed and reconciled with the canonical documentation on 2026-08-08. The final Portfolio product expression, including its product-owned wide-desktop header rail, was recorded on 2026-08-09 without changing the shared runtime package. Package status is **approved**.
@@ -88,9 +88,9 @@ The repository owner completed and accepted the original remaining manual checks
 - Forced-colors, keyboard, and assistive-technology review
 - Initial authenticated-fixture performance baseline review
 
-The consumer conformance manifests record `DS-RESP-002`, `DS-A11Y-002`, and `DS-PERF-001` as `manual-passed`. No blocking manual issue or exception remains from this migration.
+Those reviews were valid for the 2026-07-29 migration baseline. The three consumer manifests continue to record `DS-PERF-001` as `manual-passed`, while `DS-RESP-002` and `DS-A11Y-002` are now `manual-pending` because the later v1.9.0 header and appearance work changed meaningful layout or interaction after the original human review. No `manual-failed` status is present; the pending state records evidence freshness, not a discovered accessibility or responsive defect.
 
-Meaningful navigation, layout, or interaction changes after those acceptance runs still require the applicable manual checks to be re-run rather than inheriting approval automatically. The Portfolio desktop header rail changed on 2026-08-09 and passed the repository automated visual, theme, conformance, quality, security, CodeQL, and performance checks; its 2026-07-29 actual-zoom and assistive-technology review remains historical until that manual review is refreshed.
+The shared v1.9.0 header and appearance changes landed on 2026-08-08 for all three consumers, and the Portfolio desktop rail changed again on 2026-08-09. Automated visual, theme, conformance, responsive, quality/security, and applicable build/test checks pass on the resulting implementations. A refreshed actual-zoom and human accessibility review is still required before `DS-RESP-002` and `DS-A11Y-002` return to `manual-passed`.
 
 ## Performance evidence
 
@@ -168,6 +168,7 @@ Repository rulesets must enforce the intended checks before merging. Enforcement
 ## Ongoing maintenance
 
 - Re-run manual zoom and accessibility checks after meaningful navigation, layout, or interaction changes.
+- When a meaningful change invalidates previously accepted manual evidence, change the applicable consumer-manifest rule to `manual-pending` until the review is actually repeated; do not retain a stale `manual-passed` status.
 - Re-record performance baselines after intentional architecture, framework, rendering-state, or asset changes.
 - Keep generated assets, source provenance, lock metadata, and workflow pins aligned.
 - Keep canonical documentation synchronized with the shipped header and appearance contract whenever shared behavior changes.
