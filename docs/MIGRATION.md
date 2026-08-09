@@ -16,12 +16,12 @@ The design system removes foundational, behavioral, accessibility, provenance, a
 
 | Repository | Design system | Current state |
 | --- | --- | --- |
-| Website | v1.9.0 | Lock, generated assets, shared dark theme, Sites/Settings disclosures, complete-header pinning, source metadata, reusable workflows, integration validation, conformance, visual audit, quality checks, security scan, CodeQL, performance baseline, and manual accessibility review are aligned. |
+| Website | v1.9.0 | Lock, generated assets, shared dark theme, Sites/Settings disclosures, complete-header pinning, approved wide-desktop rail adapter, source metadata, reusable workflows, integration validation, conformance, visual audit, quality checks, security scan, CodeQL, and performance baseline are aligned. The 2026-07-29 manual accessibility/zoom review remains the historical manual baseline. |
 | Network Diagnostics | v1.9.0 | Lock, generated assets, shared dark theme, Sites/Settings disclosures, complete-header pinning, helper copies, workflows, integration validation, conformance, tests, build, visual audit, UI regression, security scan, CodeQL, performance baseline, zoom review, forced-colors review, assistive-technology review, and grayscale chart review are aligned. |
 | RolePacket | v1.9.0 | Lock, generated assets, shared dark theme, Sites/Settings disclosures, complete-header pinning, helper copies, workflows, integration validation, conformance, typechecks, builds, Cloudflare dry runs, automated tests, visual audit, dependency audit, Semgrep, Gitleaks, performance baseline, and manual accessibility review are aligned. |
 | Web Design System | v1.9.0 | Approved light/dark tokens, separate Sites and Settings controls, unified attached disclosure shells, complete-header pinned and dismissal behavior, strict manifest validation, provenance-bearing reports, lock-derived consumer validation, cross-consumer candidate gating, performance evidence standards, and acceptance documentation are aligned. |
 
-The original shared-system migration was accepted on 2026-07-29 after automated validation and repository-owner manual review. The v1.9.0 appearance and header extension was completed and reconciled with the canonical documentation on 2026-08-08. Package status is **approved**.
+The original shared-system migration was accepted on 2026-07-29 after automated validation and repository-owner manual review. The v1.9.0 appearance and header extension was completed and reconciled with the canonical documentation on 2026-08-08. The final Portfolio product expression, including its product-owned wide-desktop header rail, was recorded on 2026-08-09 without changing the shared runtime package. Package status is **approved**.
 
 ## Shared package capabilities
 
@@ -31,7 +31,7 @@ The approved package provides:
 - Exact dot-canvas, focus, selection, reduced-motion, and forced-colors foundations
 - Shared System, Light, and Dark preference resolution with cross-subdomain persistence
 - Warm dark-theme neutral and semantic roles with the primary terracotta family shared across light and dark themes
-- Shared global-header geometry and owner/product identity
+- Shared global-header control geometry, default rail, owner/product identity, and the documented boundary for approved product rail adapters
 - Canonical owned-site directory and Sites behavior
 - Adjacent 104px Sites and 44px Settings controls on desktop, with compact and extreme-compact transformations
 - Icon-only Settings appearance selector for System, Light, and Dark
@@ -62,6 +62,7 @@ The v1.9.0 header and appearance work established the following shared productio
 - The normal page footprint remains reserved while the header is fixed: 83px on desktop and 69px in the compact header state, including the divider.
 - Closing a scrolled disclosure uses the complete-header exit animation; reduced-motion users receive no nonessential animation.
 - All three consumers currently pin the same reviewed v1.9.0 shared-asset source.
+- Network Diagnostics and RolePacket use the default shared header rail; Portfolio uses the documented 1024px-and-up product adapter with 40px left identity inset, 20px right controls inset, and optically centered navigation.
 
 ## Manual acceptance record
 
@@ -89,7 +90,7 @@ The repository owner completed and accepted the original remaining manual checks
 
 The consumer conformance manifests record `DS-RESP-002`, `DS-A11Y-002`, and `DS-PERF-001` as `manual-passed`. No blocking manual issue or exception remains from this migration.
 
-Meaningful navigation, layout, or interaction changes after those acceptance runs still require the applicable manual checks to be re-run rather than inheriting approval automatically.
+Meaningful navigation, layout, or interaction changes after those acceptance runs still require the applicable manual checks to be re-run rather than inheriting approval automatically. The Portfolio desktop header rail changed on 2026-08-09 and passed the repository automated visual, theme, conformance, quality, security, CodeQL, and performance checks; its 2026-07-29 actual-zoom and assistive-technology review remains historical until that manual review is refreshed.
 
 ## Performance evidence
 
@@ -170,6 +171,8 @@ Repository rulesets must enforce the intended checks before merging. Enforcement
 - Re-record performance baselines after intentional architecture, framework, rendering-state, or asset changes.
 - Keep generated assets, source provenance, lock metadata, and workflow pins aligned.
 - Keep canonical documentation synchronized with the shipped header and appearance contract whenever shared behavior changes.
+- Keep approved product rail adapters documented and bounded so they cannot silently fork shared controls or interaction behavior.
+- Documentation-only governance changes do not require consumer repins when packaged shared assets remain byte-identical.
 - Register every future exception explicitly instead of allowing undocumented drift.
 
 `RolePacket-Autopilot` remains outside this migration and must not be modified as part of Web Design System maintenance.

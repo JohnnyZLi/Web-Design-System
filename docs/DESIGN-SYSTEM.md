@@ -3,7 +3,7 @@
 ## 1. Status and normative language
 
 **Version:** 1.9.0  
-**Documentation revision:** 2026-08-08  
+**Documentation revision:** 2026-08-09  
 **Package status:** Approved  
 **Production visual baseline:** Approved  
 **Owner:** Johnny Li
@@ -37,7 +37,7 @@ The design system owns:
 - Atomic color, typography, spacing, radius, control, motion, elevation, icon, z-index, layout, and light/dark theme tokens
 - Warm off-white canvas and exact faint dot texture
 - Global focus, selection, reduced-motion, and forced-colors behavior
-- Global-header geometry and owner/product identity lockup
+- Global-header control geometry, default rail, and owner/product identity lockup
 - Canonical owned-site registry and Sites-control interaction contract
 - Adjacent Settings appearance control and shared System, Light, and Dark preference behavior
 - Unified Sites and Settings attached-disclosure shells, open-state pinning, and dismissal behavior
@@ -56,7 +56,7 @@ Each consumer owns:
 - Product state, workflows, persistence, APIs, authentication, storage, and deployment
 - Network measurements, profiles, charts, reports, Worker logic, and native probe
 - RolePacket application lifecycle, resume logic, extension integration, and workspace drawer
-- Portfolio narrative structure, case-study content, and editorial motion
+- Portfolio narrative structure, case-study content, editorial motion, and approved product-specific header rail adapter
 - Product-specific validation commands, fixtures, schedules, and rollback boundaries
 
 A shared abstraction MUST NOT absorb product logic merely because two products currently use similar markup.
@@ -136,7 +136,7 @@ The shared header owns:
 
 - 82px desktop inner-row height and 68px compact inner-row height
 - A 1px divider, producing an 83px desktop and 69px compact reserved footprint while disclosures are pinned or dismissing
-- Shared inner rail and gutters
+- Shared default inner rail and gutters; an approved product rail adapter MAY vary desktop edge alignment without changing shared control geometry or interaction behavior
 - Owner/product typography and muted product treatment
 - 104px Sites-control width through normal desktop and compact layouts
 - 96px Sites-control width at the 360px-and-below extreme-compact transformation
@@ -150,6 +150,20 @@ The shared header owns:
 - Complete-header viewport pinning while either disclosure is open so the identity, navigation, controls, background, and divider remain one visual unit while scrolling
 - Preservation of the header's normal document footprint while pinned so disclosure state changes do not move page content
 - A 400ms complete-header dismissal animation using the approved easing after a scrolled disclosure closes, with nonessential motion removed under `prefers-reduced-motion`
+
+### Header rail expressions
+
+The package default remains the shared centered inner rail used by Network Diagnostics and RolePacket. A product MAY use a documented rail adapter when the product composition benefits from different desktop edge alignment, provided the shared header remains recognizably and behaviorally the same component.
+
+The approved Portfolio adapter applies at 1024px and above:
+
+- The header inner rail spans the viewport while the page content shell remains unchanged.
+- Owner/product identity is anchored 40px from the left viewport edge.
+- Sites and Settings are anchored 20px from the right viewport edge.
+- Contextual navigation remains optically centered on the viewport despite the asymmetric edge insets.
+- Below 1024px the Portfolio returns to the shared package rail and compact transformations.
+
+A rail adapter MUST NOT change Sites or Settings dimensions, disclosure shells, owned-site content, theme controls, pinned-header footprint, keyboard/focus/dismissal semantics, reduced-motion behavior, or the synchronized shared assets. It is a product-owned composition adapter, not a fork of the global-header component.
 
 At 900px and below, applicable product navigation becomes the shared compact menu shell. At 560px and below, the owner and separator MAY hide while the product identity remains. At 420px and below, gutters and inter-control gaps tighten. At 360px and below, gutters, gaps, identity size, Menu-trigger width, and the Sites width reduce so the product identity, Menu trigger where applicable, Sites control, and Settings control remain contained at 320px.
 
@@ -265,7 +279,18 @@ Reusable workflow references MUST use immutable commit identifiers rather than f
 
 ### Portfolio
 
-Preserve editorial composition, spacing, terracotta hierarchy, source-authored homepage and case-study emphasis, narrative sections, evidence, limitations, actions, next-project navigation, and the inverse contact section. The portfolio uses the shared header, Sites/Settings controllers, compact product menu, shared appearance contract, and selected action/button primitives. It has no matching native confirmation dialog and therefore does not adopt the shared dialog shell.
+Preserve editorial composition, spacing, terracotta hierarchy, source-authored homepage and case-study emphasis, narrative sections, evidence, limitations, actions, next-project navigation, and the inverse contact section. The portfolio uses the shared header, Sites/Settings controllers, compact product menu, shared appearance contract, and selected action/button primitives. Its approved wide-desktop header rail is the product-owned adapter documented in Section 7. It has no matching native confirmation dialog and therefore does not adopt the shared dialog shell.
+
+#### Portfolio homepage expression
+
+The homepage prioritizes a small number of strong editorial signals rather than maximizing visible UI or animation:
+
+- The hero keeps its sans/serif composition and uses primary terracotta on the source-authored emphasis words `systems` and `rely on.` while surrounding text remains the dominant neutral.
+- The About statement is the concise three-part line `hardware, software, and people`, with those three concepts carrying the terracotta editorial emphasis.
+- Working Knowledge exposes exactly three high-signal groups: `Networking & infrastructure`, `Software & platform engineering`, and the quieter full-width `Cloud, automation & delivery` band.
+- The native `details`/`summary` More Skills disclosure adds exactly three deeper groups: `Protocol internals & network analysis`, `Tooling & validation`, and `Systems & endpoint operations`. The disclosure remains visually secondary and editorial rather than becoming another dashboard or resume grid.
+- Working Knowledge SHOULD optimize for signal and composition instead of forcing every skill into mutually exclusive taxonomy. Deeper or lower-signal evidence belongs in More Skills or the relevant experience/case-study content.
+- Homepage and case-study reveal motion remains product-owned, dependency-free CSS/JavaScript with reduced-motion support. A new motion library SHOULD NOT be added for ornament alone; it requires a concrete interaction need, measured benefit, and an ownership/performance rationale.
 
 #### Portfolio case-study contract
 
