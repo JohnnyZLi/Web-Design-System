@@ -167,7 +167,7 @@ The candidate gate uses immutable action pins, disables persisted checkout crede
 
 1. Update the design-system specification and machine-readable contract.
 2. Update package, token, schema, and version metadata atomically.
-3. Validate the contract, schemas, runner, package exports, generated assets, self-tests, and local fallback syntax.
+3. Validate the contract, schemas, runner, package exports, generated assets, self-tests, and local validator syntax.
 4. Run the hosted candidate gate against Website and Network Diagnostics.
 5. Run the token-backed hosted RolePacket candidate gate; missing private-repository access is a blocking failure.
 6. Merge the reviewed design-system release only after package and all three consumer gates pass.
