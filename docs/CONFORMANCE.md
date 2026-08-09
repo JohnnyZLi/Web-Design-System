@@ -129,7 +129,7 @@ The common testbench standardizes the contract and report format while product a
 
 ## Cross-consumer candidate gate
 
-`.github/workflows/consumer-candidate-gate.yml` validates a design-system candidate against the current default branch of every accessible consumer before the shared change is merged.
+`.github/workflows/consumer-candidate-gate.yml` validates a design-system candidate against the current default branch of every consumer before the shared change is merged.
 
 For each product, the gate:
 
@@ -141,13 +141,15 @@ For each product, the gate:
 
 The gate does not publish consumer branches or alter product state. Consumer rollout still occurs through independent pull requests after the shared release is merged.
 
-RolePacket is private. When `ROLEPACKET_REPOSITORY_TOKEN` is configured, the hosted gate validates it directly. When the token is unavailable, the hosted job reports a notice and the release owner must run the repository-owned local fallback before merge:
+RolePacket is private. The hosted gate requires `ROLEPACKET_REPOSITORY_TOKEN` with read access to `JohnnyZLi/RolePacket`; if that token is absent, the RolePacket gate fails and the shared candidate must not be treated as release-ready. The repository-owned local validator remains useful for developer preflight and troubleshooting, but it does not replace the required hosted RolePacket candidate-gate result.
+
+For local preflight when needed:
 
 ```bash
 npm run validate:rolepacket-local -- --rolepacket /absolute/path/to/RolePacket-repo
 ```
 
-The local fallback fetches RolePacket `origin/main`, creates an isolated detached worktree, injects the exact design-system candidate version and commit, synchronizes the candidate, runs `verify:local:quick` and the production dependency audit, prints both immutable commits on success, and removes the temporary worktree. It does not change the developer’s active RolePacket checkout.
+The local validator fetches RolePacket `origin/main`, creates an isolated detached worktree, injects the exact design-system candidate version and commit, synchronizes the candidate, runs `verify:local:quick` and the production dependency audit, prints both immutable commits on success, and removes the temporary worktree. It does not change the developer’s active RolePacket checkout.
 
 ## Responsive terminology
 
@@ -167,8 +169,8 @@ The candidate gate uses immutable action pins, disables persisted checkout crede
 2. Update package, token, schema, and version metadata atomically.
 3. Validate the contract, schemas, runner, package exports, generated assets, self-tests, and local fallback syntax.
 4. Run the hosted candidate gate against Website and Network Diagnostics.
-5. Validate RolePacket through the token-backed hosted job or the repository-owned local fallback.
-6. Merge the reviewed design-system release only after package and consumer gates pass.
+5. Run the token-backed hosted RolePacket candidate gate; missing private-repository access is a blocking failure.
+6. Merge the reviewed design-system release only after package and all three consumer gates pass.
 7. Update consumers independently and retain independent rollback boundaries.
 8. Run consumer static, runtime, visual, accessibility, build, deployment, and product tests.
 9. Use strict manual mode only for final release approval.
