@@ -16,12 +16,12 @@ The design system removes foundational, behavioral, accessibility, provenance, a
 
 | Repository | Design system | Current state |
 | --- | --- | --- |
-| Website | v1.9.0 | Lock, generated assets, shared dark theme, Sites/Settings disclosures, complete-header pinning, approved wide-desktop rail adapter, source metadata, reusable workflows, integration validation, conformance, visual audit, quality checks, security scan, CodeQL, and performance baseline are aligned. The 2026-07-29 manual accessibility/zoom review is historical; a refreshed review is pending after the 2026-08-09 rail change. |
+| Website | v1.9.0 | Lock, generated assets, shared dark theme, Sites/Settings disclosures, complete-header pinning, shared wide-desktop rail, source metadata, reusable workflows, integration validation, conformance, visual audit, quality checks, security scan, CodeQL, and performance baseline are aligned. The 2026-07-29 manual accessibility/zoom review is historical; a refreshed review is pending after the 2026-08-09 rail change. |
 | Network Diagnostics | v1.9.0 | Lock, generated assets, shared dark theme, Sites/Settings disclosures, complete-header pinning, helper copies, workflows, integration validation, conformance, tests, build, visual audit, UI regression, security scan, CodeQL, and performance baseline are aligned. The 2026-07-29 manual accessibility/zoom review is historical; a refreshed review is pending after the 2026-08-08 v1.9.0 header and appearance update. |
 | RolePacket | v1.9.0 | Lock, generated assets, shared dark theme, Sites/Settings disclosures, complete-header pinning, helper copies, workflows, integration validation, conformance, typechecks, builds, Cloudflare dry runs, automated tests, visual audit, dependency audit, Semgrep, and Gitleaks are aligned. The 2026-07-29 authenticated manual accessibility/zoom review is historical after the 2026-08-08 v1.9.0 update. Its historical performance approval was also invalidated on 2026-08-09 after the recorder was found to use an outdated profile fixture; corrected evidence has been generated and awaits human review. |
 | Web Design System | v1.9.0 | Approved light/dark tokens, separate Sites and Settings controls, unified attached disclosure shells, complete-header pinned and dismissal behavior, strict manifest validation, provenance-bearing reports, lock-derived consumer validation, cross-consumer candidate gating, performance evidence standards, and acceptance documentation are aligned. |
 
-The original shared-system migration was accepted on 2026-07-29 after automated validation and repository-owner manual review. The v1.9.0 appearance and header extension was completed and reconciled with the canonical documentation on 2026-08-08. The final Portfolio product expression, including its product-owned wide-desktop header rail, was recorded on 2026-08-09 without changing the shared runtime package. Package status is **approved**.
+The original shared-system migration was accepted on 2026-07-29 after automated validation and repository-owner manual review. The v1.9.0 appearance and header extension was completed and reconciled with the canonical documentation on 2026-08-08. The final Portfolio product expression was recorded on 2026-08-09. On 2026-08-10, its successful wide-desktop 40px/20px rail was promoted into the shared header contract so Network Diagnostics and RolePacket use the same outer skeleton without sharing product navigation. Package status is **approved**.
 
 ## Shared package capabilities
 
@@ -31,7 +31,7 @@ The approved package provides:
 - Exact dot-canvas, focus, selection, reduced-motion, and forced-colors foundations
 - Shared System, Light, and Dark preference resolution with cross-subdomain persistence
 - Warm dark-theme neutral and semantic roles with the primary terracotta family shared across light and dark themes
-- Shared global-header control geometry, default rail, owner/product identity, and the documented boundary for approved product rail adapters
+- Shared global-header control geometry, 40px/20px wide-desktop rail, centered compact rail, and owner/product identity
 - Canonical owned-site directory and Sites behavior
 - Adjacent 104px Sites and 44px Settings controls on desktop, with compact and extreme-compact transformations
 - Icon-only Settings appearance selector for System, Light, and Dark
@@ -62,7 +62,7 @@ The v1.9.0 header and appearance work established the following shared productio
 - The normal page footprint remains reserved while the header is fixed: 83px on desktop and 69px in the compact header state, including the divider.
 - Closing a scrolled disclosure uses the complete-header exit animation; reduced-motion users receive no nonessential animation.
 - All three consumers currently pin the same reviewed v1.9.0 shared-asset source.
-- Network Diagnostics and RolePacket use the default shared header rail; Portfolio uses the documented 1024px-and-up product adapter with 40px left identity inset, 20px right controls inset, and optically centered navigation.
+- At 1024px and above, all three consumers use the shared 40px left identity inset and 20px right controls inset. Portfolio and Network Diagnostics use optically centered contextual navigation; RolePacket intentionally leaves the center zone empty.
 
 ## Manual acceptance record
 
@@ -90,7 +90,7 @@ The repository owner completed and accepted the original remaining manual checks
 
 Those reviews were valid evidence for the 2026-07-29 migration baseline except for the RolePacket performance report, whose fixture defect was discovered later. All three consumers now record `DS-RESP-002` and `DS-A11Y-002` as `manual-pending` because the v1.9.0 header and appearance work changed meaningful layout or interaction after the original human review. Website and Network Diagnostics retain `DS-PERF-001` as `manual-passed`; RolePacket records `DS-PERF-001` as `manual-pending` until its corrected report receives human review. No `manual-failed` status is present.
 
-The shared v1.9.0 header and appearance changes landed on 2026-08-08 for all three consumers, and the Portfolio desktop rail changed again on 2026-08-09. Automated visual, theme, conformance, responsive, quality/security, and applicable build/test checks pass on the resulting implementations. A refreshed actual-zoom and human accessibility review is still required before `DS-RESP-002` and `DS-A11Y-002` return to `manual-passed`.
+The shared v1.9.0 header and appearance changes landed on 2026-08-08 for all three consumers, the Portfolio desktop rail changed on 2026-08-09, and that proven rail geometry was promoted into the shared wide-desktop contract on 2026-08-10. Automated visual, theme, conformance, responsive, quality/security, and applicable build/test checks pass on the resulting implementations. A refreshed actual-zoom and human accessibility review is still required before `DS-RESP-002` and `DS-A11Y-002` return to `manual-passed`.
 
 ## Performance evidence
 
@@ -177,7 +177,7 @@ Repository rulesets must enforce the intended checks before merging. Enforcement
 - Performance recorders must prove the intended fixture or application state rendered and fail on uncaught page errors instead of recording a partial shell.
 - Keep generated assets, source provenance, lock metadata, and workflow pins aligned.
 - Keep canonical documentation synchronized with the shipped header and appearance contract whenever shared behavior changes.
-- Keep approved product rail adapters documented and bounded so they cannot silently fork shared controls or interaction behavior.
+- Keep any future product rail exception documented and bounded so it cannot silently fork shared controls or interaction behavior.
 - Documentation-only governance changes do not require consumer repins when packaged shared assets remain byte-identical.
 - Register every future exception explicitly instead of allowing undocumented drift.
 
