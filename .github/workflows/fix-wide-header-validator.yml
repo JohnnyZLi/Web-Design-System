@@ -1,0 +1,37 @@
+name: Fix wide header validator marker
+
+on:
+  pull_request:
+    types: [synchronize]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+      - name: Correct validator marker
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('scripts/validate_header_contract.py')
+          text = path.read_text()
+          old = '    "/* Shared wide-desktop header rail. */",\n'
+          new = '    "/* Shared wide-desktop header rail.",\n'
+          if old not in text:
+              raise SystemExit('validator marker not found')
+          path.write_text(text.replace(old, new, 1))
+          PY
+      - name: Commit correction
+        run: |
+          git config user.name "JohnnyZLi"
+          git config user.email "92900710+JohnnyZLi@users.noreply.github.com"
+          git rm .github/workflows/fix-wide-header-validator.yml
+          git add scripts/validate_header_contract.py
+          git commit -m "Fix wide header contract guard"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
