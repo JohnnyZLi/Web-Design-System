@@ -132,6 +132,8 @@ Every route or application state MUST render the shared global-header contract:
 3. Sites disclosure
 4. Adjacent Settings disclosure
 
+The Portfolio header is the reference form for the shared outer shell. Network Diagnostics and RolePacket preserve their own information architecture, but the identity lockup, bar footprint, Sites/Settings controls, icon treatment, spacing, disclosure geometry, and responsive transformations MUST remain the same shared form.
+
 The shared header owns:
 
 - 82px desktop inner-row height and 68px compact inner-row height
@@ -150,6 +152,8 @@ The shared header owns:
 - Complete-header viewport pinning while either disclosure is open so the identity, navigation, controls, background, and divider remain one visual unit while scrolling
 - Preservation of the header's normal document footprint while pinned so disclosure state changes do not move page content
 - A 400ms complete-header dismissal animation using the approved easing after a scrolled disclosure closes, with nonessential motion removed under `prefers-reduced-motion`
+
+Consumers MUST use the shared `jl-*` header classes as the rendered form. Product-local classes MAY position the complete global bar relative to a constrained application shell, but MUST NOT duplicate or override shared identity typography, navigation typography, Sites/Settings sizing, icon sizing, control spacing, radii, disclosure shells, or responsive header geometry.
 
 ### Header rail expressions
 
@@ -279,7 +283,7 @@ Reusable workflow references MUST use immutable commit identifiers rather than f
 
 ### Portfolio
 
-Preserve editorial composition, spacing, terracotta hierarchy, source-authored homepage and case-study emphasis, narrative sections, evidence, limitations, actions, next-project navigation, and the inverse contact section. The portfolio uses the shared header, Sites/Settings controllers, compact product menu, shared appearance contract, and selected action/button primitives. Its approved wide-desktop header rail is the product-owned adapter documented in Section 7. It has no matching native confirmation dialog and therefore does not adopt the shared dialog shell.
+Preserve editorial composition, spacing, terracotta hierarchy, source-authored homepage and case-study emphasis, narrative sections, evidence, limitations, actions, next-project navigation, and the inverse contact section. The portfolio is the reference expression of the shared header form and uses the shared Sites/Settings controllers, compact product menu, shared appearance contract, and selected action/button primitives. It does not own a separate header rail or control-size adapter. It has no matching native confirmation dialog and therefore does not adopt the shared dialog shell.
 
 #### Portfolio homepage expression
 
@@ -350,6 +354,8 @@ Inverse narrative sections retain cream or the inverse text token as the dominan
 
 Preserve hero and sticky test controls; Quick, Full, and Stress profiles with duration and maximum-transfer disclosure; idle and loaded conditions; metric cards, charts, findings, tables, recent history, and native probe; local-only result history; terracotta hierarchy with product-owned analytical colors; and the exact dot canvas without a visible grid.
 
+Network Diagnostics uses the same Portfolio-baseline shared header form. Because its global bar is mounted inside a constrained application shell, a local adapter MAY full-bleed the complete bar to the viewport; that adapter MUST NOT restyle the shared header identity, navigation, Sites/Settings controls, icons, spacing, or disclosures.
+
 Browser request loss MUST NOT be labeled raw packet loss. Charts retain stable labels, summaries, and grayscale distinction.
 
 The data-use confirmation dialog uses the shared dialog shell. Transfer-cap logic, remembered consent, checkbox content, wording, and test behavior remain product-owned.
@@ -357,6 +363,8 @@ The data-use confirmation dialog uses the shared dialog shell. Transfer-cap logi
 ### RolePacket
 
 Preserve the dense review-first workflow, wide sidebar and accessible compact drawer, ruled application rows, explicit status and provenance, before/proposed comparisons, resume preview, version history, answer matching, notes, memory workflows, and current panel density and form structure.
+
+RolePacket uses the same Portfolio-baseline shared global bar and intentionally leaves its contextual center zone empty. The workspace toolbar and drawer remain a separate product-owned layer below that shared bar.
 
 RolePacket feature work MAY substantially change workflow behavior. It MUST NOT force workflow-specific patterns onto the portfolio or Network Diagnostics.
 
@@ -427,6 +435,7 @@ Documentation-only changes do not require repinning when packaged assets are unc
 - Renders the shared header on every route or state
 - Uses the canonical site directory and shared Sites/Settings interaction contract
 - Keeps appearance preferences in the adjacent shared Settings disclosure rather than the Sites directory or a product-local toggle
+- Uses the Portfolio-baseline shared header form without product-local sizing, typography, icon, spacing, or disclosure overrides
 - Uses shared compact-menu geometry where applicable
 - Preserves the required product identity, Menu trigger where applicable, Sites control, and Settings control at 320px
 - Uses the shared complete-header pinned state without shifting page content when Sites or Settings is open
