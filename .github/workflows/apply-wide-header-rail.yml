@@ -1,0 +1,173 @@
+name: Apply wide header rail
+
+on:
+  push:
+    branches:
+      - agent/unify-wide-header-rail
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: agent/unify-wide-header-rail
+      - name: Apply shared rail contract
+        run: |
+          python <<'PY'
+          from pathlib import Path
+
+          css_path = Path('styles/site-identity.css')
+          css = css_path.read_text()
+          marker = '/* Shared wide-desktop header rail. */'
+          if marker not in css:
+              needle = '''.jl-global-header__inner {
+            width: min(
+              var(--jl-layout-portfolio-max),
+              calc(100% - (var(--jl-layout-gutter) * 2))
+            );
+            min-height: var(--jl-layout-header-height);
+            box-sizing: border-box;
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            grid-template-rows: var(--jl-control-height-md);
+            column-gap: clamp(var(--jl-space-4), 2.5vw, var(--jl-space-8));
+            align-items: center;
+            margin-inline: auto;
+            padding-block: 19px;
+          }
+          '''
+              if needle not in css:
+                  raise SystemExit('Could not locate base header-inner block')
+              wide = '''
+          /* Shared wide-desktop header rail. The asymmetric 40px/20px edge
+             insets are balanced by a -10px center correction so contextual
+             navigation remains centered on the viewport rather than the rail. */
+          @media (min-width: 1024px) {
+            .jl-global-header__inner {
+              width: 100%;
+              grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+              margin-inline: 0;
+              padding-left: 40px;
+              padding-right: 20px;
+            }
+
+            .jl-site-identity {
+              justify-self: start;
+            }
+
+            .jl-global-header__nav {
+              justify-self: center;
+              transform: translateX(-10px);
+            }
+
+            .jl-global-header__actions {
+              justify-self: end;
+            }
+          }
+          '''
+              css = css.replace(needle, needle + wide, 1)
+              css_path.write_text(css)
+
+          validator_path = Path('scripts/validate_header_contract.py')
+          validator = validator_path.read_text()
+          if 'wide_header_required = (' not in validator:
+              anchor = 'full_header_required = (\n'
+              block = '''wide_header_required = (
+              "/* Shared wide-desktop header rail. */",
+              "@media (min-width: 1024px)",
+              "width: 100%;",
+              "grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);",
+              "padding-left: 40px;",
+              "padding-right: 20px;",
+              "transform: translateX(-10px);",
+          )
+          for fragment in wide_header_required:
+              if fragment not in css:
+                  raise SystemExit(f"Wide-desktop header rail contract is incomplete: {fragment}")
+
+          '''
+              if anchor not in validator:
+                  raise SystemExit('Could not locate header validator anchor')
+              validator = validator.replace(anchor, block + anchor, 1)
+              validator_path.write_text(validator)
+
+          design_path = Path('docs/DESIGN-SYSTEM.md')
+          design = design_path.read_text()
+          design = design.replace('**Documentation revision:** 2026-08-09', '**Documentation revision:** 2026-08-10')
+          design = design.replace(
+              '- Global-header control geometry, default rail, and owner/product identity lockup',
+              '- Global-header control geometry, shared wide-desktop rail, compact rail, and owner/product identity lockup'
+          )
+          design = design.replace(
+              '- Portfolio narrative structure, case-study content, editorial motion, and approved product-specific header rail adapter',
+              '- Portfolio narrative structure, case-study content, and editorial motion'
+          )
+          design = design.replace(
+              '- Shared default inner rail and gutters; an approved product rail adapter MAY vary desktop edge alignment without changing shared control geometry or interaction behavior',
+              '- Shared wide-desktop edge rail at 1024px and above, with the centered package rail and compact gutters retained below that breakpoint'
+          )
+          start = design.index('### Header rail expressions\n')
+          end = design.index('At 900px and below,', start)
+          replacement = '''### Header rail expressions
+
+At 1024px and above, the shared package rail is the canonical wide-desktop composition for all owned products:
+
+- The header inner rail spans the viewport while product content shells remain independently sized.
+- Owner/product identity is anchored 40px from the left viewport edge.
+- Sites and Settings are anchored 20px from the right viewport edge.
+- Contextual navigation, when present, remains optically centered on the viewport despite the asymmetric edge insets.
+- A product with no meaningful global navigation MAY leave the center zone empty; navigation MUST NOT be invented solely to fill the rail.
+
+Portfolio uses the contextual center zone for Work, Experience, About, and Contact. Network Diagnostics uses it for Methodology, Privacy, and Source. RolePacket intentionally leaves it empty because workspace navigation belongs to the application shell below the global bar.
+
+Below 1024px the header returns to the centered package rail and existing compact transformations. A product-specific rail exception MAY exist only when documented and validated; it MUST NOT change Sites or Settings dimensions, disclosure shells, owned-site content, theme controls, pinned-header footprint, keyboard/focus/dismissal semantics, reduced-motion behavior, or synchronized shared assets.
+
+'''
+          design = design[:start] + replacement + design[end:]
+          design_path.write_text(design)
+
+          migration_path = Path('docs/MIGRATION.md')
+          migration = migration_path.read_text()
+          migration = migration.replace('approved wide-desktop rail adapter', 'shared wide-desktop rail')
+          migration = migration.replace(
+              'The final Portfolio product expression, including its product-owned wide-desktop header rail, was recorded on 2026-08-09 without changing the shared runtime package. Package status is **approved**.',
+              'The final Portfolio product expression was recorded on 2026-08-09. On 2026-08-10, its successful wide-desktop 40px/20px rail was promoted into the shared header contract so Network Diagnostics and RolePacket use the same outer skeleton without sharing product navigation. Package status is **approved**.'
+          )
+          migration = migration.replace(
+              '- Shared global-header control geometry, default rail, owner/product identity, and the documented boundary for approved product rail adapters',
+              '- Shared global-header control geometry, 40px/20px wide-desktop rail, centered compact rail, and owner/product identity'
+          )
+          migration = migration.replace(
+              '- Network Diagnostics and RolePacket use the default shared header rail; Portfolio uses the documented 1024px-and-up product adapter with 40px left identity inset, 20px right controls inset, and optically centered navigation.',
+              '- At 1024px and above, all three consumers use the shared 40px left identity inset and 20px right controls inset. Portfolio and Network Diagnostics use optically centered contextual navigation; RolePacket intentionally leaves the center zone empty.'
+          )
+          migration = migration.replace(
+              'The shared v1.9.0 header and appearance changes landed on 2026-08-08 for all three consumers, and the Portfolio desktop rail changed again on 2026-08-09.',
+              'The shared v1.9.0 header and appearance changes landed on 2026-08-08 for all three consumers, the Portfolio desktop rail changed on 2026-08-09, and that proven rail geometry was promoted into the shared wide-desktop contract on 2026-08-10.'
+          )
+          migration = migration.replace(
+              '- Keep approved product rail adapters documented and bounded so they cannot silently fork shared controls or interaction behavior.',
+              '- Keep any future product rail exception documented and bounded so it cannot silently fork shared controls or interaction behavior.'
+          )
+          migration_path.write_text(migration)
+
+          changelog_path = Path('CHANGELOG.md')
+          changelog = changelog_path.read_text()
+          bullet = '- Promoted the proven Portfolio wide-desktop header rail into the shared contract: 40px left identity inset, 20px right controls inset, optically centered contextual navigation, and an intentionally empty center zone when a product has no global nav.\n'
+          if bullet not in changelog:
+              anchor = '## 1.9.0 — 2026-08-06\n\n'
+              changelog = changelog.replace(anchor, anchor + bullet, 1)
+              changelog_path.write_text(changelog)
+          PY
+      - name: Commit shared rail update
+        run: |
+          git config user.name "JohnnyZLi"
+          git config user.email "92900710+JohnnyZLi@users.noreply.github.com"
+          git rm .github/workflows/apply-wide-header-rail.yml
+          git add styles/site-identity.css scripts/validate_header_contract.py docs/DESIGN-SYSTEM.md docs/MIGRATION.md CHANGELOG.md
+          git commit -m "Unify wide desktop header rail"
+          git push origin HEAD:agent/unify-wide-header-rail
