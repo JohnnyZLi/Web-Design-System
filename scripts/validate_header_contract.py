@@ -44,6 +44,19 @@ for fragment in required:
     if fragment not in css:
         raise SystemExit(f"Extreme-compact header contract is incomplete: {fragment}")
 
+wide_header_required = (
+    "/* Shared wide-desktop header rail. */",
+    "@media (min-width: 1024px)",
+    "width: 100%;",
+    "grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);",
+    "padding-left: 40px;",
+    "padding-right: 20px;",
+    "transform: translateX(-10px);",
+)
+for fragment in wide_header_required:
+    if fragment not in css:
+        raise SystemExit(f"Wide-desktop header rail contract is incomplete: {fragment}")
+
 full_header_required = (
     "/* Keep the complete top bar together while Sites or Settings is open.",
     ":is(.jl-global-header, .jl-site-header):has([data-site-switcher-button][aria-expanded=\"true\"])",

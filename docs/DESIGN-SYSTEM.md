@@ -3,7 +3,7 @@
 ## 1. Status and normative language
 
 **Version:** 1.9.0  
-**Documentation revision:** 2026-08-09  
+**Documentation revision:** 2026-08-10  
 **Package status:** Approved  
 **Production visual baseline:** Approved  
 **Owner:** Johnny Li
@@ -37,7 +37,7 @@ The design system owns:
 - Atomic color, typography, spacing, radius, control, motion, elevation, icon, z-index, layout, and light/dark theme tokens
 - Warm off-white canvas and exact faint dot texture
 - Global focus, selection, reduced-motion, and forced-colors behavior
-- Global-header control geometry, default rail, and owner/product identity lockup
+- Global-header control geometry, shared wide-desktop rail, compact rail, and owner/product identity lockup
 - Canonical owned-site registry and Sites-control interaction contract
 - Adjacent Settings appearance control and shared System, Light, and Dark preference behavior
 - Unified Sites and Settings attached-disclosure shells, open-state pinning, and dismissal behavior
@@ -56,7 +56,7 @@ Each consumer owns:
 - Product state, workflows, persistence, APIs, authentication, storage, and deployment
 - Network measurements, profiles, charts, reports, Worker logic, and native probe
 - RolePacket application lifecycle, resume logic, extension integration, and workspace drawer
-- Portfolio narrative structure, case-study content, editorial motion, and approved product-specific header rail adapter
+- Portfolio narrative structure, case-study content, and editorial motion
 - Product-specific validation commands, fixtures, schedules, and rollback boundaries
 
 A shared abstraction MUST NOT absorb product logic merely because two products currently use similar markup.
@@ -136,7 +136,7 @@ The shared header owns:
 
 - 82px desktop inner-row height and 68px compact inner-row height
 - A 1px divider, producing an 83px desktop and 69px compact reserved footprint while disclosures are pinned or dismissing
-- Shared default inner rail and gutters; an approved product rail adapter MAY vary desktop edge alignment without changing shared control geometry or interaction behavior
+- Shared wide-desktop edge rail at 1024px and above, with the centered package rail and compact gutters retained below that breakpoint
 - Owner/product typography and muted product treatment
 - 104px Sites-control width through normal desktop and compact layouts
 - 96px Sites-control width at the 360px-and-below extreme-compact transformation
@@ -153,17 +153,17 @@ The shared header owns:
 
 ### Header rail expressions
 
-The package default remains the shared centered inner rail used by Network Diagnostics and RolePacket. A product MAY use a documented rail adapter when the product composition benefits from different desktop edge alignment, provided the shared header remains recognizably and behaviorally the same component.
+At 1024px and above, the shared package rail is the canonical wide-desktop composition for all owned products:
 
-The approved Portfolio adapter applies at 1024px and above:
-
-- The header inner rail spans the viewport while the page content shell remains unchanged.
+- The header inner rail spans the viewport while product content shells remain independently sized.
 - Owner/product identity is anchored 40px from the left viewport edge.
 - Sites and Settings are anchored 20px from the right viewport edge.
-- Contextual navigation remains optically centered on the viewport despite the asymmetric edge insets.
-- Below 1024px the Portfolio returns to the shared package rail and compact transformations.
+- Contextual navigation, when present, remains optically centered on the viewport despite the asymmetric edge insets.
+- A product with no meaningful global navigation MAY leave the center zone empty; navigation MUST NOT be invented solely to fill the rail.
 
-A rail adapter MUST NOT change Sites or Settings dimensions, disclosure shells, owned-site content, theme controls, pinned-header footprint, keyboard/focus/dismissal semantics, reduced-motion behavior, or the synchronized shared assets. It is a product-owned composition adapter, not a fork of the global-header component.
+Portfolio uses the contextual center zone for Work, Experience, About, and Contact. Network Diagnostics uses it for Methodology, Privacy, and Source. RolePacket intentionally leaves it empty because workspace navigation belongs to the application shell below the global bar.
+
+Below 1024px the header returns to the centered package rail and existing compact transformations. A product-specific rail exception MAY exist only when documented and validated; it MUST NOT change Sites or Settings dimensions, disclosure shells, owned-site content, theme controls, pinned-header footprint, keyboard/focus/dismissal semantics, reduced-motion behavior, or synchronized shared assets.
 
 At 900px and below, applicable product navigation becomes the shared compact menu shell. At 560px and below, the owner and separator MAY hide while the product identity remains. At 420px and below, gutters and inter-control gaps tighten. At 360px and below, gutters, gaps, identity size, Menu-trigger width, and the Sites width reduce so the product identity, Menu trigger where applicable, Sites control, and Settings control remain contained at 320px.
 

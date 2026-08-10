@@ -2,6 +2,7 @@
 
 ## 1.9.0 — 2026-08-06
 
+- Promoted the proven Portfolio wide-desktop header rail into the shared contract: 40px left identity inset, 20px right controls inset, optically centered contextual navigation, and an intentionally empty center zone when a product has no global nav.
 - Added shared System, Light, and Dark appearance preferences with a pre-paint bootstrap.
 - Added cross-subdomain preference persistence for all owned sites.
 - Added dark semantic color and status tokens while preserving the approved warm editorial palette.
