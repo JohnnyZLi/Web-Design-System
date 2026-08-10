@@ -45,7 +45,7 @@ for fragment in required:
         raise SystemExit(f"Extreme-compact header contract is incomplete: {fragment}")
 
 wide_header_required = (
-    "/* Shared wide-desktop header rail. */",
+    "/* Shared wide-desktop header rail.",
     "@media (min-width: 1024px)",
     "width: 100%;",
     "grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);",
