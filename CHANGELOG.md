@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Replaced the canonical Sites disclosure indicator with a geometrically centered inline SVG chevron; the open state now rotates around the icon center instead of relying on vertical pixel offsets. Legacy text-span indicators remain temporarily supported for consumer compatibility.
+- Refined the canonical Sites control into a centered label-and-chevron lockup: the label and fixed icon cell now form one inner grid unit, the chevron path is optically positioned inside its viewBox, and the same path rotates in place for the open state without state-dependent offsets. Legacy text-span indicators remain temporarily supported for consumer compatibility.
 - Added the package-owned `jl-global-header--compact-utility` expression: a 72px desktop bar with a unified 96px Sites + 44px Settings utility cluster, while preserving full control hit targets, disclosure behavior, accessibility, and existing compact/mobile geometry.
 
 ## 1.9.0 — 2026-08-06
