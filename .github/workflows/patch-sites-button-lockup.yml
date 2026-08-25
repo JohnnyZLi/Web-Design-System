@@ -118,6 +118,13 @@ jobs:
           if changelog.count(old_note) != 1:
               raise SystemExit('Expected canonical Sites changelog note was not found exactly once.')
           changelog_path.write_text(changelog.replace(old_note, new_note, 1))
+          validator_path = Path('scripts/validate_header_contract.py')
+          validator = validator_path.read_text()
+          validator = validator.replace('    "width: 12px;",\n    "height: 12px;",', '    ".jl-site-switcher__content {",\n    "display: inline-grid;",\n    "grid-template-columns: max-content 0.85em;",\n    "column-gap: 0.55em;",\n    ".jl-site-switcher__label {",\n    "width: 0.85em;",\n    "height: 0.85em;",\n    "overflow: visible;",\n    ".jl-site-switcher__chevron path {",\n    "transform-box: fill-box;",\n    "transform-origin: center;",', 1)
+          validator = validator.replace('<path d="M2.5 4.25 6 7.75 9.5 4.25"></path>', '<span class="jl-site-switcher__content">\',\n    \'<span class="jl-site-switcher__label">Sites</span>\',\n    \'<path d="M2.5 5.25 6 8.75 9.5 5.25"></path>', 1)
+          if 'width: 12px;' in validator or 'M2.5 4.25 6 7.75 9.5 4.25' in validator:
+              raise SystemExit('Stale Sites lockup validator fragments remain.')
+          validator_path.write_text(validator)
           PY
       - name: Validate design system
         run: |
@@ -134,6 +141,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add styles/site-identity.css specimen/index.html CHANGELOG.md
+          git add styles/site-identity.css specimen/index.html CHANGELOG.md scripts/validate_header_contract.py
           git commit -m "Refine the Sites button content lockup"
           git push origin HEAD:ui/sites-button-lockup
