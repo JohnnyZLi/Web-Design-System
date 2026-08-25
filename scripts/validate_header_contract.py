@@ -47,8 +47,17 @@ for fragment in required:
 
 chevron_required = (
     ".jl-site-switcher__chevron {",
-    "width: 12px;",
-    "height: 12px;",
+    ".jl-site-switcher__content {",
+    "display: inline-grid;",
+    "grid-template-columns: max-content 0.85em;",
+    "column-gap: 0.55em;",
+    ".jl-site-switcher__label {",
+    "width: 0.85em;",
+    "height: 0.85em;",
+    "overflow: visible;",
+    ".jl-site-switcher__chevron path {",
+    "transform-box: fill-box;",
+    "transform-origin: center;",
     "stroke: currentColor;",
     "stroke-linecap: round;",
     "stroke-linejoin: round;",
@@ -62,7 +71,9 @@ for fragment in chevron_required:
 
 for fragment in (
     '<svg class="jl-site-switcher__chevron" viewBox="0 0 12 12" aria-hidden="true" focusable="false">',
-    '<path d="M2.5 4.25 6 7.75 9.5 4.25"></path>',
+    '<span class="jl-site-switcher__content">',
+    '<span class="jl-site-switcher__label">Sites</span>',
+    '<path d="M2.5 5.25 6 8.75 9.5 5.25"></path>',
 ):
     if fragment not in specimen:
         raise SystemExit(f"Specimen Sites trigger is missing canonical SVG markup: {fragment}")
