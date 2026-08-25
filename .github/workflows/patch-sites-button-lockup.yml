@@ -1,0 +1,135 @@
+name: Patch Sites button lockup
+
+on:
+  push:
+    branches:
+      - ui/sites-button-lockup
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ui/sites-button-lockup
+          persist-credentials: true
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+          package-manager-cache: false
+      - name: Refine Sites content lockup
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          css_path = Path('styles/site-identity.css')
+          css = css_path.read_text()
+          old = '''.jl-site-switcher__chevron {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 12px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform: rotate(0deg);
+  transform-origin: 50% 50%;
+}
+
+.jl-site-switcher__button[aria-expanded="true"] .jl-site-switcher__chevron {
+  transform: rotate(180deg);
+}
+'''
+          new = '''.jl-site-switcher__content {
+  display: inline-grid;
+  grid-template-columns: max-content 0.85em;
+  align-items: center;
+  column-gap: 0.55em;
+  line-height: 1;
+}
+
+.jl-site-switcher__label {
+  display: block;
+  line-height: 1;
+}
+
+.jl-site-switcher__chevron {
+  width: 0.85em;
+  height: 0.85em;
+  display: block;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.jl-site-switcher__chevron path {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: rotate(0deg);
+}
+
+.jl-site-switcher__button[aria-expanded="true"] .jl-site-switcher__chevron path {
+  transform: rotate(180deg);
+}
+'''
+          if css.count(old) != 1:
+              raise SystemExit(f'Expected one canonical chevron block, found {css.count(old)}')
+          css_path.write_text(css.replace(old, new, 1))
+
+          specimen_path = Path('specimen/index.html')
+          specimen = specimen_path.read_text()
+          old_markup = '''<button class="menu-button secondary-button jl-site-switcher__button" type="button" aria-expanded="false" aria-controls="site-menu">Sites
+  <svg class="jl-site-switcher__chevron" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+    <path d="M2.5 4.25 6 7.75 9.5 4.25"></path>
+  </svg></button>'''
+          new_markup = '''<button class="menu-button secondary-button jl-site-switcher__button" type="button" aria-expanded="false" aria-controls="site-menu">
+            <span class="jl-site-switcher__content">
+              <span class="jl-site-switcher__label">Sites</span>
+              <svg class="jl-site-switcher__chevron" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+                <path d="M2.5 5.25 6 8.75 9.5 5.25"></path>
+              </svg>
+            </span>
+          </button>'''
+          if specimen.count(old_markup) != 1:
+              raise SystemExit(f'Expected one specimen Sites button, found {specimen.count(old_markup)}')
+          specimen_path.write_text(specimen.replace(old_markup, new_markup, 1))
+
+          changelog_path = Path('CHANGELOG.md')
+          changelog = changelog_path.read_text()
+          old_note = '- Replaced the canonical Sites disclosure indicator with a geometrically centered inline SVG chevron; the open state now rotates around the icon center instead of relying on vertical pixel offsets. Legacy text-span indicators remain temporarily supported for consumer compatibility.'
+          new_note = '- Refined the canonical Sites control into a centered label-and-chevron lockup: the label and em-sized SVG now form one inner grid unit, the chevron path is optically positioned inside its viewBox, and the same path rotates in place for the open state without state-dependent offsets. Legacy text-span indicators remain temporarily supported for consumer compatibility.'
+          if changelog.count(old_note) != 1:
+              raise SystemExit('Expected canonical Sites changelog note was not found exactly once.')
+          changelog_path.write_text(changelog.replace(old_note, new_note, 1))
+          PY
+      - name: Validate design system
+        run: |
+          node --check scripts/theme-bootstrap.js
+          node --check scripts/site-controls.js
+          node --check scripts/conformance-runner.mjs
+          node --check scripts/validate-rolepacket-candidate-local.mjs
+          node scripts/test-conformance-runner.mjs
+          python scripts/validate_header_contract.py
+          make validate
+          npm pack --dry-run --json >/tmp/package.json
+          make release
+      - name: Commit implementation
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add styles/site-identity.css specimen/index.html CHANGELOG.md
+          git commit -m "Refine the Sites button content lockup"
+          git push origin HEAD:ui/sites-button-lockup
