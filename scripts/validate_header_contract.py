@@ -138,4 +138,27 @@ if ".jl-site-identity__product" in compact_block and "display: none" in compact_
 if ".jl-site-switcher__button" in compact_block and "display: none" in compact_block:
     raise SystemExit("Extreme-compact header must preserve the Sites control.")
 
+
+compact_utility_required = (
+    ".jl-global-header--compact-utility",
+    "min-height: 72px;",
+    "width: 140px;",
+    "grid-template-columns: 96px var(--jl-control-height-md);",
+    "background: color-mix(in srgb, var(--jl-color-surface) 42%, transparent);",
+    "border-left: 1px solid var(--jl-color-rule);",
+    "background: color-mix(in srgb, var(--jl-color-surface-strong) 38%, transparent);",
+)
+for fragment in compact_utility_required:
+    if fragment not in css:
+        raise SystemExit(f"Compact utility header contract is incomplete: {fragment}")
+
+compact_utility_theme_required = (
+    "compact utility header keeps a 73px",
+    ".jl-global-header.jl-global-header--compact-utility",
+    "height: 73px;",
+)
+for fragment in compact_utility_theme_required:
+    if fragment not in theme_css:
+        raise SystemExit(f"Compact utility pinned-header contract is incomplete: {fragment}")
+
 print("Extreme-compact and full-header disclosure contracts passed.")

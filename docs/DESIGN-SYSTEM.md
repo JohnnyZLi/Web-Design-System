@@ -169,6 +169,21 @@ Portfolio uses the contextual center zone for Work, Experience, About, and Conta
 
 Below 1024px the header returns to the centered package rail and existing compact transformations. A product-specific rail exception MAY exist only when documented and validated; it MUST NOT change Sites or Settings dimensions, disclosure shells, owned-site content, theme controls, pinned-header footprint, keyboard/focus/dismissal semantics, reduced-motion behavior, or synchronized shared assets.
 
+### Compact utility expression
+
+The package also provides an optional `jl-global-header--compact-utility` expression for editorial surfaces that benefit from a quieter, shorter desktop bar. It remains a shared package form rather than a consumer-local restyle.
+
+At 561px and above the compact utility expression:
+
+- Uses a 72px inner row and 73px reserved footprint.
+- Preserves the 44px Sites and Settings trigger height and existing icon, type, focus, keyboard, and dismissal behavior.
+- Uses a 96px Sites column adjacent to the 44px Settings column inside one token-derived 140px utility cluster.
+- Uses a shared outer rule and a single internal divider at rest rather than two visually detached control boxes.
+- Restores the normal attached disclosure surface and border when either menu is open.
+- Keeps the existing 68px/69px compact header and mobile control geometry unchanged at 560px and below.
+
+Consumers MAY opt into this package-owned modifier for the complete global header. They MUST NOT recreate the compact geometry with product-local selectors.
+
 At 900px and below, applicable product navigation becomes the shared compact menu shell. At 560px and below, the owner and separator MAY hide while the product identity remains. At 420px and below, gutters and inter-control gaps tighten. At 360px and below, gutters, gaps, identity size, Menu-trigger width, and the Sites width reduce so the product identity, Menu trigger where applicable, Sites control, and Settings control remain contained at 320px.
 
 Required navigation or appearance preferences MUST NOT be hidden as an overflow workaround.
