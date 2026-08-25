@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Added the package-owned `jl-global-header--compact-utility` expression: a 72px desktop bar with a unified 96px Sites + 44px Settings utility cluster, while preserving full control hit targets, disclosure behavior, accessibility, and existing compact/mobile geometry.
+
 ## 1.9.0 — 2026-08-06
 
 - Promoted the proven Portfolio wide-desktop header rail into the shared contract: 40px left identity inset, 20px right controls inset, optically centered contextual navigation, and an intentionally empty center zone when a product has no global nav.
