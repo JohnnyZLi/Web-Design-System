@@ -184,6 +184,8 @@ At 561px and above the compact utility expression:
 
 Consumers MAY opt into this package-owned modifier for the complete global header. They MUST NOT recreate the compact geometry with product-local selectors.
 
+The canonical Sites trigger uses a 12×12 inline SVG chevron centered by the trigger’s flex alignment. The closed path is geometrically centered in its viewBox and the open state rotates that same SVG 180 degrees around its center; consumers SHOULD use the package markup rather than adding optical `translateY()` offsets.
+
 At 900px and below, applicable product navigation becomes the shared compact menu shell. At 560px and below, the owner and separator MAY hide while the product identity remains. At 420px and below, gutters and inter-control gaps tighten. At 360px and below, gutters, gaps, identity size, Menu-trigger width, and the Sites width reduce so the product identity, Menu trigger where applicable, Sites control, and Settings control remain contained at 320px.
 
 Required navigation or appearance preferences MUST NOT be hidden as an overflow workaround.

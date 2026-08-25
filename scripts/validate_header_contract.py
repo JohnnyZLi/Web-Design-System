@@ -5,6 +5,7 @@ root = Path(__file__).resolve().parents[1]
 css = (root / "styles" / "site-identity.css").read_text(encoding="utf-8")
 theme_css = (root / "styles" / "theme-control.css").read_text(encoding="utf-8")
 controls = (root / "scripts" / "site-controls.js").read_text(encoding="utf-8")
+specimen = (root / "specimen" / "index.html").read_text(encoding="utf-8")
 required = (
     "grid-template-columns: 104px var(--jl-control-height-md);",
     ".jl-site-switcher__button {\n  width: 104px;",
@@ -43,6 +44,28 @@ required = (
 for fragment in required:
     if fragment not in css:
         raise SystemExit(f"Extreme-compact header contract is incomplete: {fragment}")
+
+chevron_required = (
+    ".jl-site-switcher__chevron {",
+    "width: 12px;",
+    "height: 12px;",
+    "stroke: currentColor;",
+    "stroke-linecap: round;",
+    "stroke-linejoin: round;",
+    "transform: rotate(0deg);",
+    "transform: rotate(180deg);",
+    '[aria-hidden="true"]:not(svg)',
+)
+for fragment in chevron_required:
+    if fragment not in css:
+        raise SystemExit(f"Sites chevron contract is incomplete: {fragment}")
+
+for fragment in (
+    '<svg class="jl-site-switcher__chevron" viewBox="0 0 12 12" aria-hidden="true" focusable="false">',
+    '<path d="M2.5 4.25 6 7.75 9.5 4.25"></path>',
+):
+    if fragment not in specimen:
+        raise SystemExit(f"Specimen Sites trigger is missing canonical SVG markup: {fragment}")
 
 wide_header_required = (
     "/* Shared wide-desktop header rail.",
