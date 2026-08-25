@@ -30,84 +30,87 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-
           css_path = Path('styles/site-identity.css')
           css = css_path.read_text()
-          old = '''.jl-site-switcher__chevron {
-  width: 12px;
-  height: 12px;
-  flex: 0 0 12px;
-  display: block;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.75;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transform: rotate(0deg);
-  transform-origin: 50% 50%;
-}
-
-.jl-site-switcher__button[aria-expanded="true"] .jl-site-switcher__chevron {
-  transform: rotate(180deg);
-}
-'''
-          new = '''.jl-site-switcher__content {
-  display: inline-grid;
-  grid-template-columns: max-content 0.85em;
-  align-items: center;
-  column-gap: 0.55em;
-  line-height: 1;
-}
-
-.jl-site-switcher__label {
-  display: block;
-  line-height: 1;
-}
-
-.jl-site-switcher__chevron {
-  width: 0.85em;
-  height: 0.85em;
-  display: block;
-  overflow: visible;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.75;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.jl-site-switcher__chevron path {
-  transform-box: fill-box;
-  transform-origin: center;
-  transform: rotate(0deg);
-}
-
-.jl-site-switcher__button[aria-expanded="true"] .jl-site-switcher__chevron path {
-  transform: rotate(180deg);
-}
-'''
+          old = "\n".join([
+              ".jl-site-switcher__chevron {",
+              "  width: 12px;",
+              "  height: 12px;",
+              "  flex: 0 0 12px;",
+              "  display: block;",
+              "  fill: none;",
+              "  stroke: currentColor;",
+              "  stroke-width: 1.75;",
+              "  stroke-linecap: round;",
+              "  stroke-linejoin: round;",
+              "  transform: rotate(0deg);",
+              "  transform-origin: 50% 50%;",
+              "}",
+              "",
+              ".jl-site-switcher__button[aria-expanded=\"true\"] .jl-site-switcher__chevron {",
+              "  transform: rotate(180deg);",
+              "}",
+          ])
+          new = "\n".join([
+              ".jl-site-switcher__content {",
+              "  display: inline-grid;",
+              "  grid-template-columns: max-content 0.85em;",
+              "  align-items: center;",
+              "  column-gap: 0.55em;",
+              "  line-height: 1;",
+              "}",
+              "",
+              ".jl-site-switcher__label {",
+              "  display: block;",
+              "  line-height: 1;",
+              "}",
+              "",
+              ".jl-site-switcher__chevron {",
+              "  width: 0.85em;",
+              "  height: 0.85em;",
+              "  display: block;",
+              "  overflow: visible;",
+              "  fill: none;",
+              "  stroke: currentColor;",
+              "  stroke-width: 1.75;",
+              "  stroke-linecap: round;",
+              "  stroke-linejoin: round;",
+              "}",
+              "",
+              ".jl-site-switcher__chevron path {",
+              "  transform-box: fill-box;",
+              "  transform-origin: center;",
+              "  transform: rotate(0deg);",
+              "}",
+              "",
+              ".jl-site-switcher__button[aria-expanded=\"true\"] .jl-site-switcher__chevron path {",
+              "  transform: rotate(180deg);",
+              "}",
+          ])
           if css.count(old) != 1:
               raise SystemExit(f'Expected one canonical chevron block, found {css.count(old)}')
           css_path.write_text(css.replace(old, new, 1))
-
           specimen_path = Path('specimen/index.html')
           specimen = specimen_path.read_text()
-          old_markup = '''<button class="menu-button secondary-button jl-site-switcher__button" type="button" aria-expanded="false" aria-controls="site-menu">Sites
-  <svg class="jl-site-switcher__chevron" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
-    <path d="M2.5 4.25 6 7.75 9.5 4.25"></path>
-  </svg></button>'''
-          new_markup = '''<button class="menu-button secondary-button jl-site-switcher__button" type="button" aria-expanded="false" aria-controls="site-menu">
-            <span class="jl-site-switcher__content">
-              <span class="jl-site-switcher__label">Sites</span>
-              <svg class="jl-site-switcher__chevron" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
-                <path d="M2.5 5.25 6 8.75 9.5 5.25"></path>
-              </svg>
-            </span>
-          </button>'''
+          old_markup = "\n".join([
+              '          <button class="menu-button secondary-button jl-site-switcher__button" type="button" aria-expanded="false" aria-controls="site-menu">Sites',
+              '  <svg class="jl-site-switcher__chevron" viewBox="0 0 12 12" aria-hidden="true" focusable="false">',
+              '    <path d="M2.5 4.25 6 7.75 9.5 4.25"></path>',
+              '  </svg></button>',
+          ])
+          new_markup = "\n".join([
+              '          <button class="menu-button secondary-button jl-site-switcher__button" type="button" aria-expanded="false" aria-controls="site-menu">',
+              '            <span class="jl-site-switcher__content">',
+              '              <span class="jl-site-switcher__label">Sites</span>',
+              '              <svg class="jl-site-switcher__chevron" viewBox="0 0 12 12" aria-hidden="true" focusable="false">',
+              '                <path d="M2.5 5.25 6 8.75 9.5 5.25"></path>',
+              '              </svg>',
+              '            </span>',
+              '          </button>',
+          ])
           if specimen.count(old_markup) != 1:
               raise SystemExit(f'Expected one specimen Sites button, found {specimen.count(old_markup)}')
           specimen_path.write_text(specimen.replace(old_markup, new_markup, 1))
-
           changelog_path = Path('CHANGELOG.md')
           changelog = changelog_path.read_text()
           old_note = '- Replaced the canonical Sites disclosure indicator with a geometrically centered inline SVG chevron; the open state now rotates around the icon center instead of relying on vertical pixel offsets. Legacy text-span indicators remain temporarily supported for consumer compatibility.'
