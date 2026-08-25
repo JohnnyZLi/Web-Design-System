@@ -1,0 +1,141 @@
+name: Patch shared Sites chevron
+
+on:
+  push:
+    branches:
+      - ui/center-sites-chevron
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ui/center-sites-chevron
+          persist-credentials: true
+      - name: Replace offset chevron with centered SVG contract
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          css_path = Path('styles/site-identity.css')
+          css = css_path.read_text()
+          old = '''.jl-site-switcher__chevron,
+          .jl-site-switcher__button > [aria-hidden="true"] {
+            width: 7px;
+            height: 7px;
+            flex: 0 0 7px;
+            border-right: 2px solid currentColor;
+            border-bottom: 2px solid currentColor;
+            font-size: 0;
+            transform: translateY(-2px) rotate(45deg);
+            transform-origin: center;
+          }
+
+          .jl-site-switcher__button[aria-expanded="true"] .jl-site-switcher__chevron,
+          .jl-site-switcher__button[aria-expanded="true"] > [aria-hidden="true"] {
+            transform: translateY(2px) rotate(-135deg);
+          }
+          '''.replace('          ', '')
+          new = '''.jl-site-switcher__chevron {
+            width: 12px;
+            height: 12px;
+            flex: 0 0 12px;
+            display: block;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.75;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transform: rotate(0deg);
+            transform-origin: 50% 50%;
+          }
+
+          .jl-site-switcher__button[aria-expanded="true"] .jl-site-switcher__chevron {
+            transform: rotate(180deg);
+          }
+
+          /* Backward-compatible fallback for consumers that still provide the
+             former text span. Canonical markup uses the centered inline SVG. */
+          .jl-site-switcher__button > [aria-hidden="true"]:not(svg) {
+            width: 7px;
+            height: 7px;
+            flex: 0 0 7px;
+            border-right: 2px solid currentColor;
+            border-bottom: 2px solid currentColor;
+            font-size: 0;
+            transform: translateY(-2px) rotate(45deg);
+            transform-origin: center;
+          }
+
+          .jl-site-switcher__button[aria-expanded="true"] > [aria-hidden="true"]:not(svg) {
+            transform: translateY(2px) rotate(-135deg);
+          }
+          '''.replace('          ', '')
+          if css.count(old) != 1:
+              raise SystemExit(f'Expected one legacy chevron block, found {css.count(old)}')
+          css = css.replace(old, new, 1)
+          css = css.replace(
+              '''  .jl-site-switcher__chevron,\n  .jl-site-switcher__button > [aria-hidden="true"],\n  .jl-settings-button__icon {''',
+              '''  .jl-site-switcher__chevron,\n  .jl-site-switcher__button > [aria-hidden="true"]:not(svg),\n  .jl-settings-button__icon {''',
+              1,
+          )
+          css_path.write_text(css)
+
+          specimen_path = Path('specimen/index.html')
+          specimen = specimen_path.read_text()
+          old_markup = 'Sites <span aria-hidden="true">⌄</span>'
+          new_markup = '''Sites
+            <svg class="jl-site-switcher__chevron" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+              <path d="M2.5 4.25 6 7.75 9.5 4.25"></path>
+            </svg>'''
+          if specimen.count(old_markup) != 1:
+              raise SystemExit(f'Expected one specimen Sites indicator, found {specimen.count(old_markup)}')
+          specimen_path.write_text(specimen.replace(old_markup, new_markup, 1))
+
+          validator_path = Path('scripts/validate_header_contract.py')
+          validator = validator_path.read_text()
+          validator = validator.replace(
+              'controls = (root / "scripts" / "site-controls.js").read_text(encoding="utf-8")\n',
+              'controls = (root / "scripts" / "site-controls.js").read_text(encoding="utf-8")\nspecimen = (root / "specimen" / "index.html").read_text(encoding="utf-8")\n',
+              1,
+          )
+          marker = '''for fragment in required:\n    if fragment not in css:\n        raise SystemExit(f"Extreme-compact header contract is incomplete: {fragment}")\n'''
+          checks = '''for fragment in required:\n    if fragment not in css:\n        raise SystemExit(f"Extreme-compact header contract is incomplete: {fragment}")\n\nchevron_required = (\n    ".jl-site-switcher__chevron {",\n    "width: 12px;",\n    "height: 12px;",\n    "stroke: currentColor;",\n    "stroke-linecap: round;",\n    "stroke-linejoin: round;",\n    "transform: rotate(0deg);",\n    "transform: rotate(180deg);",\n    '[aria-hidden="true"]:not(svg)',\n)\nfor fragment in chevron_required:\n    if fragment not in css:\n        raise SystemExit(f"Sites chevron contract is incomplete: {fragment}")\n\nfor fragment in (\n    '<svg class="jl-site-switcher__chevron" viewBox="0 0 12 12" aria-hidden="true" focusable="false">',\n    '<path d="M2.5 4.25 6 7.75 9.5 4.25"></path>',\n):\n    if fragment not in specimen:\n        raise SystemExit(f"Specimen Sites trigger is missing canonical SVG markup: {fragment}")\n'''
+          if validator.count(marker) != 1:
+              raise SystemExit('Header validator insertion point changed')
+          validator_path.write_text(validator.replace(marker, checks, 1))
+
+          changelog_path = Path('CHANGELOG.md')
+          changelog = changelog_path.read_text()
+          changelog_marker = '## Unreleased\n\n'
+          addition = '- Replaced the canonical Sites disclosure indicator with a geometrically centered inline SVG chevron; the open state now rotates around the icon center instead of relying on vertical pixel offsets. Legacy text-span indicators remain temporarily supported for consumer compatibility.\n'
+          if addition not in changelog:
+              changelog = changelog.replace(changelog_marker, changelog_marker + addition, 1)
+          changelog_path.write_text(changelog)
+
+          docs_path = Path('docs/DESIGN-SYSTEM.md')
+          docs = docs_path.read_text()
+          docs_marker = 'Consumers MAY opt into this package-owned modifier for the complete global header. They MUST NOT recreate the compact geometry with product-local selectors.\n'
+          docs_add = '\nThe canonical Sites trigger uses a 12×12 inline SVG chevron centered by the trigger’s flex alignment. The closed path is geometrically centered in its viewBox and the open state rotates that same SVG 180 degrees around its center; consumers SHOULD use the package markup rather than adding optical `translateY()` offsets.\n'
+          if docs_add.strip() not in docs:
+              if docs.count(docs_marker) != 1:
+                  raise SystemExit('Design-system documentation insertion point changed')
+              docs = docs.replace(docs_marker, docs_marker + docs_add, 1)
+          docs_path.write_text(docs)
+          PY
+      - name: Validate shared package
+        run: |
+          npm install --no-audit --no-fund
+          npm run validate
+      - name: Commit implementation
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add styles/site-identity.css specimen/index.html scripts/validate_header_contract.py CHANGELOG.md docs/DESIGN-SYSTEM.md
+          git commit -m "Center the shared Sites chevron"
+          git push origin HEAD:ui/center-sites-chevron
