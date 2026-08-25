@@ -4,13 +4,14 @@ on:
   push:
     branches:
       - ui/sites-button-lockup
+    paths:
+      - .github/workflows/patch-sites-button-lockup.yml
 
 permissions:
   contents: write
 
 jobs:
   patch:
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
