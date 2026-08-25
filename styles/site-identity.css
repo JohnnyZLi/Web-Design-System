@@ -234,7 +234,7 @@
 
 .jl-site-switcher__content {
   display: inline-grid;
-  grid-template-columns: max-content 0.85em;
+  grid-template-columns: max-content 12px;
   align-items: center;
   column-gap: 0.55em;
   line-height: 1;
@@ -246,8 +246,8 @@
 }
 
 .jl-site-switcher__chevron {
-  width: 0.85em;
-  height: 0.85em;
+  width: 12px;
+  height: 12px;
   display: block;
   overflow: visible;
   fill: none;
