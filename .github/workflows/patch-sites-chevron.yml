@@ -130,8 +130,10 @@ jobs:
           PY
       - name: Validate shared package
         run: |
-          npm install --no-audit --no-fund
-          npm run validate
+          python scripts/validate_header_contract.py
+          make validate
+          node scripts/test-conformance-runner.mjs
+          npm pack --dry-run --json >/tmp/package.json
       - name: Commit implementation
         run: |
           git config user.name "github-actions[bot]"
