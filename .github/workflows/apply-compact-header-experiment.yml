@@ -1,0 +1,185 @@
+name: Apply compact shared header experiment
+
+on:
+  push:
+    branches:
+      - ui/compact-header-utility-cluster
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ui/compact-header-utility-cluster
+          persist-credentials: true
+      - name: Apply package-owned compact utility variant
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          root = Path('.')
+
+          site_path = root / 'styles/site-identity.css'
+          site = site_path.read_text()
+          forced_marker = '@media (forced-colors: active) {'
+          if '.jl-global-header--compact-utility' not in site:
+              block = r'''
+/* Optional compact utility expression. The shared controls keep their full
+   desktop hit targets and interaction contract while the bar uses less
+   vertical space and Sites/Settings read as one quiet utility cluster. */
+@media (min-width: 561px) {
+  .jl-global-header--compact-utility,
+  .jl-global-header--compact-utility .jl-global-header__inner {
+    min-height: 72px;
+  }
+
+  .jl-global-header--compact-utility .jl-global-header__inner {
+    padding-block: 14px;
+  }
+
+  .jl-global-header--compact-utility .jl-site-switcher {
+    width: 140px;
+    grid-template-columns: 96px var(--jl-control-height-md);
+    column-gap: 0;
+    border: 1px solid var(--jl-color-rule);
+    border-radius: var(--jl-radius-md);
+    background: color-mix(in srgb, var(--jl-color-surface) 42%, transparent);
+  }
+
+  .jl-global-header--compact-utility .jl-site-disclosure,
+  .jl-global-header--compact-utility .jl-settings-disclosure {
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .jl-global-header--compact-utility .jl-site-disclosure,
+  .jl-global-header--compact-utility .jl-site-switcher__button,
+  .jl-global-header--compact-utility .jl-site-menu {
+    width: 96px;
+    min-width: 96px;
+  }
+
+  .jl-global-header--compact-utility .jl-settings-disclosure {
+    border-left: 1px solid var(--jl-color-rule);
+  }
+
+  .jl-global-header--compact-utility .jl-site-disclosure:has(> .jl-site-switcher__button:hover:not([aria-expanded="true"])),
+  .jl-global-header--compact-utility .jl-settings-disclosure:has(> .jl-settings-button:hover:not([aria-expanded="true"])) {
+    background: color-mix(in srgb, var(--jl-color-surface-strong) 38%, transparent);
+    box-shadow: none;
+  }
+
+  .jl-global-header--compact-utility .jl-site-disclosure:has(> .jl-site-switcher__button:focus-visible),
+  .jl-global-header--compact-utility .jl-settings-disclosure:has(> .jl-settings-button:focus-visible) {
+    box-shadow: inset 0 0 0 2px var(--jl-color-focus-ring);
+  }
+
+  .jl-global-header--compact-utility .jl-site-disclosure:has(> .jl-site-switcher__button[aria-expanded="true"]),
+  .jl-global-header--compact-utility .jl-settings-disclosure:has(> .jl-settings-button[aria-expanded="true"]) {
+    border-radius: var(--jl-radius-md);
+    background: var(--jl-color-surface);
+    box-shadow: inset 0 0 0 1px var(--jl-color-rule-strong);
+  }
+
+  .jl-global-header--compact-utility .jl-settings-disclosure:has(> .jl-settings-button[aria-expanded="true"]) {
+    border-left-color: transparent;
+  }
+}
+
+'''
+              if forced_marker not in site:
+                  raise SystemExit('forced-colors marker missing from site identity CSS')
+              site = site.replace(forced_marker, block + forced_marker, 1)
+              site_path.write_text(site)
+
+          theme_path = root / 'styles/theme-control.css'
+          theme = theme_path.read_text()
+          if 'compact utility header keeps a 73px' not in theme:
+              theme += r'''
+
+/* The compact utility header keeps a 73px reserved desktop footprint while a
+   disclosure is pinned or dismissing. Compact/mobile geometry remains the
+   existing 69px shared contract. */
+@media (min-width: 561px) {
+  :is(.jl-global-header.jl-global-header--compact-utility, .jl-site-header.jl-global-header--compact-utility):has([data-site-switcher-button][aria-expanded="true"]),
+  :is(.jl-global-header.jl-global-header--compact-utility, .jl-site-header.jl-global-header--compact-utility):has([data-settings-button][aria-expanded="true"]),
+  :is(.jl-global-header.jl-global-header--compact-utility, .jl-site-header.jl-global-header--compact-utility)[data-jl-header-disclosure-exit] {
+    height: 73px;
+    min-height: 73px;
+    max-height: 73px;
+  }
+
+  :is(.jl-global-header.jl-global-header--compact-utility, .jl-site-header.jl-global-header--compact-utility):has([data-site-switcher-button][aria-expanded="true"])::before,
+  :is(.jl-global-header.jl-global-header--compact-utility, .jl-site-header.jl-global-header--compact-utility):has([data-settings-button][aria-expanded="true"])::before,
+  :is(.jl-global-header.jl-global-header--compact-utility, .jl-site-header.jl-global-header--compact-utility)[data-jl-header-disclosure-exit]::before {
+    height: 73px;
+  }
+}
+'''
+              theme_path.write_text(theme)
+
+          docs_path = root / 'docs/DESIGN-SYSTEM.md'
+          docs = docs_path.read_text()
+          anchor = 'Below 1024px the header returns to the centered package rail and existing compact transformations. A product-specific rail exception MAY exist only when documented and validated; it MUST NOT change Sites or Settings dimensions, disclosure shells, owned-site content, theme controls, pinned-header footprint, keyboard/focus/dismissal semantics, reduced-motion behavior, or synchronized shared assets.\n'
+          if '### Compact utility expression' not in docs:
+              addition = '''\n### Compact utility expression\n\nThe package also provides an optional `jl-global-header--compact-utility` expression for editorial surfaces that benefit from a quieter, shorter desktop bar. It remains a shared package form rather than a consumer-local restyle.\n\nAt 561px and above the compact utility expression:\n\n- Uses a 72px inner row and 73px reserved footprint.\n- Preserves the 44px Sites and Settings trigger height and existing icon, type, focus, keyboard, and dismissal behavior.\n- Uses a 96px Sites column adjacent to the 44px Settings column inside one token-derived 140px utility cluster.\n- Uses a shared outer rule and a single internal divider at rest rather than two visually detached control boxes.\n- Restores the normal attached disclosure surface and border when either menu is open.\n- Keeps the existing 68px/69px compact header and mobile control geometry unchanged at 560px and below.\n\nConsumers MAY opt into this package-owned modifier for the complete global header. They MUST NOT recreate the compact geometry with product-local selectors.\n'''
+              if anchor not in docs:
+                  raise SystemExit('header rail docs anchor missing')
+              docs = docs.replace(anchor, anchor + addition, 1)
+              docs_path.write_text(docs)
+
+          changelog_path = root / 'CHANGELOG.md'
+          changelog = changelog_path.read_text()
+          if '## Unreleased' not in changelog:
+              changelog = changelog.replace('# Changelog\n', '# Changelog\n\n## Unreleased\n\n- Added the package-owned `jl-global-header--compact-utility` expression: a 72px desktop bar with a unified 96px Sites + 44px Settings utility cluster, while preserving full control hit targets, disclosure behavior, accessibility, and existing compact/mobile geometry.\n', 1)
+              changelog_path.write_text(changelog)
+
+          validator_path = root / 'scripts/validate_header_contract.py'
+          validator = validator_path.read_text()
+          print_marker = 'print("Extreme-compact and full-header disclosure contracts passed.")'
+          if 'compact_utility_required = (' not in validator:
+              validation = r'''
+compact_utility_required = (
+    ".jl-global-header--compact-utility",
+    "min-height: 72px;",
+    "width: 140px;",
+    "grid-template-columns: 96px var(--jl-control-height-md);",
+    "background: color-mix(in srgb, var(--jl-color-surface) 42%, transparent);",
+    "border-left: 1px solid var(--jl-color-rule);",
+    "background: color-mix(in srgb, var(--jl-color-surface-strong) 38%, transparent);",
+)
+for fragment in compact_utility_required:
+    if fragment not in css:
+        raise SystemExit(f"Compact utility header contract is incomplete: {fragment}")
+
+compact_utility_theme_required = (
+    "compact utility header keeps a 73px",
+    ".jl-global-header.jl-global-header--compact-utility",
+    "height: 73px;",
+)
+for fragment in compact_utility_theme_required:
+    if fragment not in theme_css:
+        raise SystemExit(f"Compact utility pinned-header contract is incomplete: {fragment}")
+
+'''
+              if print_marker not in validator:
+                  raise SystemExit('header validator print marker missing')
+              validator = validator.replace(print_marker, validation + print_marker, 1)
+              validator_path.write_text(validator)
+          PY
+
+          python3 scripts/validate_header_contract.py
+          python3 scripts/validate_package.py
+      - name: Commit package variant and remove helper
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/apply-compact-header-experiment.yml
+          git add styles/site-identity.css styles/theme-control.css docs/DESIGN-SYSTEM.md CHANGELOG.md scripts/validate_header_contract.py
+          git commit -m "Add compact shared header utility variant"
+          git push origin HEAD:ui/compact-header-utility-cluster
