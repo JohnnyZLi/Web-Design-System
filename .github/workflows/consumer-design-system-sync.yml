@@ -63,6 +63,7 @@ jobs:
           node-version: ${{ inputs.node-version }}
       - name: Resolve latest approved design system
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           PACKAGE_JSON_PATH: ${{ inputs.package-json }}
         shell: bash
         run: |
