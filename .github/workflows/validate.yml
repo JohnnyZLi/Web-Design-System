@@ -21,6 +21,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
@@ -36,6 +37,18 @@ jobs:
           node --check scripts/site-controls.js
           node --check scripts/conformance-runner.mjs
           node --check scripts/validate-rolepacket-candidate-local.mjs
+          node --check scripts/resolve-reviewed-release.mjs
+          node --check scripts/validate-release-boundary.mjs
+      - name: Exercise release protocol
+        run: |
+          node scripts/test-resolve-reviewed-release.mjs
+          node scripts/test-release-boundary.mjs
+          node scripts/test-sync-workflow.mjs
+      - name: Validate release boundary
+        if: github.event_name == 'pull_request' || github.event.before != '0000000000000000000000000000000000000000'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: node scripts/validate-release-boundary.mjs "$BASE_SHA"
       - name: Exercise conformance runner
         run: node scripts/test-conformance-runner.mjs
       - name: Validate extreme-compact header
