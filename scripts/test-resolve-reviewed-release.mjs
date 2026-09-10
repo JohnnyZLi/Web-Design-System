@@ -86,6 +86,39 @@ async function testRetryPolicy() {
   assert.equal(attempts, 1);
 
   attempts = 0;
+  await assert.rejects(
+    requestWithRetry("https://api.github.com/example", "application/json", {
+      fetchImpl: async () => {
+        attempts += 1;
+        return jsonResponse({}, { status: 403, statusText: "Forbidden" });
+      },
+      sleepImpl: async () => assert.fail("permission 403 must not be retried"),
+      token: "test-token",
+    }),
+    /403 Forbidden/,
+  );
+  assert.equal(attempts, 1);
+
+  attempts = 0;
+  await requestWithRetry("https://api.github.com/example", "application/json", {
+    fetchImpl: async (url, init) => {
+      attempts += 1;
+      assert.equal(init.headers.authorization, "Bearer test-token");
+      if (attempts === 1) {
+        return jsonResponse({}, {
+          status: 403,
+          statusText: "Forbidden",
+          headers: { "retry-after": "0", "x-ratelimit-remaining": "0" },
+        });
+      }
+      return jsonResponse({ ok: true });
+    },
+    sleepImpl: async () => {},
+    token: "test-token",
+  });
+  assert.equal(attempts, 2);
+
+  attempts = 0;
   await requestWithRetry("https://example.invalid", "application/json", {
     fetchImpl: async () => {
       attempts += 1;
