@@ -40,6 +40,43 @@ async function checkPublicSite({ name, url, marker }) {
   return { name, status: response.status, finalUrl: response.url, mode: "public" };
 }
 
+function moduleScriptSources(html) {
+  const sources = [];
+  for (const match of html.matchAll(/<script\b[^>]*>/gi)) {
+    const tag = match[0];
+    if (!/\btype=["']module["']/i.test(tag)) continue;
+    const src = tag.match(/\bsrc=["']([^"']+)["']/i)?.[1];
+    if (src) sources.push(src);
+  }
+  return sources;
+}
+
+async function checkClientRenderedSite({ name, url, marker, mountId }) {
+  const response = await request(url, { redirect: "follow" });
+  assert(response.ok, `${name} returned HTTP ${response.status}.`);
+
+  const html = await response.text();
+  assert(html.includes(marker), `${name} is missing its expected product marker.`);
+  assert(
+    new RegExp(`\\bid=["']${mountId}["']`, "i").test(html),
+    `${name} is missing its application mount #${mountId}.`,
+  );
+
+  const moduleSources = moduleScriptSources(html);
+  assert(moduleSources.length > 0, `${name} is missing its production module scripts.`);
+
+  await Promise.all(moduleSources.map(async (src) => {
+    const assetUrl = new URL(src, response.url);
+    const assetResponse = await request(assetUrl, { redirect: "follow" });
+    assert(
+      assetResponse.ok,
+      `${name} module ${assetUrl.pathname} returned HTTP ${assetResponse.status}.`,
+    );
+  }));
+
+  return { name, status: response.status, finalUrl: response.url, mode: "client-rendered" };
+}
+
 function isCloudflareAccessRedirect(location) {
   let target;
   try {
@@ -89,7 +126,12 @@ async function checkRolePacket() {
 
 const checks = await Promise.all([
   checkPublicSite({ name: "Portfolio", url: "https://johnnyli.dev", marker: "Johnny Li" }),
-  checkPublicSite({ name: "Network Diagnostics", url: "https://network.johnnyli.dev", marker: "Network Diagnostics" }),
+  checkClientRenderedSite({
+    name: "Network Diagnostics",
+    url: "https://network.johnnyli.dev",
+    marker: "Network Diagnostics",
+    mountId: "root",
+  }),
   checkRolePacket(),
 ]);
 
