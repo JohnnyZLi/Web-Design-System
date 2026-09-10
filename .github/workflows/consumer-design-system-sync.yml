@@ -28,6 +28,11 @@ on:
         description: Human-readable product name.
         required: true
         type: string
+      package-json:
+        description: Optional package manifest to repin before install; replaces consumer-side npm run design-system:update.
+        required: false
+        default: ""
+        type: string
 
 permissions:
   contents: write
@@ -42,16 +47,35 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.timeout-minutes }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Check out consumer
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
+      - name: Check out release resolver
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: ${{ job.workflow_repository }}
+          ref: ${{ job.workflow_sha }}
+          persist-credentials: false
+          path: .design-system-tooling
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: ${{ inputs.node-version }}
+      - name: Resolve latest approved design system
+        env:
+          PACKAGE_JSON_PATH: ${{ inputs.package-json }}
+        shell: bash
+        run: |
+          args=(--lock design-system.lock.json)
+          if [[ -n "$PACKAGE_JSON_PATH" ]]; then
+            args+=(--package-json "$PACKAGE_JSON_PATH")
+          fi
+          node .design-system-tooling/scripts/resolve-reviewed-release.mjs "${args[@]}"
+      - name: Remove resolver checkout
+        shell: bash
+        run: rm -rf .design-system-tooling
       - name: Install dependencies
         run: ${{ inputs.install-command }}
-      - name: Resolve latest reviewed design system
-        run: npm run design-system:update
       - name: Synchronize generated assets
         run: npm run design-system:sync
       - name: Validate update
