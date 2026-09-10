@@ -42,6 +42,15 @@ function retryAfterMilliseconds(response) {
   return Number.isFinite(when) ? Math.max(0, when - Date.now()) : null;
 }
 
+function isRetryableResponse(response) {
+  const status = Number(response.status);
+  if (RETRYABLE_STATUS.has(status) || status >= 500) return true;
+  if (status !== 403) return false;
+  const retryAfter = response.headers?.get?.("retry-after");
+  const remaining = response.headers?.get?.("x-ratelimit-remaining");
+  return Boolean(retryAfter) || remaining === "0";
+}
+
 function retryDelay(response, attempt, baseDelayMs, maxDelayMs) {
   const requested = retryAfterMilliseconds(response);
   if (requested !== null) return Math.min(requested, maxDelayMs);
@@ -61,6 +70,7 @@ export async function requestWithRetry(
     maxAttempts = DEFAULT_MAX_ATTEMPTS,
     baseDelayMs = DEFAULT_BASE_DELAY_MS,
     maxDelayMs = DEFAULT_MAX_DELAY_MS,
+    token = process.env.GITHUB_TOKEN ?? "",
   } = {},
 ) {
   if (typeof fetchImpl !== "function") throw new Error("A fetch implementation is required.");
@@ -69,9 +79,15 @@ export async function requestWithRetry(
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     let response;
     try {
-      response = await fetchImpl(url, {
-        headers: { accept, "user-agent": "Johnny-Li-Design-System-Consumer/2.0" },
-      });
+      const headers = {
+        accept,
+        "user-agent": "Johnny-Li-Design-System-Consumer/2.0",
+      };
+      if (token && String(url).startsWith("https://api.github.com/")) {
+        headers.authorization = `Bearer ${token}`;
+        headers["x-github-api-version"] = "2022-11-28";
+      }
+      response = await fetchImpl(url, { headers });
     } catch (error) {
       lastNetworkError = error;
       if (attempt === maxAttempts) {
@@ -87,7 +103,7 @@ export async function requestWithRetry(
     if (response.ok) return response;
 
     const status = Number(response.status);
-    const retryable = RETRYABLE_STATUS.has(status) || status >= 500;
+    const retryable = isRetryableResponse(response);
     if (!retryable || attempt === maxAttempts) {
       throw new Error(
         `Design-system request failed: ${status} ${response.statusText || "HTTP error"}`
