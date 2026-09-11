@@ -135,11 +135,85 @@ async function metadataAt(sourceCommit, requestOptions) {
   return validateMetadata(await response.json(), sourceCommit);
 }
 
-export async function resolveLatestApprovedRelease({ requestOptions = {} } = {}) {
-  let targetVersion = null;
-  let approvedRelease = null;
+async function repositoryCommit(ref, requestOptions) {
+  const response = await requestWithRetry(
+    `https://api.github.com/repos/${REPOSITORY}/commits/${ref}`,
+    "application/vnd.github+json",
+    requestOptions,
+  );
+  const commit = await response.json();
+  const sourceCommit = String(commit?.sha ?? "");
+  if (!SHA.test(sourceCommit)) throw new Error("Design system returned an invalid commit SHA.");
+  return commit;
+}
+
+async function packagePayloadPaths(sourceCommit, requestOptions) {
+  const response = await requestWithRetry(
+    `https://raw.githubusercontent.com/${REPOSITORY}/${sourceCommit}/package.json`,
+    "application/json",
+    requestOptions,
+  );
+  const manifest = await response.json();
+  if (manifest?.name !== PACKAGE || manifest?.private !== false || !Array.isArray(manifest?.files)) {
+    throw new Error(`Design system ${sourceCommit} returned an invalid package manifest.`);
+  }
+  const paths = new Set(["package.json"]);
+  for (const value of manifest.files) {
+    const path = String(value ?? "").replace(/^\.\//, "").replace(/\/$/, "");
+    if (!path || path.startsWith("../") || path.includes("/../")) {
+      throw new Error(`Design system ${sourceCommit} returned an invalid package path.`);
+    }
+    paths.add(path);
+  }
+  return paths;
+}
+
+function touchesPackagePayload(commit, payloadPaths) {
+  const files = Array.isArray(commit?.files) ? commit.files : [];
+  return files.some(({ filename }) => {
+    const path = String(filename ?? "");
+    for (const payloadPath of payloadPaths) {
+      if (path === payloadPath || path.startsWith(`${payloadPath}/`)) return true;
+    }
+    return false;
+  });
+}
+
+async function latestPackageCommit({ releaseHead, approvalCommit, requestOptions }) {
+  const payloadPaths = await packagePayloadPaths(releaseHead, requestOptions);
 
   for (let page = 1; page <= MAX_HISTORY_PAGES; page += 1) {
+    const response = await requestWithRetry(
+      `https://api.github.com/repos/${REPOSITORY}/commits?sha=${releaseHead}&per_page=${HISTORY_PAGE_SIZE}&page=${page}`,
+      "application/vnd.github+json",
+      requestOptions,
+    );
+    const commits = await response.json();
+    if (!Array.isArray(commits)) throw new Error("Design system returned invalid commit history.");
+
+    for (const item of commits) {
+      const sourceCommit = String(item?.sha ?? "");
+      if (!SHA.test(sourceCommit)) throw new Error("Design system returned an invalid commit SHA.");
+      const detail = await repositoryCommit(sourceCommit, requestOptions);
+      if (touchesPackagePayload(detail, payloadPaths)) return sourceCommit;
+      if (sourceCommit === approvalCommit) {
+        throw new Error("Approved release boundary did not modify the package payload.");
+      }
+    }
+
+    if (commits.length < HISTORY_PAGE_SIZE) break;
+  }
+
+  throw new Error("Unable to locate package payload commit for approved release.");
+}
+
+export async function resolveLatestApprovedRelease({ requestOptions = {} } = {}) {
+  let approvalCommit = null;
+  let targetVersion = null;
+  let newerMetadataCommit = null;
+  let previousMetadataCommit = null;
+
+  for (let page = 1; page <= MAX_HISTORY_PAGES && !approvalCommit; page += 1) {
     const response = await requestWithRetry(
       `https://api.github.com/repos/${REPOSITORY}/commits?path=version.json&per_page=${HISTORY_PAGE_SIZE}&page=${page}`,
       "application/vnd.github+json",
@@ -152,29 +226,39 @@ export async function resolveLatestApprovedRelease({ requestOptions = {} } = {})
       const sourceCommit = String(commit?.sha ?? "");
       if (!SHA.test(sourceCommit)) throw new Error("Design system returned an invalid commit SHA.");
       const metadata = await metadataAt(sourceCommit, requestOptions);
-
-      if (targetVersion === null) {
-        if (metadata.status !== APPROVED_STATUS) continue;
+      if (metadata.status === APPROVED_STATUS) {
+        approvalCommit = sourceCommit;
         targetVersion = metadata.version;
-        approvedRelease = { package: PACKAGE, version: metadata.version, sourceCommit };
-        continue;
+        newerMetadataCommit = previousMetadataCommit;
+        break;
       }
-
-      if (metadata.version !== targetVersion || metadata.status !== APPROVED_STATUS) {
-        return approvedRelease;
-      }
-
-      // Walk backwards through metadata-only edits that left the same release
-      // approved. The oldest commit in this contiguous approved epoch is the
-      // immutable approval boundary consumers should pin.
-      approvedRelease = { package: PACKAGE, version: metadata.version, sourceCommit };
+      previousMetadataCommit = sourceCommit;
     }
 
     if (commits.length < HISTORY_PAGE_SIZE) break;
   }
 
-  if (!approvedRelease) throw new Error("Design system has no approved release in version history.");
-  return approvedRelease;
+  if (!approvalCommit || !targetVersion) {
+    throw new Error("Design system has no approved release in version history.");
+  }
+
+  let releaseHead;
+  if (newerMetadataCommit) {
+    const boundary = await repositoryCommit(newerMetadataCommit, requestOptions);
+    const parent = String(boundary?.parents?.[0]?.sha ?? "");
+    if (!SHA.test(parent)) throw new Error("Design-system candidate boundary has no valid parent commit.");
+    releaseHead = parent;
+  } else {
+    releaseHead = String((await repositoryCommit("main", requestOptions)).sha);
+  }
+
+  const sourceCommit = await latestPackageCommit({ releaseHead, approvalCommit, requestOptions });
+  const metadata = await metadataAt(sourceCommit, requestOptions);
+  if (metadata.version !== targetVersion || metadata.status !== APPROVED_STATUS) {
+    throw new Error("Resolved package source is outside the latest approved release epoch.");
+  }
+
+  return { package: PACKAGE, version: targetVersion, sourceCommit };
 }
 
 export async function updateConsumerRelease({
@@ -211,7 +295,7 @@ const invokedPath = process.argv[1] ? resolve(process.argv[1]) : null;
 if (invokedPath === fileURLToPath(import.meta.url)) {
   try {
     const release = await updateConsumerRelease(parseArguments(process.argv.slice(2)));
-    console.log(`Locked ${release.package} v${release.version} at approved commit ${release.sourceCommit}.`);
+    console.log(`Locked ${release.package} v${release.version} at approved package commit ${release.sourceCommit}.`);
   } catch (error) {
     console.error(`Error: ${error?.message ?? error}`);
     process.exitCode = 1;
