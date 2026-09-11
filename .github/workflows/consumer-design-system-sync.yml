@@ -120,5 +120,18 @@ jobs:
           if gh pr view "$branch" --json number >/dev/null 2>&1; then
             gh pr edit "$branch" --title "Update Web Design System to v${version}" --body "$body"
           else
-            gh pr create --draft --base main --head "$branch" --title "Update Web Design System to v${version}" --body "$body"
+            set +e
+            create_output=$(gh pr create --draft --base main --head "$branch" --title "Update Web Design System to v${version}" --body "$body" 2>&1)
+            create_status=$?
+            set -e
+            if [[ $create_status -ne 0 ]]; then
+              if grep -Fq "GitHub Actions is not permitted to create or approve pull requests" <<< "$create_output"; then
+                echo "::warning title=Design-system update branch published::${PRODUCT_NAME} was synchronized and validated on ${branch}, but this repository does not allow GitHub Actions to create pull requests. Create a pull request from ${branch} to main, or enable 'Allow GitHub Actions to create and approve pull requests' in repository Actions settings."
+                echo "$create_output"
+                exit 0
+              fi
+              echo "$create_output" >&2
+              exit "$create_status"
+            fi
+            echo "$create_output"
           fi
