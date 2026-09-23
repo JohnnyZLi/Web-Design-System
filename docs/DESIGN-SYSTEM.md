@@ -313,6 +313,34 @@ The homepage prioritizes a small number of strong editorial signals rather than 
 - Working Knowledge SHOULD optimize for signal and composition instead of forcing every skill into mutually exclusive taxonomy. Deeper or lower-signal evidence belongs in More Skills or the relevant experience/case-study content.
 - Homepage and case-study reveal motion remains product-owned, dependency-free CSS/JavaScript with reduced-motion support. A new motion library SHOULD NOT be added for ornament alone; it requires a concrete interaction need, measured benefit, and an ownership/performance rationale.
 
+#### Portfolio editorial composition
+
+The Portfolio uses a **Portfolio-owned editorial primitive layer** for recurring narrative structures across Privacy and stable case-study surfaces. This layer is local to the Portfolio consumer rather than a cross-product package primitive.
+
+The shared Portfolio editorial layer owns:
+
+- Numbered section-label geometry and type hierarchy
+- The twelve-column narrative copy grid
+- Serif lead typography
+- The supporting body column and paragraph rhythm
+- Responsive stacking of those structures at Portfolio breakpoints
+- The primary-accent treatment for deliberately source-authored lead emphasis
+
+Existing `.case-*` and `.privacy-*` hooks remain supported compatibility selectors while generic `.portfolio-*` aliases are available for new narrative surfaces. Equivalent base declarations MUST NOT be copied back into page-specific styles after the shared layer is adopted. Page-specific composition such as Privacy boundaries, case-study process/decision groups, metrics, heroes, and next-project sections remains product-local.
+
+**Terracotta restraint**
+
+Terracotta is a hierarchy signal, not a default treatment for editorial prose:
+
+- Section numbers, compact markers, arrows, and similar metadata use the decorative accent role.
+- Large narrative leads remain neutral by default.
+- A lead MAY contain a source-authored primary-accent phrase when that phrase carries a specific semantic emphasis.
+- Multiple consecutive leads SHOULD NOT each contain terracotta emphasis; repeated highlighting weakens hierarchy and makes the accent decorative rather than meaningful.
+- Privacy intentionally uses one large lead accent—`local result storage` in the Network Diagnostics section—while its other large leads remain neutral.
+- Case studies MAY use more than one narrative accent across a long page when those accents are separated by substantial content and mark distinct engineering ideas.
+
+Automated Portfolio validation SHOULD protect both sides of this contract: page-specific styles should not re-own the shared label/grid/lead/body primitives, and deliberate accent-count rules MAY be used on pages whose emphasis cadence is intentionally constrained.
+
 #### Portfolio footer contract
 
 The Portfolio footer is a **Portfolio-owned reusable component**, not a cross-product footer primitive. Its purpose is to prevent page-level footer drift inside `johnnyli.dev` while preserving product ownership boundaries.
