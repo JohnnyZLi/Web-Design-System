@@ -3,7 +3,7 @@
 ## 1. Status and normative language
 
 **Version:** 1.9.0  
-**Documentation revision:** 2026-08-10  
+**Documentation revision:** 2026-09-23  
 **Package status:** Approved  
 **Production visual baseline:** Approved  
 **Owner:** Johnny Li
@@ -312,6 +312,35 @@ The homepage prioritizes a small number of strong editorial signals rather than 
 - The native `details`/`summary` More Skills disclosure adds exactly three deeper groups: `Protocol internals & network analysis`, `Tooling & validation`, and `Systems & endpoint operations`. The disclosure remains visually secondary and editorial rather than becoming another dashboard or resume grid.
 - Working Knowledge SHOULD optimize for signal and composition instead of forcing every skill into mutually exclusive taxonomy. Deeper or lower-signal evidence belongs in More Skills or the relevant experience/case-study content.
 - Homepage and case-study reveal motion remains product-owned, dependency-free CSS/JavaScript with reduced-motion support. A new motion library SHOULD NOT be added for ornament alone; it requires a concrete interaction need, measured benefit, and an ownership/performance rationale.
+
+#### Portfolio footer contract
+
+The Portfolio footer is a **Portfolio-owned reusable component**, not a cross-product footer primitive. Its purpose is to prevent page-level footer drift inside `johnnyli.dev` while preserving product ownership boundaries.
+
+All stable Portfolio surfaces except HOPSCOTCH MUST use the same footer visual contract:
+
+- Portfolio homepage
+- Privacy
+- Stable non-HOPSCOTCH case studies
+- Network Diagnostics technical report
+
+The rendered structure uses the product-owned `.portfolio-footer`, `.portfolio-footer__inner`, and `.portfolio-footer__links` hooks together with the shared inverse-surface role. Footer copy and destinations MAY vary by page; structure, geometry, responsive behavior, and surface treatment MUST NOT.
+
+The approved expression is:
+
+- Full-width inverse surface with no card radius, floating shell, shadow, or separate page-specific background
+- One content-shell-aligned top rule
+- Muted owner identity on the left and a compact destination group on the right at wider widths
+- The same typography, link spacing, hover/focus hierarchy, and inverse focus-gap treatment on every participating surface
+- A stacked owner/destination composition at 560px and below
+- The standard inverse surface in Light mode and the Portfolio's approved solid-black inverse expression in Dark mode
+- Page-owned link labels and destinations without page-owned footer geometry or theme logic
+
+A participating page MUST NOT re-create the footer with a different wrapper, background token, responsive rule, radius, or shadow merely because its surrounding content is different.
+
+HOPSCOTCH is an explicit temporary exception while its interface is undergoing a separate major redesign. That exception applies only to HOPSCOTCH and MUST NOT be generalized to other Portfolio surfaces.
+
+Automated Portfolio validation SHOULD assert the shared footer is present on participating routes and SHOULD verify the resolved inverse background, top rule, responsive containment, and destination-group presence in both Light and Dark themes.
 
 #### Portfolio case-study contract
 
