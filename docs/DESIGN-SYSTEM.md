@@ -3,7 +3,7 @@
 ## 1. Status and normative language
 
 **Version:** 1.9.0  
-**Documentation revision:** 2026-09-23  
+**Documentation revision:** 2026-10-03\
 **Package status:** Approved  
 **Production visual baseline:** Approved  
 **Owner:** Johnny Li
@@ -306,11 +306,11 @@ Preserve editorial composition, spacing, terracotta hierarchy, source-authored h
 
 The homepage prioritizes a small number of strong editorial signals rather than maximizing visible UI or animation:
 
-- The hero keeps its sans/serif composition and uses primary terracotta on the source-authored emphasis words `systems` and `rely on.` while surrounding text remains the dominant neutral.
-- The About statement is the concise three-part line `hardware, software, and people`, with those three concepts carrying the terracotta editorial emphasis.
-- Working Knowledge exposes exactly three high-signal groups: `Networking & infrastructure`, `Software & platform engineering`, and the quieter full-width `Cloud, automation & delivery` band.
+- The hero keeps its sans/serif composition and uses primary terracotta on the source-authored principle `built to be understood`, following the neutral domain lines `Networks, systems,` and `and infrastructure`. This display composition is distinct from the small inline phrase used in narrative leads.
+- The About statement reads `I like systems where evidence, state, and failure can be inspected instead of guessed.` The three connected concepts `evidence`, `state`, and `failure` carry the terracotta editorial emphasis while the rest stays neutral.
+- Technical Focus exposes exactly three high-signal groups: `Networking & protocols`, `Automation & systems development`, and the quieter full-width `Platforms & operations` band.
 - The native `details`/`summary` More Skills disclosure adds exactly three deeper groups: `Protocol internals & network analysis`, `Tooling & validation`, and `Systems & endpoint operations`. The disclosure remains visually secondary and editorial rather than becoming another dashboard or resume grid.
-- Working Knowledge SHOULD optimize for signal and composition instead of forcing every skill into mutually exclusive taxonomy. Deeper or lower-signal evidence belongs in More Skills or the relevant experience/case-study content.
+- Technical Focus SHOULD optimize for signal and composition instead of forcing every skill into mutually exclusive taxonomy. Deeper or lower-signal evidence belongs in More Skills or the relevant experience/case-study content.
 - Homepage and case-study reveal motion remains product-owned, dependency-free CSS/JavaScript with reduced-motion support. A new motion library SHOULD NOT be added for ornament alone; it requires a concrete interaction need, measured benefit, and an ownership/performance rationale.
 
 #### Portfolio editorial composition
@@ -328,18 +328,21 @@ The shared Portfolio editorial layer owns:
 
 Existing `.case-*` and `.privacy-*` hooks remain supported compatibility selectors while generic `.portfolio-*` aliases are available for new narrative surfaces. Equivalent base declarations MUST NOT be copied back into page-specific styles after the shared layer is adopted. Page-specific composition such as Privacy boundaries, case-study process/decision groups, metrics, heroes, and next-project sections remains product-local.
 
-**Terracotta restraint**
+**Terracotta emphasis and cadence**
 
-Terracotta is a hierarchy signal, not a default treatment for editorial prose:
+Large editorial leads stay predominantly neutral, with a small, meaningful terracotta phrase creating emphasis inside the sentence:
 
-- Section numbers, compact markers, arrows, and similar metadata use the decorative accent role.
-- Large narrative leads remain neutral by default.
-- A lead MAY contain a source-authored primary-accent phrase when that phrase carries a specific semantic emphasis.
-- Multiple consecutive leads SHOULD NOT each contain terracotta emphasis; repeated highlighting weakens hierarchy and makes the accent decorative rather than meaningful.
-- Privacy intentionally uses one large lead accent—`local result storage` in the Network Diagnostics section—while its other large leads remain neutral.
-- Case studies MAY use more than one narrative accent across a long page when those accents are separated by substantial content and mark distinct engineering ideas.
+- A lead SHOULD emphasize one concise phrase when it helps identify the section's promise, behavior, result, or limitation. Usually one to three words is enough; grammar or meaning MAY justify a slightly longer phrase. This is an editorial guide, not a fixed word quota.
+- Emphasis is authored in the source around the actual idea. Entire lead or body sentences MUST NOT be colored as a shortcut, and a long clause SHOULD be reduced to its semantic core. Negation and qualifications MUST retain their meaning; include them in the accent when omitting them would reverse the emphasized claim.
+- Consecutive leads MAY each contain a short accent when they mark distinct ideas. Review the colored extent and line wrapping within each lead rather than imposing a page-wide accent quota. A lead MAY remain entirely neutral when emphasis adds no useful distinction.
+- Prominent text uses `--jl-color-accent` or the Portfolio alias `--clay-text`. Section numbers and compact metadata on the canvas use the decorative accent role; secondary inverse-surface arrows, underlines, and borders use the soft role under the inverse-section contract.
+- Hero headlines and contact compositions retain their own display treatment. The homepage About statement's short connected list of `evidence`, `state`, and `failure` is also a deliberate editorial expression, rather than three unrelated accents.
 
-Automated Portfolio validation SHOULD protect both sides of this contract: page-specific styles should not re-own the shared label/grid/lead/body primitives, and deliberate accent-count rules MAY be used on pages whose emphasis cadence is intentionally constrained.
+Privacy's selected phrases are `visitor profiles`, `functional preference`, `local result storage`, `processing traffic`, and `different storage requirements`. Each marks a different privacy boundary while its surrounding sentence remains neutral. Case-study examples include `calls stall`, `delivery path`, `start a review`, and `evidence of behavior`.
+
+The shared editorial layer supplies geometry, typography, and the emphasis style. Content selects the phrase; the primitive MUST NOT inject emphasis or force every section into the same composition. Privacy's wider Network Diagnostics lead and boundary columns remain page-owned.
+
+Automated Portfolio validation SHOULD protect shared label/grid/lead/body ownership and the predominantly neutral lead treatment. It MUST NOT impose a fixed page-wide accent count or turn the usual phrase length into a universal word limit.
 
 #### Portfolio footer contract
 
@@ -389,7 +392,7 @@ The approved case-study pages use an open editorial composition rather than a ca
 - `--jl-color-accent` or its documented portfolio alias is used for readable emphasis on light surfaces and selected high-emphasis phrases on inverse surfaces.
 - `--jl-color-accent-decorative` or its alias is used for small section numbers, process markers, decision markers, metric labels, and low-opacity decorative mixtures.
 - `--jl-color-accent-soft` or its alias is used for secondary inverse-surface details such as small labels, arrows, underlines, and restrained link borders.
-- Large narrative leads remain ink by default. Terracotta emphasis is source-authored around selected clauses or phrases only; entire lead or body sentences MUST NOT be colored as a shortcut.
+- Large narrative leads remain predominantly neutral and follow the Portfolio editorial emphasis contract above: a small, source-authored phrase marks the meaningful idea while the surrounding prose stays neutral. Entire lead or body sentences MUST NOT be colored as a shortcut.
 - Normal scrolling SHOULD retain a meaningful terracotta cadence through selective lead emphasis, metric labels, output accents, or inverse-section emphasis rather than relying only on tiny section numbers.
 - Metric values remain ink. Their compact uppercase labels use the decorative terracotta role and a bold weight.
 - Dark code or evidence panels MAY use a subtle token-derived terracotta wash and a primary-accent edge. Raw color copies are not conforming.
